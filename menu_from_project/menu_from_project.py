@@ -89,8 +89,6 @@ class menu_from_project:
         # old single project conf         
         filePath = s.value("menu_from_project/projectFilePath", "")
         
-        #QgsMessageLog.logMessage('-'+filePath+'-', 'Extensions')
-        
         if (filePath != "" and filePath != None):
             title = str(filePath).split('/')[-1]
             title = str(title).split('.')[0]
@@ -108,12 +106,10 @@ class menu_from_project:
             s.endArray()
 
             size = s.beginReadArray("menu_from_project/projects")
-            #QgsMessageLog.logMessage(str(size), 'Extensions')
             for i in range(size):
                 s.setArrayIndex(i)
                 file = s.value("file", "")
                 name = s.value("name", "")
-                #QgsMessageLog.logMessage(name, 'Extensions')
                 if file != "":
                     self.projects.append({"file":file, "name":name})
                     
@@ -154,8 +150,9 @@ class menu_from_project:
         xml = file(unicode(fileName)).read()
         doc = QtXml.QDomDocument()
         doc.setContent(xml)
-
+        
         maplayers = doc.elementsByTagName("maplayer")
+
         for i in range(maplayers.size()):
             ml = maplayers.item(i)
             idelt = ml.toElement().elementsByTagName("id")
@@ -165,9 +162,9 @@ class menu_from_project:
                 id = idelt.item(0).toElement().text()
             
             if (id == layerId):
-                return m1
+                return ml
             
-            return None
+        return None
         
     def addMenuItem(self, filename, node, menu, domdoc):
         yaLayer = False
@@ -207,23 +204,24 @@ class menu_from_project:
                                 
                             if (id == layerId):
                                 # embedded layers ?
+                                embeddedFilename = ""
                                 if (attrEmbedded == "1"):
-                                    embeddedFilename = ml.toElement().attribute("project", "")
-                                    # read embedded project
-                                    if not absolute and (embeddedFilename.find(".")==0):
-                                        embeddedFilename = projectpath + "/" + embeddedFilename
-                                        QgsMessageLog.logMessage('addMenuItem '+embeddedFilename, 'Extensions')
+                                    try:
+                                        embeddedFilename = ml.toElement().attribute("project", "")
+                                        # read embedded project
+                                        if not absolute and (embeddedFilename.find(".")==0):
+                                            embeddedFilename = projectpath + "/" + embeddedFilename
 
-                                    ml = self.getMaplayerDomFromQgs(embeddedFilename, id)
-                                    filename = embeddedFilename
+                                        ml = self.getMaplayerDomFromQgs(embeddedFilename, id)
+                                        filename = embeddedFilename
+                                    except:
+                                        pass
                             
                                 if ml != None:
-                                    #QgsMessageLog.logMessage("m1 ok", 'Extensions')
                                     try:
                                         title = ml.toElement().elementsByTagName("title").item(0).toElement().text()
-                                        #QgsMessageLog.logMessage(title, 'Extensions')
-                                            
                                         abstract = ml.toElement().elementsByTagName("abstract").item(0).toElement().text()
+                                        
                                         action.setStatusTip(title)
                                         if (abstract != "") and (title == ""):
                                             action.setToolTip("<p>"+abstract+"</p>")
@@ -233,12 +231,12 @@ class menu_from_project:
                                             else:
                                                 action.setToolTip("-")
                                     except:
-                                        #raise
                                         pass
+                                else:
+                                    QgsMessageLog.logMessage(id+" not found in project "+embeddedFilename, 'Extensions')
                                     
                                 break
                     except:
-                        #raise
                         pass
                 
                 menu.addAction(action)
@@ -246,7 +244,6 @@ class menu_from_project:
                 helper = lambda _filename,_who,_menu: (lambda: self.do_aeag_menu(_filename, _who, _menu))
                 action.triggered.connect(helper(filename, layerId, menu))
             except:
-                #raise
                 pass
             
             node = node.nextSibling()
@@ -326,14 +323,12 @@ class menu_from_project:
     def initMenus(self):
         menuBar = self.iface.editMenu().parentWidget()
         for action in self.menubarActions:
-            #QMessageBox.information(None, "Cancel", str("del"))
             menuBar.removeAction(action)
             del(action)
             
         self.menubarActions = []
 
         for project in self.projects:
-            #QMessageBox.information(None, "Cancel", str("open " + _toAscii(project["name"])))
             try:
                 xml = file(unicode(project["file"])).read()
                 doc = QtXml.QDomDocument()
@@ -341,7 +336,6 @@ class menu_from_project:
                 
                 self.addMenu(project["name"], project["file"], doc)
             except:
-                #raise
                 QgsMessageLog.logMessage('Menu from layer : invalid ' + str(project["file"]), 'Extensions')
                 pass
         
@@ -442,7 +436,6 @@ class menu_from_project:
                                         newlayerpath = projectpath + "/" + datasource 
                                         datasourceNode.firstChild().toText().setData(newlayerpath)
                                 except:
-                                    #raise
                                     pass
                             
                             # read modified layer node
@@ -456,25 +449,18 @@ class menu_from_project:
                                     self.iface.legendInterface().refreshLayerSymbology(theLayer)
                                     self.iface.legendInterface().moveLayer(theLayer, idxGroup)
                                     self.iface.legendInterface().refreshLayerSymbology(theLayer)
-                                #else:
-                                #    if idxGroup == 0:
-                                #        self.iface.mainWindow().statusBar().showMessage("Group not found ?")
-                                #    if theLayer == None:
-                                #        self.iface.mainWindow().statusBar().showMessage("Layer not found ?")
                                     
                             break
                             
                     i=i+1        
         except:
-            #raise
             QgsMessageLog.logMessage('Menu from layer : invalid ' + filename, 'Extensions')
             pass
         
         self.canvas.freeze(False)    
         self.canvas.setRenderFlag(True)
         self.canvas.setDirty(True)
-        #self.canvas.refresh()    
-        
+       
     def do_help(self):
         try:
             self.hdialog = QDialog()
