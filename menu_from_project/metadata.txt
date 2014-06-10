@@ -27,9 +27,9 @@ changelog=0.7 : Works with "relative path" projects, and embedded layers
 # tags are comma separated with spaces allowed
 tags=menu layer project
 
-homepage=http://hub.qgis.org/projects/menu-from-project
+homepage=https://github.com/xcaeag/MenuFromProject-Qgis-Plugin
 tracker=http://hub.qgis.org/projects/menu-from-project/issues
-repository=
+repository=https://github.com/xcaeag/MenuFromProject-Qgis-Plugin
 icon=menu_from_project.png
 # experimental flag
 experimental=False
