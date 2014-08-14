@@ -10,16 +10,17 @@
 
 [general]
 name=Layers menu from project
-qgisMinimumVersion=2.2
+qgisMinimumVersion=2.4
 description=Build layers shortcuts menus based on QGis projects
-version=0.7
+version=0.7.1
 
 # end of mandatory metadata
 
 # Optional items:
 
 # Uncomment the following line and add your changelog entries:
-changelog=0.7 : Works with "relative path" projects, and embedded layers
+changelog=0.7.1 : QGis 2.4 compatible. Deprecated functions are deleted
+    0.7 : Works with "relative path" projects, and embedded layers
     0.6 : QGis 2.2 compatible 
     0.5 : QGis 2.0 compatible 
 	0.4.1 : Load all layers item, create group option (dev version 1.9)

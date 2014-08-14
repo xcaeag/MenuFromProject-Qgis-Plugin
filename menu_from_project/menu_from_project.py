@@ -459,7 +459,7 @@ class menu_from_project:
         
         self.canvas.freeze(False)    
         self.canvas.setRenderFlag(True)
-        self.canvas.setDirty(True)
+        self.canvas.refresh()
        
     def do_help(self):
         try:
