@@ -36,6 +36,21 @@ from menu_conf_dlg import menu_conf_dlg
 import resources
 
 
+def getFirstChildByTagNameValue(elt, tagName, key, value):
+    nodes = elt.elementsByTagName(tagName)
+    i=0
+    while i<nodes.count():
+        node = nodes.at(i)
+        idNode = node.namedItem(key)
+        if idNode != None:
+            id = idNode.firstChild().toText().data()
+            # layer founds
+            if id == value:
+                return node
+        i += 1
+        
+    return None
+
 class menu_from_project: 
 
     def __init__(self, iface):
@@ -100,7 +115,7 @@ class menu_from_project:
             for i in range(size):
                 s.setArrayIndex(i)
                 file = ((s.value("file").toString()))
-                name =((s.value("name").toString()))
+                name = ((s.value("name").toString()))
                 if file != "":
                     self.projects.append({"file":file, "name":(name)})
             s.endArray()
@@ -155,11 +170,11 @@ class menu_from_project:
 
         for i in range(maplayers.size()):
             ml = maplayers.item(i)
-            idelt = ml.toElement().elementsByTagName("id")
+            idelt = ml.namedItem("id")
             id = ""
             
             if (idelt != None):
-                id = idelt.item(0).toElement().text()
+                id = idelt.firstChild().toText().data()
             
             if (id == layerId):
                 return ml
@@ -175,28 +190,24 @@ class menu_from_project:
             
         element = node.toElement()
         
-        absolute = self.isAbsolute(domdoc)
-        projectpath = QFileInfo(os.path.realpath(filename)).path()
-
         # if legendlayer tag
-        if element.tagName() == "legendlayer":
+        if node.nodeName() == "legendlayer":
             try:
-                legendlayerfiles = node.toElement().elementsByTagName("legendlayerfile")
-                legendlayerfile = legendlayerfiles.item(0)
-                layerId = legendlayerfile.toElement().attribute("layerid")
+                legendlayerfileElt = element.firstChild().firstChildElement("legendlayerfile")
+                layerId = legendlayerfileElt.attribute("layerid")
                 action = QAction(element.attribute("name"), self.iface.mainWindow())
+                #messageLog("Layer %s" % (element.attribute("name")))
                 
                 if (self.optionTooltip == (True)): 
                     try:
                         maplayers = domdoc.elementsByTagName("maplayer")
-                        # @todo: optimization
                         for i in range(maplayers.size()):
                             ml = maplayers.item(i)
-                            idelt = ml.toElement().elementsByTagName("id")
+                            idelt = ml.namedItem("id")
                             id = ""
                             
                             if (idelt != None):
-                                id = idelt.item(0).toElement().text()
+                                id = idelt.firstChild().toText().data()
                             
                             attrEmbedded = ml.toElement().attribute("embedded", "0")
                             if (attrEmbedded == "1"):
@@ -209,8 +220,8 @@ class menu_from_project:
                                     try:
                                         embeddedFilename = ml.toElement().attribute("project", "")
                                         # read embedded project
-                                        if not absolute and (embeddedFilename.find(".")==0):
-                                            embeddedFilename = projectpath + "/" + embeddedFilename
+                                        if not self.absolute and (embeddedFilename.find(".")==0):
+                                            embeddedFilename = self.projectpath + "/" + embeddedFilename
 
                                         ml = self.getMaplayerDomFromQgs(embeddedFilename, id)
                                         filename = embeddedFilename
@@ -219,15 +230,15 @@ class menu_from_project:
                             
                                 if ml != None:
                                     try:
-                                        title = ml.toElement().elementsByTagName("title").item(0).toElement().text()
-                                        abstract = ml.toElement().elementsByTagName("abstract").item(0).toElement().text()
+                                        title = ml.namedItem("title").firstChild().toText().data()
+                                        abstract = ml.namedItem("abstract").firstChild().toText().data()
                                         
                                         action.setStatusTip(title)
                                         if (abstract != "") and (title == ""):
-                                            action.setToolTip("<p>"+abstract+"</p>")
+                                            action.setToolTip("<p>%s</p>" % (abstract))
                                         else:
                                             if (abstract != "" or title != ""):
-                                                action.setToolTip("<b>"+title + "</b><br/>" + abstract)
+                                                action.setToolTip("<b>%s</b>%s<br/>" % (title, abstract))
                                             else:
                                                 action.setToolTip("-")
                                     except:
@@ -246,21 +257,21 @@ class menu_from_project:
             except:
                 pass
             
-            node = node.nextSibling()
-            if (node != None):
+            nextNode = node.nextSibling()
+            if (nextNode != None):
                 # ! recursion
-                self.addMenuItem(initialFilename, node, menu, domdoc)
+                self.addMenuItem(initialFilename, nextNode, menu, domdoc)
         # / if element.tagName() == "legendlayer":
                 
         # if legendgroup tag
-        if element.tagName() == "legendgroup":
+        if node.nodeName() == "legendgroup":
             name = element.attribute("name")
             if name == "-":
                 menu.addSeparator()
-                node = node.nextSibling()
-                if (node != None):
+                nextNode = node.nextSibling()
+                if (nextNode != None):
                     # ! recursion
-                    self.addMenuItem(initialFilename, node, menu, domdoc)
+                    self.addMenuItem(initialFilename, nextNode, menu, domdoc)
 
             elif name.startswith("-"):
                 action = QAction(name[1:], self.iface.mainWindow())
@@ -275,6 +286,8 @@ class menu_from_project:
                     self.addMenuItem(initialFilename, nextNode, menu, domdoc)
                     
             else:
+                #messageLog("Group %s" % (element.attribute("name")))
+                
                 # construire sous-menu
                 sousmenu = menu.addMenu('&'+element.attribute("name"))
                 sousmenu.menuAction().setToolTip("-")
@@ -312,6 +325,9 @@ class menu_from_project:
         projectAction = menuBar.addMenu(projectMenu)
         self.menubarActions.append(projectAction);
 
+        self.absolute = self.isAbsolute(domdoc)
+        self.projectpath = QFileInfo(os.path.realpath(filename)).path()
+
         # build menu on legend schema
         legends = domdoc.elementsByTagName("legend")
         if (legends.length() > 0):
@@ -319,7 +335,7 @@ class menu_from_project:
             if (node != None):
                 node = node.firstChild()
                 self.addMenuItem(filename, node, projectMenu, domdoc)
-
+    
     def initMenus(self):
         menuBar = self.iface.editMenu().parentWidget()
         for action in self.menubarActions:
@@ -328,6 +344,7 @@ class menu_from_project:
             
         self.menubarActions = []
 
+        QgsApplication.setOverrideCursor(Qt.WaitCursor)
         for project in self.projects:
             try:
                 xml = file(unicode(project["file"])).read()
@@ -338,6 +355,8 @@ class menu_from_project:
             except:
                 QgsMessageLog.logMessage('Menu from layer : invalid ' + str(project["file"]), 'Extensions')
                 pass
+            
+        QgsApplication.restoreOverrideCursor()
         
     def initGui(self):          
         self.act_aeag_menu_config = QAction(QApplication.translate("menu_from_project", "Projects configuration", None, QApplication.UnicodeUTF8)+"...", self.iface.mainWindow())
@@ -383,6 +402,7 @@ class menu_from_project:
         idxGroup = None
         theLayer = None
         groupName = None
+        QgsApplication.setOverrideCursor(Qt.WaitCursor)
 
         try:
             if type(menu.parentWidget()) == QMenu and self.optionCreateGroup:
@@ -408,51 +428,43 @@ class menu_from_project:
                 # is project in relative path ?                
                 absolute = self.isAbsolute(doc)
 
-                layers = doc.elementsByTagName("maplayer")
-                i=0
-                while i<layers.count():
-                    node = layers.at(i)
+                #messageLog("Search %s" % (who));
+                node = getFirstChildByTagNameValue(doc.documentElement(), "maplayer", "id", who)
+                if node != None:
                     idNode = node.namedItem("id")
-                    if idNode != None:
-                           
-                        id = idNode.firstChild().toText().data()
-                        # layer founds
-                        if id == who:
-                            # give it a new id (for multiple import)
-                            import uuid
-                            newLayerId = QUuid.createUuid().toString()
-                            idNode.firstChild().toText().setData(newLayerId)
+                    # give it a new id (for multiple import)
+                    import uuid
+                    newLayerId = QUuid.createUuid().toString()
+                    idNode.firstChild().toText().setData(newLayerId)
 
-                            # if relative path, adapt datasource
-                            if not absolute:
-                                try:
-                                    datasourceNode = node.namedItem("datasource")
-                                    datasource = datasourceNode.firstChild().toText().data()
-                                    providerNode = node.namedItem("provider")
-                                    provider = providerNode.firstChild().toText().data()
-                                
-                                    if provider == "ogr" and (datasource.find(".")==0):
-                                        projectpath = QFileInfo(os.path.realpath(filename)).path()
-                                        newlayerpath = projectpath + "/" + datasource 
-                                        datasourceNode.firstChild().toText().setData(newlayerpath)
-                                except:
-                                    pass
+                    # if relative path, adapt datasource
+                    if not absolute:
+                        try:
+                            datasourceNode = node.namedItem("datasource")
+                            datasource = datasourceNode.firstChild().toText().data()
+                            providerNode = node.namedItem("provider")
+                            provider = providerNode.firstChild().toText().data()
+                        
+                            if provider == "ogr" and (datasource.find(".")==0):
+                                projectpath = QFileInfo(os.path.realpath(filename)).path()
+                                newlayerpath = projectpath + "/" + datasource 
+                                datasourceNode.firstChild().toText().setData(newlayerpath)
+                        except:
+                            pass
+                    
+                    # read modified layer node
+                    QgsProject.instance().read(node)
                             
-                            # read modified layer node
-                            QgsProject.instance().read(node)
-                                    
-                            if self.optionCreateGroup:
-                                theLayer = QgsMapLayerRegistry.instance().mapLayer(newLayerId)
-                                
-                                if idxGroup >= 0 and theLayer != None:
-                                    self.iface.mainWindow().statusBar().showMessage("Move to group "+str(idxGroup))
-                                    self.iface.legendInterface().refreshLayerSymbology(theLayer)
-                                    self.iface.legendInterface().moveLayer(theLayer, idxGroup)
-                                    self.iface.legendInterface().refreshLayerSymbology(theLayer)
-                                    
-                            break
+                    if self.optionCreateGroup:
+                        theLayer = QgsMapLayerRegistry.instance().mapLayer(newLayerId)
+                        
+                        if idxGroup >= 0 and theLayer != None:
+                            self.iface.mainWindow().statusBar().showMessage("Move to group "+str(idxGroup))
+                            self.iface.legendInterface().refreshLayerSymbology(theLayer)
+                            self.iface.legendInterface().moveLayer(theLayer, idxGroup)
+                            self.iface.legendInterface().refreshLayerSymbology(theLayer)
+                    
                             
-                    i=i+1        
         except:
             QgsMessageLog.logMessage('Menu from layer : invalid ' + filename, 'Extensions')
             pass
@@ -460,6 +472,8 @@ class menu_from_project:
         self.canvas.freeze(False)    
         self.canvas.setRenderFlag(True)
         self.canvas.refresh()
+        QgsApplication.restoreOverrideCursor()
+      
        
     def do_help(self):
         try:
