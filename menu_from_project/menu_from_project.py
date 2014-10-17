@@ -433,9 +433,13 @@ class menu_from_project:
                 if node != None:
                     idNode = node.namedItem("id")
                     # give it a new id (for multiple import)
-                    import uuid
-                    newLayerId = QUuid.createUuid().toString()
-                    idNode.firstChild().toText().setData(newLayerId)
+                    try:
+                        import uuid
+                        import re
+                        newLayerId = "L%s" % re.sub("[{}-]", "", QUuid.createUuid().toString())
+                        idNode.firstChild().toText().setData(newLayerId)
+                    except:
+                        pass
 
                     # if relative path, adapt datasource
                     if not absolute:
