@@ -1,4 +1,5 @@
-﻿"""
+# -*- coding: utf-8 -*-
+"""
 /***************************************************************************
 Name            : menu_from_project plugin
 Description          : Build layers shortcut menu based on QGis project

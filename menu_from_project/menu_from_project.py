@@ -1,4 +1,5 @@
-﻿"""
+# -*- coding: utf-8 -*-
+"""
 /***************************************************************************
 Name            : menu_from_project plugin
 Description          : Build layers shortcut menu based on QGis project
@@ -16,9 +17,8 @@ email                : xavier.culos@eau-adour-garonne.fr
 *                                                                         *
 ***************************************************************************/
 
-@todo: alerte si le projet est configuré <Paths><Absolute>False 
-
 """
+from __future__ import unicode_literals
 # Import the PyQt and QGIS libraries
 import os
 import sys
@@ -38,17 +38,12 @@ import resources
 
 def getFirstChildByTagNameValue(elt, tagName, key, value):
     nodes = elt.elementsByTagName(tagName)
-    i=0
-    while i<nodes.count():
-        node = nodes.at(i)
+    for node in (nodes.at(i) for i in range(nodes.size())):
         idNode = node.namedItem(key)
-        if idNode != None:
-            id = idNode.firstChild().toText().data()
+        if idNode and value == idNode.firstChild().toText().data():
             # layer founds
-            if id == value:
-                return node
-        i += 1
-        
+            return node
+            
     return None
 
 class menu_from_project: 
@@ -90,7 +85,7 @@ class menu_from_project:
         s.setValue("menu_from_project/optionLoadAll", (self.optionLoadAll))
         
         s.beginWriteArray("menu_from_project/projects")
-        for project  in self.projects:
+        for project in self.projects:
             s.setArrayIndex(index)
             s.setValue("file", project["file"])
             s.setValue("name", project["name"])
@@ -100,45 +95,44 @@ class menu_from_project:
 
     def read(self):
         s = QSettings()
-        #try:
-        # old single project conf         
-        filePath = s.value("menu_from_project/projectFilePath", "")
-        
-        if (filePath != "" and filePath != None):
-            title = str(filePath).split('/')[-1]
-            title = str(title).split('.')[0]
-            self.projects.append({"file":filePath, "name":title})
-            self.store()
-        else:
-            # patch : lecture ancienne conf
-            size = s.beginReadArray("projects")
-            for i in range(size):
-                s.setArrayIndex(i)
-                file = ((s.value("file").toString()))
-                name = ((s.value("name").toString()))
-                if file != "":
-                    self.projects.append({"file":file, "name":(name)})
-            s.endArray()
-
-            size = s.beginReadArray("menu_from_project/projects")
-            for i in range(size):
-                s.setArrayIndex(i)
-                file = s.value("file", "")
-                name = s.value("name", "")
-                if file != "":
-                    self.projects.append({"file":file, "name":name})
-                    
-            s.endArray()
-        
-        self.optionTooltip = s.value("menu_from_project/optionTooltip", (True), type=bool)
-        
-        # create group option only since 1.9
-        self.optionCreateGroup = s.value("menu_from_project/optionCreateGroup", (False), type=bool)
+        try:
+            # old single project conf         
+            filePath = s.value("menu_from_project/projectFilePath", "")
             
-        self.optionLoadAll = s.value("menu_from_project/optionLoadAll", (False), type=bool)
-        
-        #except:
-        #    pass
+            if filePath:
+                title = str(filePath).split('/')[-1]
+                title = str(title).split('.')[0]
+                self.projects.append({"file":filePath, "name":title})
+                self.store()
+            else:
+                # patch : lecture ancienne conf
+                size = s.beginReadArray("projects")
+                for i in range(size):
+                    s.setArrayIndex(i)
+                    file = ((s.value("file").toString()))
+                    name = ((s.value("name").toString()))
+                    if file:
+                        self.projects.append({"file":file, "name":(name)})
+                s.endArray()
+
+                size = s.beginReadArray("menu_from_project/projects")
+                for i in range(size):
+                    s.setArrayIndex(i)
+                    file = s.value("file", "")
+                    name = s.value("name", "")
+                    if file != "":
+                        self.projects.append({"file":file, "name":name})
+                        
+                s.endArray()
+            
+            self.optionTooltip = s.value("menu_from_project/optionTooltip", (True), type=bool)
+            
+            # create group option only since 1.9
+            self.optionCreateGroup = s.value("menu_from_project/optionCreateGroup", (False), type=bool)
+            self.optionLoadAll = s.value("menu_from_project/optionLoadAll", (False), type=bool)
+            
+        except:
+            pass
         
     def isAbsolute(self, doc):
         absolute = False
@@ -167,16 +161,11 @@ class menu_from_project:
         doc.setContent(xml)
         
         maplayers = doc.elementsByTagName("maplayer")
-
-        for i in range(maplayers.size()):
-            ml = maplayers.item(i)
+        for ml in (maplayers.item(i) for i in range(maplayers.size())):
             idelt = ml.namedItem("id")
             id = ""
             
-            if (idelt != None):
-                id = idelt.firstChild().toText().data()
-            
-            if (id == layerId):
+            if idelt and layerId == idelt.firstChild().toText().data():
                 return ml
             
         return None
@@ -196,13 +185,11 @@ class menu_from_project:
                 legendlayerfileElt = element.firstChild().firstChildElement("legendlayerfile")
                 layerId = legendlayerfileElt.attribute("layerid")
                 action = QAction(element.attribute("name"), self.iface.mainWindow())
-                #messageLog("Layer %s" % (element.attribute("name")))
                 
                 if (self.optionTooltip == (True)): 
                     try:
                         maplayers = domdoc.elementsByTagName("maplayer")
-                        for i in range(maplayers.size()):
-                            ml = maplayers.item(i)
+                        for ml in (maplayers.item(i) for i in range(maplayers.size())):
                             idelt = ml.namedItem("id")
                             id = ""
                             
@@ -332,7 +319,7 @@ class menu_from_project:
         legends = domdoc.elementsByTagName("legend")
         if (legends.length() > 0):
             node = legends.item(0)
-            if (node != None):
+            if node:
                 node = node.firstChild()
                 self.addMenuItem(filename, node, projectMenu, domdoc)
     
@@ -428,9 +415,8 @@ class menu_from_project:
                 # is project in relative path ?                
                 absolute = self.isAbsolute(doc)
 
-                #messageLog("Search %s" % (who));
                 node = getFirstChildByTagNameValue(doc.documentElement(), "maplayer", "id", who)
-                if node != None:
+                if node:
                     idNode = node.namedItem("id")
                     # give it a new id (for multiple import)
                     try:
@@ -501,7 +487,6 @@ class menu_from_project:
             del self.hdialog
         except:
             QgsMessageLog.logMessage(sys.exc_info()[0], 'Extensions')
-            #
             pass
         
     def doLink( self, url ):

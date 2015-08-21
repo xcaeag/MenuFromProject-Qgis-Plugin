@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
 """
 """
+from __future__ import unicode_literals
 import sys
 
 from types import *
@@ -27,8 +29,7 @@ class menu_conf_dlg(QDialog, Ui_ConfDialog):
         self.btnAdd.clicked.connect(self.onAdd)
         self.btnDelete.clicked.connect(self.onDelete)
 
-        idx = 0
-        for project in self.plugin.projects:
+        for idx, project in enumerate(self.plugin.projects):
             pushButton = QToolButton(self.parent)
             pushButton.setGeometry(QRect(0, 0, 20, 20))
             pushButton.setObjectName(("x"))
@@ -48,17 +49,13 @@ class menu_conf_dlg(QDialog, Ui_ConfDialog):
             
             self.tableWidget.setCellWidget(idx, 0, pushButton)
             
-            #QObject.connect(pushButton, SIGNAL("clicked()"), lambda _idx=idx: self.onFileSearchPressed(_idx))
             helper = lambda _idx: (lambda: self.onFileSearchPressed(_idx))
             pushButton.clicked.connect(helper(idx))
-            
-            idx = idx+1
-        
+                    
         self.tableWidget.horizontalHeader().setResizeMode(0, QHeaderView.Fixed)
         self.tableWidget.horizontalHeader().resizeSection(0, 20) 
         self.tableWidget.horizontalHeader().setResizeMode(1, QHeaderView.Interactive)
         self.tableWidget.horizontalHeader().setResizeMode(2, QHeaderView.Interactive)
-        #self.tableWidget.horizontalHeader().resizeSection(2, 20) 
         
         self.cbxLoadAll.setChecked(self.plugin.optionLoadAll)
         self.cbxLoadAll.setTristate(False)
@@ -73,14 +70,14 @@ class menu_conf_dlg(QDialog, Ui_ConfDialog):
         item = self.tableWidget.item(row, 1)
 
         filePath = QFileDialog.getOpenFileName(self, QApplication.translate("menu_from_project", "Projects configuration", None, QApplication.UnicodeUTF8), item.text(), QApplication.translate("menu_from_project", "QGis projects (*.qgs)", None, QApplication.UnicodeUTF8))
-        if filePath != "":
+        if filePath:
             itemFile = QTableWidgetItem(filePath)
             itemFile.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled )
             self.tableWidget.setItem(row, 1, itemFile)
 
             le = self.tableWidget.cellWidget(row, 2)
             name = le.text()
-            if name == "":
+            if not name:
                 try:
                     name = str(filePath).split('/')[-1]
                     name = str(name).split('.')[0]
@@ -93,11 +90,11 @@ class menu_conf_dlg(QDialog, Ui_ConfDialog):
         self.plugin.projects = []
         for row in range(self.tableWidget.rowCount()):
             itemFile = self.tableWidget.item(row, 1)
-            if itemFile.text() != "":
+            if itemFile.text():
                 le = self.tableWidget.cellWidget(row, 2)
                 name = le.text()
                 filename = itemFile.text()
-                if name == "":
+                if not name:
                     try:
                         name = str(filename).split('/')[-1]
                         name = str(name).split('.')[0]
