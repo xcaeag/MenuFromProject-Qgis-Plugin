@@ -225,7 +225,7 @@ class menu_from_project:
                                             action.setToolTip("<p>%s</p>" % (abstract))
                                         else:
                                             if (abstract != "" or title != ""):
-                                                action.setToolTip("<b>%s</b>%s<br/>" % (title, abstract))
+                                                action.setToolTip("<b>%s</b><br/>%s" % (title, abstract))
                                             else:
                                                 action.setToolTip("-")
                                     except:
