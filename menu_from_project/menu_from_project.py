@@ -222,10 +222,10 @@ class menu_from_project:
                                         
                                         action.setStatusTip(title)
                                         if (abstract != "") and (title == ""):
-                                            action.setToolTip("<p>%s</p>" % (abstract))
+                                            action.setToolTip("<p>%s</p>" % ("<br/>".join(abstract.split("\n"))))
                                         else:
                                             if (abstract != "" or title != ""):
-                                                action.setToolTip("<b>%s</b><br/>%s" % (title, abstract))
+                                                action.setToolTip("<b>%s</b><br/>%s" % (title, "<br/>".join(abstract.split("\n"))))
                                             else:
                                                 action.setToolTip("-")
                                     except:
