@@ -14,14 +14,15 @@ qgisMinimumVersion=2.8
 description=Build layers shortcuts menus based on QGis projects
 about=Allow easy opening of layers maintaining their style.
 
-version=0.7.4
+version=0.7.5
 
 # end of mandatory metadata
 
 # Optional items:
 
 # Uncomment the following line and add your changelog entries:
-changelog=0.7.4 : Some python cleaning
+changelog=0.7.5 : Tooltip refinement
+    0.7.4 : Some python cleaning
     0.7.3 : New layer id without special characters
     0.7.2 : Some optimizations
     0.7.1 : QGis 2.4 compatible. Deprecated functions are deleted
