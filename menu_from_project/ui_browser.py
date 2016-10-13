@@ -7,33 +7,36 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt4 import QtCore, QtGui
+from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtGui import *
+from PyQt5 import QtCore
+from PyQt5 import QtWidgets
+#from PyQt5.QtWebKitWidgets import QWebView
 
-_fromUtf8 = lambda s: (s.decode("utf-8").encode("latin-1")) if s else s
-_toUtf8 = lambda s: s.decode("latin-1").encode("utf-8") if s else s
+_fromUtf8 = lambda s: str(s)
+_toUtf8 = lambda s: str(s)
 
 
 class Ui_browser(object):
     def setupUi(self, featureInfo):
         featureInfo.setObjectName(_fromUtf8("Help"))
         featureInfo.resize(800, 650)
-        self.verticalLayout = QtGui.QVBoxLayout(featureInfo)
+        self.verticalLayout = QtWidgets.QVBoxLayout(featureInfo)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
-        self.helpContent = QtWebKit.QWebView(featureInfo)
+        self.helpContent = QtWidgets.QLabel("TODO") #QWebView(featureInfo)
         self.helpContent.setObjectName(_fromUtf8("featureInfoContent"))
         self.verticalLayout.addWidget(self.helpContent)
-        self.buttonBox = QtGui.QDialogButtonBox(featureInfo)
+        self.buttonBox = QtWidgets.QDialogButtonBox(featureInfo)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Close)
+        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Close)
         self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
         self.verticalLayout.addWidget(self.buttonBox)
 
         self.retranslateUi(featureInfo)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), featureInfo.accept)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), featureInfo.reject)
+        #QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), featureInfo.accept)
+        #QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), featureInfo.reject)
         QtCore.QMetaObject.connectSlotsByName(featureInfo)
 
     def retranslateUi(self, w):
         w.setWindowTitle("Help")
 
-from PyQt4 import QtWebKit

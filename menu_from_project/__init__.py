@@ -20,5 +20,5 @@ email                : xavier.culos@eau-adour-garonne.fr
 """  
 def classFactory(iface): 
   # load menu_from_project class from file menu_from_project
-  from menu_from_project import menu_from_project 
+  from .menu_from_project import menu_from_project 
   return menu_from_project(iface)

@@ -10,19 +10,21 @@
 
 [general]
 name=Layers menu from project
-qgisMinimumVersion=2.8
+qgisMinimumVersion=2.9
 description=Build layers shortcuts menus based on QGis projects
 about=Allow easy opening of layers maintaining their style.
 
-version=0.7.6
+version=0.8.0
 
 # end of mandatory metadata
 
 # Optional items:
 
 # Uncomment the following line and add your changelog entries:
-changelog= 0.7.6 / Better documentation
-	0.7.5 : Tooltip refinement
+changelog=
+    0.8.0 : Migration for QGIS3 
+    0.7.6 : Better documentation
+    0.7.5 : Tooltip refinement
     0.7.4 : Some python cleaning
     0.7.3 : New layer id without special characters
     0.7.2 : Some optimizations
@@ -30,7 +32,7 @@ changelog= 0.7.6 / Better documentation
     0.7 : Works with "relative path" projects, and embedded layers
     0.6 : QGis 2.2 compatible 
     0.5 : QGis 2.0 compatible 
-	0.4.1 : Load all layers item, create group option (dev version 1.9)
+    0.4.1 : Load all layers item, create group option (dev version 1.9)
 
 # tags are comma separated with spaces allowed
 tags=menu layer project
