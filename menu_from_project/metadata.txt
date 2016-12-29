@@ -21,7 +21,7 @@ version=0.7.6
 # Optional items:
 
 # Uncomment the following line and add your changelog entries:
-changelog= 0.7.6 / Better documentation
+changelog= 0.7.6 : Better documentation
 	0.7.5 : Tooltip refinement
     0.7.4 : Some python cleaning
     0.7.3 : New layer id without special characters
