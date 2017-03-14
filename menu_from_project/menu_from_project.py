@@ -145,13 +145,6 @@ class menu_from_project:
             pass
         
         return  absolute
-
-    def _actionHovered(self, action): 
-        tip = action.toolTip() 
-        if (tip != "-"):
-            QToolTip.showText(QCursor.pos(), tip)
-        else: 
-            QToolTip.hideText()
       
     def getMaplayerDomFromQgs(self, fileName, layerId):
         doc = QtXml.QDomDocument()
@@ -222,7 +215,7 @@ class menu_from_project:
                                             if (abstract != "" or title != ""):
                                                 action.setToolTip("<b>%s</b><br/>%s" % (title, "<br/>".join(abstract.split("\n"))))
                                             else:
-                                                action.setToolTip("-")
+                                                action.setToolTip("")
                                     except:
                                         pass
                                 else:
@@ -270,7 +263,8 @@ class menu_from_project:
             else:             
                 # sub-menu
                 sousmenu = menu.addMenu('&'+element.attribute("name"))
-                sousmenu.menuAction().setToolTip("-")
+                sousmenu.menuAction().setToolTip("")
+                sousmenu.setToolTipsVisible(self.optionTooltip)
 
                 childNode = node.firstChild()
 
@@ -300,8 +294,6 @@ class menu_from_project:
         projectMenu = QMenu('&'+name, menuBar)
 
         projectMenu.setToolTipsVisible(self.optionTooltip)
-        #if (self.optionTooltip == True): 
-        #    projectMenu.hovered.connect(self._actionHovered)
 
         projectAction = menuBar.addMenu(projectMenu)
         self.menubarActions.append(projectAction);
@@ -421,7 +413,7 @@ class menu_from_project:
                     idNode = node.namedItem("id")
                     # give it a new id (for multiple import)
                     try:
-                        import uuid
+                        #import uuid
                         import re
                         newLayerId = "L%s" % re.sub("[{}-]", "", QUuid.createUuid().toString())
                         idNode.firstChild().toText().setData(newLayerId)
