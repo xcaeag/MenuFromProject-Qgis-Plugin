@@ -22,6 +22,7 @@ version=0.8.1
 
 # Uncomment the following line and add your changelog entries:
 changelog=
+    0.8.1 : QGis 2.99 compatible, Python 3, QT5
     0.8.0 : Migration for QGIS3 
     0.7.6 : Better documentation
     0.7.5 : Tooltip refinement
