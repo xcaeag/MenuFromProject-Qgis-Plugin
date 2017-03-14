@@ -41,6 +41,7 @@ from . import resources
 def getFirstChildByTagNameValue(elt, tagName, key, value):
     nodes = elt.elementsByTagName(tagName)
     for node in (nodes.at(i) for i in range(nodes.size())):
+    #for node in nodes:
         idNode = node.namedItem(key)
         if idNode and value == idNode.firstChild().toText().data():
             # layer founds
@@ -80,18 +81,15 @@ class menu_from_project:
         s = QSettings()
         s.remove("menu_from_project/projectFilePath")
 
-        index = 0
-        
         s.setValue("menu_from_project/optionTooltip", (self.optionTooltip))
         s.setValue("menu_from_project/optionCreateGroup", (self.optionCreateGroup))
         s.setValue("menu_from_project/optionLoadAll", (self.optionLoadAll))
         
         s.beginWriteArray("menu_from_project/projects")
-        for project in self.projects:
-            s.setArrayIndex(index)
+        for i, project in enumerate(self.projects):
+            s.setArrayIndex(i)
             s.setValue("file", project["file"])
             s.setValue("name", project["name"])
-            index = index + 1
             
         s.endArray()
 
@@ -164,9 +162,7 @@ class menu_from_project:
         
         maplayers = doc.elementsByTagName("maplayer")
         for ml in (maplayers.item(i) for i in range(maplayers.size())):
-            idelt = ml.namedItem("id")
-            id = ""
-            
+            idelt = ml.namedItem("id")            
             if idelt and layerId == idelt.firstChild().toText().data():
                 return ml
             
@@ -403,7 +399,6 @@ class menu_from_project:
     
             # load all layers
             if filename == None and who == None and self.optionLoadAll:
-                i = 0
                 for action in reversed(menu.actions()):
                     if action.text() != QApplication.translate("menu_from_project", "&Load all", None):
                         action.trigger()
@@ -450,7 +445,7 @@ class menu_from_project:
                         theLayer = QgsMapLayerRegistry.instance().mapLayer(newLayerId)
                         
                         if idxGroup >= 0 and theLayer != None:
-                            self.iface.mainWindow().statusBar().showMessage("Move to group "+str(idxGroup))
+                            #self.iface.mainWindow().statusBar().showMessage("Move to group "+str(idxGroup))
                             self.iface.legendInterface().refreshLayerSymbology(theLayer)
                             self.iface.legendInterface().moveLayer(theLayer, idxGroup)
                             self.iface.legendInterface().refreshLayerSymbology(theLayer)
