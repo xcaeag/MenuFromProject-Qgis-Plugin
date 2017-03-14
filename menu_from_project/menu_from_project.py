@@ -25,9 +25,9 @@ import sys
 from qgis.core import *
 
 #from qgis.PyQt.QtWebEngine import *
-from qgis.PyQt.QtCore import * 
-from qgis.PyQt.QtGui import *
-from qgis.PyQt.QtWidgets import *
+from qgis.PyQt.QtCore import (QTranslator, QFile, QFileInfo, QSettings, QCoreApplication, QIODevice, Qt, QUuid, QUrl)
+from qgis.PyQt.QtGui import (QCursor, QFont, QDesktopServices)
+from qgis.PyQt.QtWidgets import (QToolTip, QMenu, QAction, QApplication, QDialog)
 
 from qgis.PyQt import QtXml
 from .ui_browser import Ui_browser
@@ -41,7 +41,6 @@ from . import resources
 def getFirstChildByTagNameValue(elt, tagName, key, value):
     nodes = elt.elementsByTagName(tagName)
     for node in (nodes.at(i) for i in range(nodes.size())):
-    #for node in nodes:
         idNode = node.namedItem(key)
         if idNode and value == idNode.firstChild().toText().data():
             # layer founds
@@ -160,9 +159,6 @@ class menu_from_project:
         if (xml.open(QIODevice.ReadOnly | QIODevice.Text)):
             doc.setContent(xml)
 
-        #xml = open(fileName).read()
-        #doc.setContent(xml)
-        
         maplayers = doc.elementsByTagName("maplayer")
         for ml in (maplayers.item(i) for i in range(maplayers.size())):
             idelt = ml.namedItem("id")            
@@ -271,10 +267,8 @@ class menu_from_project:
                     # ! recursion
                     self.addMenuItem(initialFilename, nextNode, menu, domdoc)
                     
-            else:
-                #messageLog("Group %s" % (element.attribute("name")))
-                
-                # construire sous-menu
+            else:             
+                # sub-menu
                 sousmenu = menu.addMenu('&'+element.attribute("name"))
                 sousmenu.menuAction().setToolTip("-")
 
@@ -305,8 +299,9 @@ class menu_from_project:
         menuBar = self.iface.editMenu().parentWidget()
         projectMenu = QMenu('&'+name, menuBar)
 
-        if (self.optionTooltip == (True)): 
-            projectMenu.hovered.connect(self._actionHovered)
+        projectMenu.setToolTipsVisible(self.optionTooltip)
+        #if (self.optionTooltip == True): 
+        #    projectMenu.hovered.connect(self._actionHovered)
 
         projectAction = menuBar.addMenu(projectMenu)
         self.menubarActions.append(projectAction);
@@ -338,9 +333,6 @@ class menu_from_project:
                 xml = QFile(project["file"])
                 if (xml.open(QIODevice.ReadOnly | QIODevice.Text)):
                     doc.setContent(xml)
-                #xml = open(project["file"]).read()
-                #doc = QtXml.QDomDocument()
-                #doc.setContent(xml)
                 
                 self.addMenu(project["name"], project["file"], doc)
             except Exception as e: 
@@ -348,7 +340,6 @@ class menu_from_project:
                 for m in e.args:
                     QgsMessageLog.logMessage(format(e), 'Extensions')
                     
-                raise
                 pass
             
         QgsApplication.restoreOverrideCursor()
@@ -402,7 +393,8 @@ class menu_from_project:
         try:
             if type(menu.parentWidget()) == QMenu and self.optionCreateGroup:
                 groupName = menu.title().replace("&", "")
-
+                
+                #g = self.iface.layerTreeView().layerTreeModel().rootGroup().findGroup(groupName)
                 idxGroup = self.iface.legendInterface().groups().index(groupName) if groupName in self.iface.legendInterface().groups() else -1
                 
                 if idxGroup < 0:
@@ -419,9 +411,6 @@ class menu_from_project:
                 xml = QFile(fileName)
                 if (xml.open(QIODevice.ReadOnly | QIODevice.Text)):
                     doc.setContent(xml)
-                #xml = open(fileName).read()
-                #doc = QtXml.QDomDocument()
-                #doc.setContent(xml)
 
                 # is project in relative path ?                
                 absolute = self.isAbsolute(doc)
@@ -467,7 +456,7 @@ class menu_from_project:
                     
                             
         except:
-            QgsMessageLog.logMessage('Menu from layer: Invalid ' + fileName, 'Extensions')
+            QgsMessageLog.logMessage('Menu from layer: Invalid ' + (fileName if fileName != None else ""), 'Extensions')
             raise
             pass
         
