@@ -81,10 +81,11 @@ class menu_conf_dlg(QDialog, Ui_ConfDialog):
             name = le.text()
             if not name:
                 try:
-                    name = filePath.split('/')[-1]
+                    name = filePath[0].split('/')[-1]
                     name = name.split('.')[0]
                 except:
                     name = ""
+                    raise
                     
                 le.setText(name)
         
