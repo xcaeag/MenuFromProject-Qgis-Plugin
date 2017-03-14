@@ -18,22 +18,24 @@ email                : xavier.culos@eau-adour-garonne.fr
 ***************************************************************************/
 
 """
-from __future__ import unicode_literals
+
 # Import the PyQt and QGIS libraries
 import os
 import sys
 from qgis.core import *
 
-from PyQt4 import QtWebKit
-from PyQt4.QtCore import * 
-from PyQt4.QtGui import *
-from PyQt4 import QtXml
-from ui_browser import Ui_browser
+#from qgis.PyQt.QtWebEngine import *
+from qgis.PyQt.QtCore import * 
+from qgis.PyQt.QtGui import *
+from qgis.PyQt.QtWidgets import *
 
-from menu_conf_dlg import menu_conf_dlg
+from qgis.PyQt import QtXml
+from .ui_browser import Ui_browser
+
+from .menu_conf_dlg import menu_conf_dlg
 
 # Initialize Qt resources from file resources.py
-import resources
+from . import resources
 
 
 def getFirstChildByTagNameValue(elt, tagName, key, value):
@@ -154,7 +156,7 @@ class menu_from_project:
             QToolTip.hideText()
       
     def getMaplayerDomFromQgs(self, fileName, layerId):
-        xml = file(unicode(fileName)).read()
+        xml = open(str(fileName)).read()
         doc = QtXml.QDomDocument()
         doc.setContent(xml)
         
@@ -169,7 +171,6 @@ class menu_from_project:
     def addMenuItem(self, filename, node, menu, domdoc):
         yaLayer = False
         initialFilename = filename
-        
         if node == None:
             return yaLayer
             
@@ -181,7 +182,6 @@ class menu_from_project:
                 legendlayerfileElt = element.firstChild().firstChildElement("legendlayerfile")
                 layerId = legendlayerfileElt.attribute("layerid")
                 action = QAction(element.attribute("name"), self.iface.mainWindow())
-                
                 if (self.optionTooltip == (True)): 
                     try:
                         maplayers = domdoc.elementsByTagName("maplayer")
@@ -227,7 +227,7 @@ class menu_from_project:
                                     except:
                                         pass
                                 else:
-                                    QgsMessageLog.logMessage(id+" not found in project "+embeddedFilename, 'Extensions')
+                                    QgsMessageLog.logMessage("Menu from layer: " + id + " not found in project " + embeddedFilename, 'Extensions')
                                     
                                 break
                     except:
@@ -281,7 +281,7 @@ class menu_from_project:
                 r = self.addMenuItem(initialFilename, childNode, sousmenu, domdoc)
 
                 if r and self.optionLoadAll and (len(sousmenu.actions()) > 1):
-                    action = QAction(QApplication.translate("menu_from_project", "&Load all", None, QApplication.UnicodeUTF8), self.iface.mainWindow())
+                    action = QAction(QApplication.translate("menu_from_project", "&Load all", None), self.iface.mainWindow())
                     font = QFont()
                     font.setBold(True)
                     action.setFont(font)
@@ -301,7 +301,7 @@ class menu_from_project:
         # main project menu
         menuBar = self.iface.editMenu().parentWidget()
         projectMenu = QMenu('&'+name, menuBar)
-        
+
         if (self.optionTooltip == (True)): 
             projectMenu.hovered.connect(self._actionHovered)
 
@@ -329,26 +329,27 @@ class menu_from_project:
 
         QgsApplication.setOverrideCursor(Qt.WaitCursor)
         for project in self.projects:
+            QgsMessageLog.logMessage('Menu from layer: Loading ' + project["file"] + ' in menu ' + project["name"] + '...', 'Extensions')
             try:
-                xml = file(unicode(project["file"])).read()
+                xml = open(project["file"]).read()
                 doc = QtXml.QDomDocument()
                 doc.setContent(xml)
                 
                 self.addMenu(project["name"], project["file"], doc)
-            except:
-                QgsMessageLog.logMessage('Menu from layer : invalid ' + str(project["file"]), 'Extensions')
+            except Exception as e: 
+                QgsMessageLog.logMessage('Menu from layer: Invalid ' + str(project["file"]) + '. ' + format(e), 'Extensions')
                 pass
             
         QgsApplication.restoreOverrideCursor()
         
     def initGui(self):          
-        self.act_aeag_menu_config = QAction(QApplication.translate("menu_from_project", "Projects configuration", None, QApplication.UnicodeUTF8)+"...", self.iface.mainWindow())
-        self.iface.addPluginToMenu(QApplication.translate("menu_from_project", "&Layers menu from project", None, QApplication.UnicodeUTF8), self.act_aeag_menu_config)
+        self.act_aeag_menu_config = QAction(QApplication.translate("menu_from_project", "Projects configuration", None)+"...", self.iface.mainWindow())
+        self.iface.addPluginToMenu(QApplication.translate("menu_from_project", "&Layers menu from project", None), self.act_aeag_menu_config)
         # Add actions to the toolbar
         self.act_aeag_menu_config.triggered.connect(self.do_aeag_menu_config)
 
-        self.act_aeag_menu_help = QAction(QApplication.translate("menu_from_project", "Help", None, QApplication.UnicodeUTF8)+"...", self.iface.mainWindow())
-        self.iface.addPluginToMenu(QApplication.translate("menu_from_project", "&Layers menu from project", None, QApplication.UnicodeUTF8), self.act_aeag_menu_help)
+        self.act_aeag_menu_help = QAction(QApplication.translate("menu_from_project", "Help", None)+"...", self.iface.mainWindow())
+        self.iface.addPluginToMenu(QApplication.translate("menu_from_project", "&Layers menu from project", None), self.act_aeag_menu_help)
         self.act_aeag_menu_help.triggered.connect(self.do_help)
         
         # build menu
@@ -360,8 +361,8 @@ class menu_from_project:
         for action in self.menubarActions:
             menuBar.removeAction(action)
 
-        self.iface.removePluginMenu(QApplication.translate("menu_from_project", "&Layers menu from project", None, QApplication.UnicodeUTF8), self.act_aeag_menu_config)
-        self.iface.removePluginMenu(QApplication.translate("menu_from_project", "&Layers menu from project", None, QApplication.UnicodeUTF8), self.act_aeag_menu_help)
+        self.iface.removePluginMenu(QApplication.translate("menu_from_project", "&Layers menu from project", None), self.act_aeag_menu_config)
+        self.iface.removePluginMenu(QApplication.translate("menu_from_project", "&Layers menu from project", None), self.act_aeag_menu_help)
         self.act_aeag_menu_config.triggered.disconnect(self.do_aeag_menu_config)
         self.act_aeag_menu_help.triggered.disconnect(self.do_help)
 
@@ -399,11 +400,11 @@ class menu_from_project:
             # load all layers
             if filename == None and who == None and self.optionLoadAll:
                 for action in reversed(menu.actions()):
-                    if action.text() != QApplication.translate("menu_from_project", "&Load all", None, QApplication.UnicodeUTF8):
+                    if action.text() != QApplication.translate("menu_from_project", "&Load all", None):
                         action.trigger()
             else:
                 # read QGis project
-                xml = file(unicode(filename)).read()
+                xml = open(str(filename)).read()
                 doc = QtXml.QDomDocument()
                 doc.setContent(xml)
 
@@ -451,7 +452,7 @@ class menu_from_project:
                     
                             
         except:
-            QgsMessageLog.logMessage('Menu from layer : invalid ' + filename, 'Extensions')
+            QgsMessageLog.logMessage('Menu from layer: Invalid ' + filename, 'Extensions')
             pass
         
         self.canvas.freeze(False)    
@@ -467,15 +468,16 @@ class menu_from_project:
             self.hdialog.ui = Ui_browser()
             self.hdialog.ui.setupUi(self.hdialog)
             
-            if os.path.isfile(self.path+"/help_"+self.myLocale+".html"):
-                self.hdialog.ui.helpContent.setUrl(QUrl(self.path+"/help_"+self.myLocale+".html"))
-            else:
-                self.hdialog.ui.helpContent.setUrl(QUrl(self.path+"/help.html"))
+            # FIXME: Migrate WebView
+            #if os.path.isfile(self.path+"/help_"+self.myLocale+".html"):
+            #    self.hdialog.ui.helpContent.setUrl(QUrl(self.path+"/help_"+self.myLocale+".html"))
+            #else:
+            #    self.hdialog.ui.helpContent.setUrl(QUrl(self.path+"/help.html"))
 
-            self.hdialog.ui.helpContent.page().setLinkDelegationPolicy(QtWebKit.QWebPage.DelegateExternalLinks) # Handle link clicks by yourself
-            self.hdialog.ui.helpContent.linkClicked.connect(self.doLink)
+            #self.hdialog.ui.helpContent.page().setLinkDelegationPolicy(QtWebEngineKit.QWebEnginePage.DelegateExternalLinks) # Handle link clicks by yourself
+            #self.hdialog.ui.helpContent.linkClicked.connect(self.doLink)
             
-            self.hdialog.ui.helpContent.page().currentFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOn)
+            #self.hdialog.ui.helpContent.page().currentFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOn)
             
             self.hdialog.show()
             result = self.hdialog.exec_()

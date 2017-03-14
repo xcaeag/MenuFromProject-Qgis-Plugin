@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 """
 """
-from __future__ import unicode_literals
+
 import sys
 
 from types import *
-from conf_dialog import Ui_ConfDialog
+from .conf_dialog import Ui_ConfDialog
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtGui import *
+from qgis.PyQt.QtWidgets import *
 
 from qgis.core import *
 from qgis.gui import *
@@ -16,13 +17,14 @@ from qgis.gui import *
 class menu_conf_dlg(QDialog, Ui_ConfDialog):
 
     def __init__(self, parent, plugin):
+        print("Init")
         self.plugin = plugin
         self.parent = parent
         QDialog.__init__(self, parent)
         self.setupUi(self)
         self.defaultcursor = self.cursor
         
-        self.tableWidget.horizontalHeader().setResizeMode(QHeaderView.ResizeToContents)
+        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.tableWidget.setRowCount (len(self.plugin.projects))
         self.buttonBox.accepted.connect(self.onAccepted)
         self.buttonBox.rejected.connect(self.onRejected)
@@ -52,10 +54,10 @@ class menu_conf_dlg(QDialog, Ui_ConfDialog):
             helper = lambda _idx: (lambda: self.onFileSearchPressed(_idx))
             pushButton.clicked.connect(helper(idx))
                     
-        self.tableWidget.horizontalHeader().setResizeMode(0, QHeaderView.Fixed)
+        self.tableWidget.horizontalHeader().setSectionResizeMode(0, QHeaderView.Fixed)
         self.tableWidget.horizontalHeader().resizeSection(0, 20) 
-        self.tableWidget.horizontalHeader().setResizeMode(1, QHeaderView.Interactive)
-        self.tableWidget.horizontalHeader().setResizeMode(2, QHeaderView.Interactive)
+        self.tableWidget.horizontalHeader().setSectionResizeMode(1, QHeaderView.Interactive)
+        self.tableWidget.horizontalHeader().setSectionResizeMode(2, QHeaderView.Interactive)
         
         self.cbxLoadAll.setChecked(self.plugin.optionLoadAll)
         self.cbxLoadAll.setTristate(False)
@@ -69,9 +71,9 @@ class menu_conf_dlg(QDialog, Ui_ConfDialog):
     def onFileSearchPressed(self, row):
         item = self.tableWidget.item(row, 1)
 
-        filePath = QFileDialog.getOpenFileName(self, QApplication.translate("menu_from_project", "Projects configuration", None, QApplication.UnicodeUTF8), item.text(), QApplication.translate("menu_from_project", "QGis projects (*.qgs)", None, QApplication.UnicodeUTF8))
+        filePath = QFileDialog.getOpenFileName(self, QApplication.translate("menu_from_project", "Projects configuration", None), item.text(), QApplication.translate("menu_from_project", "QGis projects (*.qgs)", None))
         if filePath:
-            itemFile = QTableWidgetItem(filePath)
+            itemFile = QTableWidgetItem(filePath[0])
             itemFile.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled )
             self.tableWidget.setItem(row, 1, itemFile)
 
