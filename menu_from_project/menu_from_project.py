@@ -385,7 +385,7 @@ class menu_from_project:
     def do_aeag_menu(self, fileName, who, menu=None):
         self.canvas.freeze(True)
         self.canvas.setRenderFlag(False)
-        idxGroup = None
+        group = None
         theLayer = None
         groupName = None
         QgsApplication.setOverrideCursor(Qt.WaitCursor)
@@ -394,11 +394,12 @@ class menu_from_project:
             if type(menu.parentWidget()) == QMenu and self.optionCreateGroup:
                 groupName = menu.title().replace("&", "")
                 
-                #g = self.iface.layerTreeView().layerTreeModel().rootGroup().findGroup(groupName)
-                idxGroup = self.iface.legendInterface().groups().index(groupName) if groupName in self.iface.legendInterface().groups() else -1
+                #group = self.iface.legendInterface().groups().index(groupName) if groupName in self.iface.legendInterface().groups() else -1
+                group = QgsProject.instance().layerTreeRoot().findGroup(groupName)
                 
-                if idxGroup < 0:
-                    idxGroup = self.iface.legendInterface().addGroup(groupName, True)
+                if group == None:
+                    #group = self.iface.legendInterface().addGroup(groupName, True)
+                    group = QgsProject.instance().layerTreeRoot().addGroup(groupName)
     
             # load all layers
             if fileName == None and who == None and self.optionLoadAll:
@@ -446,13 +447,10 @@ class menu_from_project:
                     QgsProject.instance().readLayer(node)
                             
                     if self.optionCreateGroup:
-                        theLayer = QgsMapLayerRegistry.instance().mapLayer(newLayerId)
-                        
-                        if idxGroup >= 0 and theLayer != None:
-                            #self.iface.mainWindow().statusBar().showMessage("Move to group "+str(idxGroup))
-                            self.iface.legendInterface().refreshLayerSymbology(theLayer)
-                            self.iface.legendInterface().moveLayer(theLayer, idxGroup)
-                            self.iface.legendInterface().refreshLayerSymbology(theLayer)
+                        theLayer = QgsProject.instance().mapLayer(newLayerId)
+                        if group != None and theLayer != None:
+                            #QgsProject.instance().layerTreeRoot().removeLayer(theLayer)
+                            group.addLayer(theLayer)
                     
                             
         except:
