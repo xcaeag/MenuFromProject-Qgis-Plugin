@@ -81,8 +81,8 @@ class menu_conf_dlg(QDialog, Ui_ConfDialog):
             name = le.text()
             if not name:
                 try:
-                    name = str(filePath).split('/')[-1]
-                    name = str(name).split('.')[0]
+                    name = filePath.split('/')[-1]
+                    name = name.split('.')[0]
                 except:
                     name = ""
                     
@@ -98,8 +98,8 @@ class menu_conf_dlg(QDialog, Ui_ConfDialog):
                 filename = itemFile.text()
                 if not name:
                     try:
-                        name = str(filename).split('/')[-1]
-                        name = str(name).split('.')[0]
+                        name = filename.split('/')[-1]
+                        name = name.split('.')[0]
                     except:
                         name = ""
                     

@@ -10,11 +10,11 @@
 
 [general]
 name=Layers menu from project
-qgisMinimumVersion=2.9
+qgisMinimumVersion=2.99
 description=Build layers shortcuts menus based on QGis projects
 about=Allow easy opening of layers maintaining their style.
 
-version=0.8.0
+version=0.8.1
 
 # end of mandatory metadata
 

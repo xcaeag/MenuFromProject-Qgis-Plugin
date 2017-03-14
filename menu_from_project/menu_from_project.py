@@ -74,8 +74,7 @@ class menu_from_project:
         if QFileInfo(localePath).exists():
             self.translator = QTranslator()
             self.translator.load(localePath)
-            if qVersion() > '4.3.3':
-                QCoreApplication.installTranslator(self.translator)
+            QCoreApplication.installTranslator(self.translator)
 
     def store(self):
         s = QSettings()
@@ -100,8 +99,8 @@ class menu_from_project:
             filePath = s.value("menu_from_project/projectFilePath", "")
             
             if filePath:
-                title = str(filePath).split('/')[-1]
-                title = str(title).split('.')[0]
+                title = filePath.split('/')[-1]
+                title = title.split('.')[0]
                 self.projects.append({"file":filePath, "name":title})
                 self.store()
             else:
@@ -156,9 +155,13 @@ class menu_from_project:
             QToolTip.hideText()
       
     def getMaplayerDomFromQgs(self, fileName, layerId):
-        xml = open(str(fileName)).read()
         doc = QtXml.QDomDocument()
-        doc.setContent(xml)
+        xml = QFile(fileName)
+        if (xml.open(QIODevice.ReadOnly | QIODevice.Text)):
+            doc.setContent(xml)
+
+        #xml = open(fileName).read()
+        #doc.setContent(xml)
         
         maplayers = doc.elementsByTagName("maplayer")
         for ml in (maplayers.item(i) for i in range(maplayers.size())):
@@ -331,13 +334,21 @@ class menu_from_project:
         for project in self.projects:
             QgsMessageLog.logMessage('Menu from layer: Loading ' + project["file"] + ' in menu ' + project["name"] + '...', 'Extensions')
             try:
-                xml = open(project["file"]).read()
                 doc = QtXml.QDomDocument()
-                doc.setContent(xml)
+                xml = QFile(project["file"])
+                if (xml.open(QIODevice.ReadOnly | QIODevice.Text)):
+                    doc.setContent(xml)
+                #xml = open(project["file"]).read()
+                #doc = QtXml.QDomDocument()
+                #doc.setContent(xml)
                 
                 self.addMenu(project["name"], project["file"], doc)
             except Exception as e: 
-                QgsMessageLog.logMessage('Menu from layer: Invalid ' + str(project["file"]) + '. ' + format(e), 'Extensions')
+                QgsMessageLog.logMessage('Menu from layer: Invalid {}'.format(project["file"]), 'Extensions')
+                for m in e.args:
+                    QgsMessageLog.logMessage(format(e), 'Extensions')
+                    
+                raise
                 pass
             
         QgsApplication.restoreOverrideCursor()
@@ -380,7 +391,7 @@ class menu_from_project:
             self.initMenus()
 
     # run method that performs all the real work
-    def do_aeag_menu(self, filename, who, menu=None):
+    def do_aeag_menu(self, fileName, who, menu=None):
         self.canvas.freeze(True)
         self.canvas.setRenderFlag(False)
         idxGroup = None
@@ -398,15 +409,19 @@ class menu_from_project:
                     idxGroup = self.iface.legendInterface().addGroup(groupName, True)
     
             # load all layers
-            if filename == None and who == None and self.optionLoadAll:
+            if fileName == None and who == None and self.optionLoadAll:
                 for action in reversed(menu.actions()):
                     if action.text() != QApplication.translate("menu_from_project", "&Load all", None):
                         action.trigger()
             else:
                 # read QGis project
-                xml = open(str(filename)).read()
                 doc = QtXml.QDomDocument()
-                doc.setContent(xml)
+                xml = QFile(fileName)
+                if (xml.open(QIODevice.ReadOnly | QIODevice.Text)):
+                    doc.setContent(xml)
+                #xml = open(fileName).read()
+                #doc = QtXml.QDomDocument()
+                #doc.setContent(xml)
 
                 # is project in relative path ?                
                 absolute = self.isAbsolute(doc)
@@ -432,14 +447,14 @@ class menu_from_project:
                             provider = providerNode.firstChild().toText().data()
                         
                             if provider == "ogr" and (datasource.find(".")==0):
-                                projectpath = QFileInfo(os.path.realpath(filename)).path()
+                                projectpath = QFileInfo(os.path.realpath(fileName)).path()
                                 newlayerpath = projectpath + "/" + datasource 
                                 datasourceNode.firstChild().toText().setData(newlayerpath)
                         except:
                             pass
                     
                     # read modified layer node
-                    QgsProject.instance().read(node)
+                    QgsProject.instance().readLayer(node)
                             
                     if self.optionCreateGroup:
                         theLayer = QgsMapLayerRegistry.instance().mapLayer(newLayerId)
@@ -452,7 +467,8 @@ class menu_from_project:
                     
                             
         except:
-            QgsMessageLog.logMessage('Menu from layer: Invalid ' + filename, 'Extensions')
+            QgsMessageLog.logMessage('Menu from layer: Invalid ' + fileName, 'Extensions')
+            raise
             pass
         
         self.canvas.freeze(False)    
@@ -482,8 +498,9 @@ class menu_from_project:
             self.hdialog.show()
             result = self.hdialog.exec_()
             del self.hdialog
-        except:
-            QgsMessageLog.logMessage(sys.exc_info()[0], 'Extensions')
+        except Exception as e:
+            for m in e.args:
+                QgsMessageLog.logMessage(m, 'Extensions')
             pass
         
     def doLink( self, url ):
