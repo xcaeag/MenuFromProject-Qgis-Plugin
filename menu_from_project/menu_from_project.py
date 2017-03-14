@@ -24,13 +24,12 @@ import os
 import sys
 from qgis.core import *
 
-#from qgis.PyQt.QtWebEngine import *
 from qgis.PyQt.QtCore import (QTranslator, QFile, QFileInfo, QSettings, QCoreApplication, QIODevice, Qt, QUuid, QUrl)
 from qgis.PyQt.QtGui import (QCursor, QFont, QDesktopServices)
 from qgis.PyQt.QtWidgets import (QToolTip, QMenu, QAction, QApplication, QDialog)
 
 from qgis.PyQt import QtXml
-from .ui_browser import Ui_browser
+import webbrowser
 
 from .menu_conf_dlg import menu_conf_dlg
 
@@ -447,7 +446,6 @@ class menu_from_project:
                             
         except:
             QgsMessageLog.logMessage('Menu from layer: Invalid ' + (fileName if fileName != None else ""), 'Extensions')
-            raise
             pass
         
         self.canvas.freeze(False)    
@@ -458,32 +456,13 @@ class menu_from_project:
        
     def do_help(self):
         try:
-            self.hdialog = QDialog()
-            self.hdialog.setModal(True)
-            self.hdialog.ui = Ui_browser()
-            self.hdialog.ui.setupUi(self.hdialog)
-            
-            # FIXME: Migrate WebView
-            #if os.path.isfile(self.path+"/help_"+self.myLocale+".html"):
-            #    self.hdialog.ui.helpContent.setUrl(QUrl(self.path+"/help_"+self.myLocale+".html"))
-            #else:
-            #    self.hdialog.ui.helpContent.setUrl(QUrl(self.path+"/help.html"))
+            if os.path.isfile(self.path+"/help_"+self.myLocale+".html"):
+                webbrowser.open(self.path+"/help_"+self.myLocale+".html")
+            else:
+                webbrowser.open(self.path+"/help.html")
 
-            #self.hdialog.ui.helpContent.page().setLinkDelegationPolicy(QtWebEngineKit.QWebEnginePage.DelegateExternalLinks) # Handle link clicks by yourself
-            #self.hdialog.ui.helpContent.linkClicked.connect(self.doLink)
-            
-            #self.hdialog.ui.helpContent.page().currentFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOn)
-            
-            self.hdialog.show()
-            result = self.hdialog.exec_()
-            del self.hdialog
         except Exception as e:
             for m in e.args:
                 QgsMessageLog.logMessage(m, 'Extensions')
             pass
         
-    def doLink( self, url ):
-        if url.host() == "" :
-            self.hdialog.ui.helpContent.page().currentFrame().load(url)
-        else:
-            QDesktopServices.openUrl( url )
