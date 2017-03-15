@@ -17,18 +17,11 @@ Tip : a separator can be configured by creating (in the original project) a laye
 Option of the plugin "Load all layers item" if it is checked load all the layers of the same level submenu
 Create group" option put the new layer in a group with the name of the parent level menu 
 
-
-
-#########################################################################
-
-
 MenuFromProject-Qgis-Plugin (Français)
 ======================================
 
 Cette extension pour QGIS permet de construire automatiquement des menus déroulants permettant d'ajouter des couches préstylées définies dans des projets qgis externes. 
 Tous les paramètrages des couches, le style, les étiquettes, les actions, les métadonnées.. sont conservées. La maintenance se résume à la gestion de quelques projets QGIS centralisés. 
-	
-La documentation complète est ici: 
 
 Comment l'utiliser?
 -------------------
