@@ -2,17 +2,10 @@
 """
 """
 
-import sys
-
-from types import *
 from .conf_dialog import Ui_ConfDialog
 
-from qgis.PyQt.QtCore import *
-from qgis.PyQt.QtGui import *
-from qgis.PyQt.QtWidgets import *
-
-from qgis.core import *
-from qgis.gui import *
+from PyQt5.QtCore import (Qt, QRect)
+from PyQt5.QtWidgets import (QHeaderView, QApplication, QTableWidgetItem, QToolButton, QLineEdit, QDialog, QFileDialog)
 
 class menu_conf_dlg(QDialog, Ui_ConfDialog):
 

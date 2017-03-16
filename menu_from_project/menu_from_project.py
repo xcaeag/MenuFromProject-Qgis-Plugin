@@ -21,12 +21,11 @@ email                : xavier.culos@eau-adour-garonne.fr
 
 # Import the PyQt and QGIS libraries
 import os
-import sys
-from qgis.core import *
+from qgis.core import (QgsMessageLog, QgsApplication, QgsProject)
 
-from qgis.PyQt.QtCore import (QTranslator, QFile, QFileInfo, QSettings, QCoreApplication, QIODevice, Qt, QUuid, QUrl)
-from qgis.PyQt.QtGui import (QCursor, QFont, QDesktopServices)
-from qgis.PyQt.QtWidgets import (QToolTip, QMenu, QAction, QApplication, QDialog)
+from qgis.PyQt.QtCore import (QTranslator, QFile, QFileInfo, QSettings, QCoreApplication, QIODevice, Qt, QUuid)
+from qgis.PyQt.QtGui import (QFont)
+from qgis.PyQt.QtWidgets import (QMenu, QAction, QApplication)
 
 from qgis.PyQt import QtXml
 import webbrowser
@@ -35,7 +34,6 @@ from .menu_conf_dlg import menu_conf_dlg
 
 # Initialize Qt resources from file resources.py
 from . import resources
-
 
 def getFirstChildByTagNameValue(elt, tagName, key, value):
     nodes = elt.elementsByTagName(tagName)

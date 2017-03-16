@@ -7,11 +7,8 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from qgis.PyQt.QtCore import *
-from qgis.PyQt.QtGui import *
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
-from PyQt5 import QtGui
 
 _fromUtf8 = lambda s: str(s)
 _toUtf8 = lambda s: str(s)
