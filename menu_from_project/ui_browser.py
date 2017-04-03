@@ -3,6 +3,7 @@
 from qgis.PyQt.QtCore import (QMetaObject, Qt)
 from PyQt5 import QtWidgets
 
+
 class Ui_browser(object):
     def setupUi(self, featureInfo):
         featureInfo.setObjectName("Help")
@@ -23,4 +24,3 @@ class Ui_browser(object):
 
     def retranslateUi(self, w):
         w.setWindowTitle("Help")
-

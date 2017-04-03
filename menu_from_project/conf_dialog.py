@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'W:\projets\QGis plugins\menu_from_project\conf_dialog.ui'
 #
 # Created: Tue Feb 19 16:47:11 2013
-#      by: PyQt4 UI code generator 4.8.4
+#      by: PyQt UI code generator 4.8.4
 #
 # WARNING! All changes made in this file will be lost!
 

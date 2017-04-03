@@ -3,9 +3,9 @@
 /***************************************************************************
 Name            : menu_from_project plugin
 Description          : Build layers shortcut menu based on QGis project
-Date                 :  10/11/2011 
+Date                 :  10/11/2011
 copyright            : (C) 2011 by AEAG
-email                : xavier.culos@eau-adour-garonne.fr 
+email                : xavier.culos@eau-adour-garonne.fr
  ***************************************************************************/
 
 /***************************************************************************
@@ -17,8 +17,10 @@ email                : xavier.culos@eau-adour-garonne.fr
  *                                                                         *
  ***************************************************************************/
  This script initializes the plugin, making it known to QGIS.
-"""  
-def classFactory(iface): 
-  # load menu_from_project class from file menu_from_project
-  from .menu_from_project import menu_from_project 
-  return menu_from_project(iface)
+"""
+
+
+def classFactory(iface):
+    # load menu_from_project class from file menu_from_project
+    from .menu_from_project import menu_from_project
+    return menu_from_project(iface)
