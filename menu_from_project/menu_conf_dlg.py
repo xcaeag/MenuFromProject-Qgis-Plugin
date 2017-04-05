@@ -48,19 +48,12 @@ class menu_conf_dlg(QDialog, Ui_ConfDialog):
             self.tableWidget.setCellWidget(idx, 0, pushButton)
 
             # helper = lambda _idx: (lambda: self.onFileSearchPressed(_idx))
-            pushButton.clicked.connect(lambda checked,
-                                       idx=idx: self.onFileSearchPressed(idx))
+            pushButton.clicked.connect(lambda checked, idx=idx: self.onFileSearchPressed(idx))
 
-        self.tableWidget.horizontalHeader().setSectionResizeMode(
-            0,
-            QHeaderView.Fixed)
+        self.tableWidget.horizontalHeader().setSectionResizeMode(0, QHeaderView.Fixed)
         self.tableWidget.horizontalHeader().resizeSection(0, 20)
-        self.tableWidget.horizontalHeader().setSectionResizeMode(
-            1,
-            QHeaderView.Interactive)
-        self.tableWidget.horizontalHeader().setSectionResizeMode(
-            2,
-            QHeaderView.Interactive)
+        self.tableWidget.horizontalHeader().setSectionResizeMode(1, QHeaderView.Interactive)
+        self.tableWidget.horizontalHeader().setSectionResizeMode(2, QHeaderView.Interactive)
 
         self.cbxLoadAll.setChecked(self.plugin.optionLoadAll)
         self.cbxLoadAll.setTristate(False)
@@ -78,9 +71,8 @@ class menu_conf_dlg(QDialog, Ui_ConfDialog):
             "menu_from_project",
             "Projects configuration", None
             ), item.text(),
-            QApplication.translate("menu_from_project",
-                                   "QGis projects (*.qgs)",
-                                   None))
+            QApplication.translate("menu_from_project", "QGis projects (*.qgs)", None))
+
         if filePath:
             itemFile = QTableWidgetItem(filePath[0])
             itemFile.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
@@ -113,8 +105,7 @@ class menu_conf_dlg(QDialog, Ui_ConfDialog):
                     except:
                         name = ""
 
-                self.plugin.projects.append(
-                    {"file": filename, "name": name})
+                self.plugin.projects.append({"file": filename, "name": name})
 
         self.plugin.optionTooltip = (self.cbxShowTooltip.isChecked())
         self.plugin.optionLoadAll = (self.cbxLoadAll.isChecked())
