@@ -25,8 +25,8 @@
       </message>
 
       <message>
-        <source>&#38;Load all</source>
-        <translation>&#38;Tout ajouter</translation>
+        <source>Load all</source>
+        <translation>Tout ajouter</translation>
       </message>
     </context>
 

@@ -293,7 +293,7 @@ class menu_from_project:
                 r = self.addMenuItem(initialFilename, childNode, sousmenu, domdoc, mapLayersDict)
 
                 if r and self.optionLoadAll and (len(sousmenu.actions()) > 1):
-                    action = QAction(self.tr("&Load all"), self.iface.mainWindow())
+                    action = QAction(self.tr("Load all"), self.iface.mainWindow())
                     font = QFont()
                     font.setBold(True)
                     action.setFont(font)
