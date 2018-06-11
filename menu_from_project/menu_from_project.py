@@ -21,12 +21,13 @@ email                : xavier.culos@eau-adour-garonne.fr
 
 # Import the PyQt and QGIS libraries
 import os
-from qgis.core import (QgsMessageLog, QgsApplication, QgsProject)
+from qgis.core import (QgsMessageLog, QgsApplication, QgsProject, QgsMapLayer, 
+    QgsVectorLayer, QgsRasterLayer, QgsReadWriteContext)
 
 from qgis.PyQt.QtCore import (QTranslator, QFile, QFileInfo, QSettings,
                               QCoreApplication, QIODevice, Qt, QUuid)
 from qgis.PyQt.QtGui import (QFont)
-from qgis.PyQt.QtWidgets import (QMenu, QAction)
+from qgis.PyQt.QtWidgets import (QWidget, QMenu, QAction)
 
 from qgis.PyQt import QtXml
 import webbrowser
@@ -91,7 +92,6 @@ class menu_from_project:
         self.optionCreateGroup = False
         self.optionLoadAll = False
         self.read()
-
         # default lang
         locale = QSettings().value("locale/userLocale")
         self.myLocale = locale[0:2]
@@ -211,10 +211,10 @@ class menu_from_project:
             try:
                 name = element.attribute("name")
                 layerId = element.attribute("id")
+                visible = element.attribute("checked", "") == "Qt::Checked"
+                expanded = element.attribute("expanded", "0") == "1"
                 action = QAction(name, self.iface.mainWindow())
-
-                embedNd = getFirstChildByAttrValue(
-                    element, "property", "key", "embedded")
+                embedNd = getFirstChildByAttrValue(element, "property", "key", "embedded")
 
                 # is layer embedded ?
                 if embedNd and embedNd.toElement().attribute("value") == "1":
@@ -232,8 +232,13 @@ class menu_from_project:
                     if efilename:
                         # add menu item
                         action.triggered.connect(
-                            lambda checked, f=efilename, lid=layerId, m=menu:
-                                self.do_aeag_menu(f, lid, m))
+                            lambda checked, 
+                            f=efilename, 
+                            lid=layerId, 
+                            m=menu, 
+                            v=visible, 
+                            x=expanded:self.do_aeag_menu(f, lid, m, v, x))
+
                         menu.addAction(action)
                         yaLayer = True
 
@@ -258,7 +263,9 @@ class menu_from_project:
                         lambda checked,
                         f=filename,
                         lid=layerId,
-                        m=menu: self.do_aeag_menu(f, lid, m))
+                        m=menu,
+                        v=visible, 
+                        x=expanded: self.do_aeag_menu(f, lid, m, v, x))
 
                     menu.addAction(action)
                     yaLayer = True
@@ -404,7 +411,7 @@ class menu_from_project:
             self.initMenus()
 
     # run method that performs all the real work
-    def do_aeag_menu(self, fileName, who, menu=None):
+    def do_aeag_menu(self, fileName, who, menu=None, visible=None, expanded=None):
         self.canvas.freeze(True)
         self.canvas.setRenderFlag(False)
         group = None
@@ -413,18 +420,16 @@ class menu_from_project:
         QgsApplication.setOverrideCursor(Qt.WaitCursor)
 
         try:
-            if type(menu.parentWidget()) == QMenu and self.optionCreateGroup:
+            if (type(menu.parentWidget()) == QMenu or type(menu.parentWidget()) == QWidget) and self.optionCreateGroup:
                 groupName = menu.title().replace("&", "")
-
                 group = QgsProject.instance().layerTreeRoot().findGroup(groupName)
-
                 if group is None:
                     group = QgsProject.instance().layerTreeRoot().addGroup(groupName)
-
+                
             # load all layers
             if fileName is None and who is None and self.optionLoadAll:
-                for action in reversed(menu.actions()):
-                    if action.text() != self.tr("&Load all"):
+                for action in menu.actions():
+                    if ((action.text() != self.tr("&Load all")) and (action.text() != "Load all")):
                         action.trigger()
             else:
                 # read QGis project
@@ -439,10 +444,11 @@ class menu_from_project:
                 node = getFirstChildByTagNameValue(doc.documentElement(), "maplayer", "id", who)
                 if node:
                     idNode = node.namedItem("id")
+                    layerType = node.toElement().attribute("type", "vector")
                     # give it a new id (for multiple import)
+                    import re
+                    newLayerId = "L%s" % re.sub("[{}-]", "", QUuid.createUuid().toString())
                     try:
-                        import re
-                        newLayerId = "L%s" % re.sub("[{}-]", "", QUuid.createUuid().toString())
                         idNode.firstChild().toText().setData(newLayerId)
                     except:
                         pass
@@ -462,19 +468,43 @@ class menu_from_project:
                         except:
                             pass
 
+
                     # read modified layer node
-                    QgsProject.instance().readLayer(node)
-
-                    if self.optionCreateGroup:
+                    if self.optionCreateGroup and group is not None:
+                        """# sol 1 bug : layer incomplete
+                        # because of API strange behaviour, we clone the layer... 
                         theLayer = QgsProject.instance().mapLayer(newLayerId)
-                        if group is not None and theLayer is not None:
-                            group.addLayer(theLayer)
+                        cloneLayer = theLayer.clone()
+                        # removing the first
+                        QgsProject.instance().removeMapLayer(newLayerId)
+                        # adding the clone...
+                        treeNode = group.addLayer(cloneLayer)
+                        treeNode.setExpanded(expanded)
+                        treeNode.setItemVisibilityChecked(visible)"""
 
-        except:
+                        # solution 2, ok !
+                        if layerType == "raster":
+                            theLayer = QgsRasterLayer()
+                        else:
+                            theLayer = QgsVectorLayer()
+
+                        theLayer.readLayerXml(node.toElement(), QgsReadWriteContext())
+                        # needed
+                        QgsProject.instance().addMapLayer(theLayer, False)
+                        # add to group
+                        treeNode = group.addLayer(theLayer)
+                        treeNode.setExpanded(expanded)
+                        treeNode.setItemVisibilityChecked(visible)
+                    else:
+                        # create layer
+                        QgsProject.instance().readLayer(node)
+
+        except Exception as e:
             QgsMessageLog.logMessage(
-                'Menu from layer: Invalid ' +
-                (fileName if fileName is not None else ""),
+                'Menu from layer: Invalid ' + (fileName if fileName is not None else ""),
                 'Extensions')
+            for m in e.args:
+                QgsMessageLog.logMessage(m, 'Extensions')
 
         self.canvas.freeze(False)
         self.canvas.setRenderFlag(True)
