@@ -20,12 +20,14 @@ email                : xavier.culos@eau-adour-garonne.fr
 """
 
 # Import the PyQt and QGIS libraries
+import zipfile
 import os
-from qgis.core import (QgsMessageLog, QgsApplication, QgsProject, QgsMapLayer, 
+from qgis.core import (QgsMessageLog, QgsApplication, QgsProject,
     QgsVectorLayer, QgsRasterLayer, QgsReadWriteContext)
 
 from qgis.PyQt.QtCore import (QTranslator, QFile, QFileInfo, QSettings,
-                              QCoreApplication, QIODevice, Qt, QUuid)
+                              QCoreApplication, QIODevice, Qt, QUuid,
+                              QTemporaryFile, QTemporaryDir, QDir)
 from qgis.PyQt.QtGui import (QFont)
 from qgis.PyQt.QtWidgets import (QWidget, QMenu, QAction)
 
@@ -83,6 +85,7 @@ class menu_from_project:
         self.path = QFileInfo(os.path.realpath(__file__)).path()
         self.iface = iface
         self.toolBar = None
+        self.project_registry = QgsApplication.projectStorageRegistry()
 
         # new multi projects var
         self.projects = []
@@ -232,11 +235,11 @@ class menu_from_project:
                     if efilename:
                         # add menu item
                         action.triggered.connect(
-                            lambda checked, 
-                            f=efilename, 
-                            lid=layerId, 
-                            m=menu, 
-                            v=visible, 
+                            lambda checked,
+                            f=efilename,
+                            lid=layerId,
+                            m=menu,
+                            v=visible,
                             x=expanded:self.do_aeag_menu(f, lid, m, v, x))
 
                         menu.addAction(action)
@@ -264,7 +267,7 @@ class menu_from_project:
                         f=filename,
                         lid=layerId,
                         m=menu,
-                        v=visible, 
+                        v=visible,
                         x=expanded: self.do_aeag_menu(f, lid, m, v, x))
 
                     menu.addAction(action)
@@ -357,10 +360,27 @@ class menu_from_project:
             try:
                 doc = QtXml.QDomDocument()
                 xml = QFile(project["file"])
-                if xml.open(QIODevice.ReadOnly | QIODevice.Text):
+                if xml.exists() and xml.open(QIODevice.ReadOnly | QIODevice.Text):
                     doc.setContent(xml)
+                    project_path = project["file"]
+                else:
+                    project_storage = self.project_registry.projectStorageFromUri(project["file"])
+                    temporary_zip = QTemporaryFile()
+                    temporary_zip.open()
+                    zip_project = temporary_zip.fileName()
+                    project_storage.readProject(project["file"], temporary_zip, QgsReadWriteContext())
 
-                self.addMenu(project["name"], project["file"], doc)
+                    temporary_unzip = QTemporaryDir()
+                    with zipfile.ZipFile(zip_project, "r") as zip_ref:
+                        zip_ref.extractall(temporary_unzip.path())
+
+                    project_filename = QDir(temporary_unzip.path()).entryList(['*.qgs'])[0]
+                    project_path = os.path.join(temporary_unzip.path(), project_filename)
+                    xml = QFile(project_path)
+                    if xml.open(QIODevice.ReadOnly | QIODevice.Text):
+                        doc.setContent(xml)
+
+                self.addMenu(project["name"], project_path, doc)
             except Exception as e:
                 QgsMessageLog.logMessage(
                     'Menu from layer: Invalid {}'.format(project["file"]), 'Extensions')
@@ -425,7 +445,7 @@ class menu_from_project:
                 group = QgsProject.instance().layerTreeRoot().findGroup(groupName)
                 if group is None:
                     group = QgsProject.instance().layerTreeRoot().addGroup(groupName)
-                
+
             # load all layers
             if fileName is None and who is None and self.optionLoadAll:
                 for action in menu.actions():

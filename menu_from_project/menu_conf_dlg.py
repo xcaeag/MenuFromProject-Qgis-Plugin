@@ -12,7 +12,6 @@ from PyQt5.QtWidgets import (QHeaderView, QApplication, QTableWidgetItem,
 class menu_conf_dlg(QDialog, Ui_ConfDialog):
 
     def __init__(self, parent, plugin):
-        print("Init")
         self.plugin = plugin
         self.parent = parent
         QDialog.__init__(self, parent)
@@ -74,12 +73,11 @@ class menu_conf_dlg(QDialog, Ui_ConfDialog):
             QApplication.translate("menu_from_project", "QGis projects (*.qgs)", None))
 
         if filePath:
-            itemFile = QTableWidgetItem(filePath[0])
-            itemFile.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-            self.tableWidget.setItem(row, 1, itemFile)
+            file_widget = self.tableWidget.cellWidget(row, 1)
+            file_widget.setText(filePath[0])
 
-            le = self.tableWidget.cellWidget(row, 2)
-            name = le.text()
+            name_widget = self.tableWidget.cellWidget(row, 2)
+            name = name_widget.text()
             if not name:
                 try:
                     name = filePath[0].split('/')[-1]
@@ -88,16 +86,16 @@ class menu_conf_dlg(QDialog, Ui_ConfDialog):
                     name = ""
                     raise
 
-                le.setText(name)
+                name_widget.setText(name)
 
     def onAccepted(self):
         self.plugin.projects = []
         for row in range(self.tableWidget.rowCount()):
-            itemFile = self.tableWidget.item(row, 1)
-            if itemFile.text():
-                le = self.tableWidget.cellWidget(row, 2)
-                name = le.text()
-                filename = itemFile.text()
+            file_widget = self.tableWidget.cellWidget(row, 1)
+            if file_widget.text():
+                name_widget = self.tableWidget.cellWidget(row, 2)
+                name = name_widget.text()
+                filename = file_widget.text()
                 if not name:
                     try:
                         name = filename.split('/')[-1]
@@ -136,6 +134,8 @@ class menu_conf_dlg(QDialog, Ui_ConfDialog):
         le = QLineEdit()
         le.setText("")
         self.tableWidget.setCellWidget(row, 2, le)
+
+        self.tableWidget.setCellWidget(row, 1, QLineEdit())
 
         self.tableWidget.setCellWidget(row, 0, pushButton)
 
