@@ -347,6 +347,37 @@ class menu_from_project:
                 node = node.firstChild()
                 self.addMenuItem(filename, node, projectMenu, domdoc, mapLayersDict)
 
+    def getQgsDoc(self, uri):
+        #QgsMessageLog.logMessage(uri, 'Extensions')
+
+        doc = QtXml.QDomDocument()
+        file = QFile(uri)
+        # file on disk
+        if file.exists() and file.open(QIODevice.ReadOnly | QIODevice.Text):
+            doc.setContent(file)
+            project_path = uri
+        else:
+            # uri PG
+            project_storage = self.project_registry.projectStorageFromUri(uri)
+
+            temporary_zip = QTemporaryFile()
+            temporary_zip.open()
+            zip_project = temporary_zip.fileName()
+
+            project_storage.readProject(uri, temporary_zip, QgsReadWriteContext())
+
+            temporary_unzip = QTemporaryDir()
+            with zipfile.ZipFile(zip_project, "r") as zip_ref:
+                zip_ref.extractall(temporary_unzip.path())
+
+            project_filename = QDir(temporary_unzip.path()).entryList(['*.qgs'])[0]
+            project_path = os.path.join(temporary_unzip.path(), project_filename)
+            xml = QFile(project_path)
+            if xml.open(QIODevice.ReadOnly | QIODevice.Text):
+                doc.setContent(xml)
+
+        return (doc, project_path)
+
     def initMenus(self):
         menuBar = self.iface.editMenu().parentWidget()
         for action in self.menubarActions:
@@ -358,32 +389,12 @@ class menu_from_project:
         QgsApplication.setOverrideCursor(Qt.WaitCursor)
         for project in self.projects:
             try:
-                doc = QtXml.QDomDocument()
-                xml = QFile(project["file"])
-                if xml.exists() and xml.open(QIODevice.ReadOnly | QIODevice.Text):
-                    doc.setContent(xml)
-                    project_path = project["file"]
-                else:
-                    project_storage = self.project_registry.projectStorageFromUri(project["file"])
-                    temporary_zip = QTemporaryFile()
-                    temporary_zip.open()
-                    zip_project = temporary_zip.fileName()
-                    project_storage.readProject(project["file"], temporary_zip, QgsReadWriteContext())
-
-                    temporary_unzip = QTemporaryDir()
-                    with zipfile.ZipFile(zip_project, "r") as zip_ref:
-                        zip_ref.extractall(temporary_unzip.path())
-
-                    project_filename = QDir(temporary_unzip.path()).entryList(['*.qgs'])[0]
-                    project_path = os.path.join(temporary_unzip.path(), project_filename)
-                    xml = QFile(project_path)
-                    if xml.open(QIODevice.ReadOnly | QIODevice.Text):
-                        doc.setContent(xml)
-
-                self.addMenu(project["name"], project_path, doc)
+                uri = project["file"]
+                doc, path = self.getQgsDoc(uri)
+                self.addMenu(project["name"], path, doc)
             except Exception as e:
                 QgsMessageLog.logMessage(
-                    'Menu from layer: Invalid {}'.format(project["file"]), 'Extensions')
+                    'Menu from layer: Invalid {}'.format(uri), 'Extensions')
                 for m in e.args:
                     QgsMessageLog.logMessage(m, 'Extensions')
 
@@ -431,7 +442,7 @@ class menu_from_project:
             self.initMenus()
 
     # run method that performs all the real work
-    def do_aeag_menu(self, fileName, who, menu=None, visible=None, expanded=None):
+    def do_aeag_menu(self, uri, who, menu=None, visible=None, expanded=None):
         self.canvas.freeze(True)
         self.canvas.setRenderFlag(False)
         group = None
@@ -447,16 +458,13 @@ class menu_from_project:
                     group = QgsProject.instance().layerTreeRoot().addGroup(groupName)
 
             # load all layers
-            if fileName is None and who is None and self.optionLoadAll:
+            if uri is None and who is None and self.optionLoadAll:
                 for action in menu.actions():
                     if ((action.text() != self.tr("&Load all")) and (action.text() != "Load all")):
                         action.trigger()
             else:
                 # read QGis project
-                doc = QtXml.QDomDocument()
-                xml = QFile(fileName)
-                if xml.open(QIODevice.ReadOnly | QIODevice.Text):
-                    doc.setContent(xml)
+                doc, path = self.getQgsDoc(uri)
 
                 # is project in relative path ?
                 absolute = self.isAbsolute(doc)
