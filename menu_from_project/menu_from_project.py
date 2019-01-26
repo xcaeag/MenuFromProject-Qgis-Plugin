@@ -326,7 +326,7 @@ class menu_from_project:
 
     def addMenu(self, name, filename, domdoc):
         # main project menu
-        menuBar = self.iface.editMenu().parentWidget()
+        menuBar = self.iface.addLayerMenu()
         projectMenu = QMenu('&'+name, menuBar)
 
         projectMenu.setToolTipsVisible(self.optionTooltip)
@@ -379,7 +379,7 @@ class menu_from_project:
         return (doc, project_path)
 
     def initMenus(self):
-        menuBar = self.iface.editMenu().parentWidget()
+        menuBar = self.iface.addLayerMenu()
         for action in self.menubarActions:
             menuBar.removeAction(action)
             del action
@@ -417,7 +417,7 @@ class menu_from_project:
         self.initMenus()
 
     def unload(self):
-        menuBar = self.iface.editMenu().parentWidget()
+        menuBar = self.iface.addLayerMenu()
         for action in self.menubarActions:
             menuBar.removeAction(action)
 
