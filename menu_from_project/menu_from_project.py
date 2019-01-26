@@ -24,10 +24,10 @@ import re
 import webbrowser
 import zipfile
 
-from qgis.core import (QgsMessageLog, QgsApplication, QgsProject,
+from qgis.core import (QgsMessageLog, QgsApplication, QgsProject, QgsSettings,
     QgsVectorLayer, QgsRasterLayer, QgsReadWriteContext)
 
-from qgis.PyQt.QtCore import (QTranslator, QFile, QFileInfo, QSettings,
+from qgis.PyQt.QtCore import (QTranslator, QFile, QFileInfo,
                               QCoreApplication, QIODevice, Qt, QUuid,
                               QTemporaryFile, QTemporaryDir, QDir)
 from qgis.PyQt.QtGui import (QFont)
@@ -96,8 +96,17 @@ class MenuFromProject:
         self.optionCreateGroup = False
         self.optionLoadAll = False
         self.read()
+        settings = QgsSettings()
+
+        if settings.value('menu_from_project/is_setup_visible') is None:
+            # This setting does not exist. We add it by default.
+            settings.setValue('menu_from_project/is_setup_visible', True)
+
+        # If we want to hide the dialog setup to users.
+        self.is_setup_visible = settings.value('menu_from_project/is_setup_visible', True, bool)
+
         # default lang
-        locale = QSettings().value("locale/userLocale")
+        locale = settings.value("locale/userLocale")
         self.myLocale = locale[0:2]
         # dictionary
         localePath = self.path+"/i18n/menu_from_project_" + self.myLocale + \
@@ -118,7 +127,7 @@ class MenuFromProject:
 
     def store(self):
         """Store the configuration in the QSettings."""
-        s = QSettings()
+        s = QgsSettings()
         s.remove("menu_from_project/projectFilePath")
 
         s.setValue("menu_from_project/optionTooltip", self.optionTooltip)
@@ -135,7 +144,7 @@ class MenuFromProject:
 
     def read(self):
         """Read the configuration from QSettings."""
-        s = QSettings()
+        s = QgsSettings()
         try:
             # old single project conf
             filePath = s.value("menu_from_project/projectFilePath", "")
@@ -450,17 +459,18 @@ class MenuFromProject:
         QgsApplication.restoreOverrideCursor()
 
     def initGui(self):
-        self.act_aeag_menu_config = QAction(
-            self.tr("Projects configuration")+"...", self.iface.mainWindow())
+        if self.is_setup_visible:
+            self.act_aeag_menu_config = QAction(
+                self.tr("Projects configuration")+"...", self.iface.mainWindow())
 
-        self.iface.addPluginToMenu(
-            self.tr("&Layers menu from project"), self.act_aeag_menu_config)
-        # Add actions to the toolbar
-        self.act_aeag_menu_config.triggered.connect(self.do_aeag_menu_config)
+            self.iface.addPluginToMenu(
+                self.tr("&Layers menu from project"), self.act_aeag_menu_config)
+            # Add actions to the toolbar
+            self.act_aeag_menu_config.triggered.connect(self.do_aeag_menu_config)
 
-        self.act_aeag_menu_help = QAction(self.tr("Help") + "...", self.iface.mainWindow())
-        self.iface.addPluginToMenu(self.tr("&Layers menu from project"), self.act_aeag_menu_help)
-        self.act_aeag_menu_help.triggered.connect(self.do_help)
+            self.act_aeag_menu_help = QAction(self.tr("Help") + "...", self.iface.mainWindow())
+            self.iface.addPluginToMenu(self.tr("&Layers menu from project"), self.act_aeag_menu_help)
+            self.act_aeag_menu_help.triggered.connect(self.do_help)
 
         # build menu
         self.initMenus()
@@ -470,12 +480,13 @@ class MenuFromProject:
         for action in self.menubarActions:
             menuBar.removeAction(action)
 
-        self.iface.removePluginMenu(self.tr("&Layers menu from project"),
-                                    self.act_aeag_menu_config)
-        self.iface.removePluginMenu(self.tr("&Layers menu from project"),
-                                    self.act_aeag_menu_help)
-        self.act_aeag_menu_config.triggered.disconnect(self.do_aeag_menu_config)
-        self.act_aeag_menu_help.triggered.disconnect(self.do_help)
+        if self.is_setup_visible:
+            self.iface.removePluginMenu(self.tr("&Layers menu from project"),
+                                        self.act_aeag_menu_config)
+            self.iface.removePluginMenu(self.tr("&Layers menu from project"),
+                                        self.act_aeag_menu_help)
+            self.act_aeag_menu_config.triggered.disconnect(self.do_aeag_menu_config)
+            self.act_aeag_menu_help.triggered.disconnect(self.do_help)
 
         self.store()
 
