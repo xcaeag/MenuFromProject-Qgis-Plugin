@@ -1,16 +1,21 @@
 # -*- coding: utf-8 -*-
 """
+Dialog for setting up the plugin.
 """
 
-from .conf_dialog import Ui_ConfDialog
+from os.path import join, dirname
 
-from PyQt5.QtCore import (Qt, QRect)
-from PyQt5.QtWidgets import (QHeaderView, QApplication, QTableWidgetItem,
+from qgis.PyQt import uic
+from qgis.PyQt.QtCore import (Qt, QRect)
+from qgis.PyQt.QtWidgets import (QHeaderView, QApplication, QTableWidgetItem,
                              QToolButton, QLineEdit, QDialog, QFileDialog)
 
 from qgis.core import (QgsMessageLog)
 
-class menu_conf_dlg(QDialog, Ui_ConfDialog):
+FORM_CLASS, _ = uic.loadUiType(join(dirname(__file__), 'conf_dialog.ui'))
+
+
+class MenuConfDialog(QDialog, FORM_CLASS):
 
     def __init__(self, parent, plugin):
         self.plugin = plugin
@@ -23,7 +28,6 @@ class menu_conf_dlg(QDialog, Ui_ConfDialog):
             QHeaderView.ResizeToContents)
         self.tableWidget.setRowCount(len(self.plugin.projects))
         self.buttonBox.accepted.connect(self.onAccepted)
-        self.buttonBox.rejected.connect(self.onRejected)
         self.btnAdd.clicked.connect(self.onAdd)
         self.btnDelete.clicked.connect(self.onDelete)
 
@@ -93,7 +97,6 @@ class menu_conf_dlg(QDialog, Ui_ConfDialog):
                         name = name.split('.')[0]
                     except:
                         name = ""
-                        pass
 
                     name_widget.setText(name)
             except:
@@ -125,9 +128,6 @@ class menu_conf_dlg(QDialog, Ui_ConfDialog):
         self.plugin.optionCreateGroup = (self.cbxCreateGroup.isChecked())
 
         self.plugin.store()
-
-    def onRejected(self):
-        pass
 
     def onAdd(self):
         row = self.tableWidget.rowCount()

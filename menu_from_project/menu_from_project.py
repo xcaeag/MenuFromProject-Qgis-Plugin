@@ -19,9 +19,11 @@ email                : xavier.culos@eau-adour-garonne.fr
 
 """
 
-# Import the PyQt and QGIS libraries
-import zipfile
 import os
+import re
+import webbrowser
+import zipfile
+
 from qgis.core import (QgsMessageLog, QgsApplication, QgsProject,
     QgsVectorLayer, QgsRasterLayer, QgsReadWriteContext)
 
@@ -30,11 +32,9 @@ from qgis.PyQt.QtCore import (QTranslator, QFile, QFileInfo, QSettings,
                               QTemporaryFile, QTemporaryDir, QDir)
 from qgis.PyQt.QtGui import (QFont)
 from qgis.PyQt.QtWidgets import (QWidget, QMenu, QAction)
-
 from qgis.PyQt import QtXml
-import webbrowser
 
-from .menu_conf_dlg import menu_conf_dlg
+from .menu_conf_dlg import MenuConfDialog
 
 
 def getFirstChildByTagNameValue(elt, tagName, key, value):
@@ -79,7 +79,7 @@ def getMapLayersDict(domdoc):
     return r
 
 
-class menu_from_project:
+class MenuFromProject:
 
     def __init__(self, iface):
         self.path = QFileInfo(os.path.realpath(__file__)).path()
@@ -98,7 +98,7 @@ class menu_from_project:
         # default lang
         locale = QSettings().value("locale/userLocale")
         self.myLocale = locale[0:2]
-        # dictionnary
+        # dictionary
         localePath = self.path+"/i18n/menu_from_project_" + self.myLocale + \
             ".qm"
         # translator
@@ -111,6 +111,7 @@ class menu_from_project:
         return QCoreApplication.translate('menu_from_project', message)
 
     def store(self):
+        """Store the configuration in the QSettings."""
         s = QSettings()
         s.remove("menu_from_project/projectFilePath")
 
@@ -127,6 +128,7 @@ class menu_from_project:
         s.endArray()
 
     def read(self):
+        """Read the configuration from QSettings."""
         s = QSettings()
         try:
             # old single project conf
@@ -142,8 +144,8 @@ class menu_from_project:
                 size = s.beginReadArray("projects")
                 for i in range(size):
                     s.setArrayIndex(i)
-                    file = ((s.value("file").toString()))
-                    name = ((s.value("name").toString()))
+                    file = s.value("file").toString()
+                    name = s.value("name").toString()
                     if file:
                         self.projects.append({"file": file, "name": name})
                 s.endArray()
@@ -170,6 +172,11 @@ class menu_from_project:
             pass
 
     def isAbsolute(self, doc):
+        """Return true if the given XML document is using absolute path.
+
+        :param doc: The QGIS project as XML document.
+        :type doc: QDomDocument
+        """
         absolute = False
         try:
             props = doc.elementsByTagName("properties")
@@ -184,6 +191,14 @@ class menu_from_project:
         return absolute
 
     def addToolTip(self, ml, action):
+        """Search and add a tooltip to a given action according to a maplayer.
+
+        :param ml: The maplayer as XML definition.
+        :type ml: documentElement
+
+        :param action: The action.
+        :type action: QAction
+        """
         if ml is not None:
             try:
                 title = ml.namedItem("title").firstChild().toText().data()
@@ -202,6 +217,7 @@ class menu_from_project:
                 pass
 
     def addMenuItem(self, filename, node, menu, domdoc, mapLayersDict):
+        """Add menu to an item."""
         yaLayer = False
         initialFilename = filename
         if node is None or node.nodeName() == "":
@@ -348,6 +364,16 @@ class menu_from_project:
                 self.addMenuItem(filename, node, projectMenu, domdoc, mapLayersDict)
 
     def getQgsDoc(self, uri):
+        """Return the XML document and the path from an URI.
+
+        The URI can be a filepath or stored in database.
+
+        :param uri: The URI to fetch.
+        :type uri: basestring
+
+        :return: Tuple with XML XML document and the filepath.
+        :rtype: (QDomDocument, basestring)
+        """
         #QgsMessageLog.logMessage(uri, 'Extensions')
 
         doc = QtXml.QDomDocument()
@@ -376,7 +402,7 @@ class menu_from_project:
             if xml.open(QIODevice.ReadOnly | QIODevice.Text):
                 doc.setContent(xml)
 
-        return (doc, project_path)
+        return doc, project_path
 
     def initMenus(self):
         menuBar = self.iface.editMenu().parentWidget()
@@ -431,7 +457,7 @@ class menu_from_project:
         self.store()
 
     def do_aeag_menu_config(self):
-        dlg = menu_conf_dlg(self.iface.mainWindow(), self)
+        dlg = MenuConfDialog(self.iface.mainWindow(), self)
         dlg.setModal(True)
 
         dlg.show()
@@ -446,8 +472,6 @@ class menu_from_project:
         self.canvas.freeze(True)
         self.canvas.setRenderFlag(False)
         group = None
-        theLayer = None
-        groupName = None
         QgsApplication.setOverrideCursor(Qt.WaitCursor)
 
         try:
@@ -474,7 +498,6 @@ class menu_from_project:
                     idNode = node.namedItem("id")
                     layerType = node.toElement().attribute("type", "vector")
                     # give it a new id (for multiple import)
-                    import re
                     newLayerId = "L%s" % re.sub("[{}-]", "", QUuid.createUuid().toString())
                     try:
                         idNode.firstChild().toText().setData(newLayerId)
@@ -490,12 +513,13 @@ class menu_from_project:
                             provider = providerNode.firstChild().toText().data()
 
                             if provider == "ogr" and (ds.find(".") == 0):
-                                projectpath = QFileInfo(os.path.realpath(fileName)).path()
-                                newlayerpath = projectpath + "/" + ds
-                                datasourceNode.firstChild().toText().setData(newlayerpath)
+                                # fixme filename is not defined
+                                # projectpath = QFileInfo(os.path.realpath(fileName)).path()
+                                # newlayerpath = projectpath + "/" + ds
+                                # datasourceNode.firstChild().toText().setData(newlayerpath)
+                                pass
                         except:
                             pass
-
 
                     # read modified layer node
                     if self.optionCreateGroup and group is not None:
@@ -528,9 +552,10 @@ class menu_from_project:
                         QgsProject.instance().readLayer(node)
 
         except Exception as e:
-            QgsMessageLog.logMessage(
-                'Menu from layer: Invalid ' + (fileName if fileName is not None else ""),
-                'Extensions')
+            # fixme fileName is not defined
+            # QgsMessageLog.logMessage(
+            #     'Menu from layer: Invalid ' + (fileName if fileName is not None else ""),
+            #     'Extensions')
             for m in e.args:
                 QgsMessageLog.logMessage(m, 'Extensions')
 
@@ -540,6 +565,7 @@ class menu_from_project:
         QgsApplication.restoreOverrideCursor()
 
     def do_help(self):
+        """Open the HTML help page in webbrowser."""
         try:
             if os.path.isfile(self.path+"/help_"+self.myLocale+".html"):
                 webbrowser.open(self.path+"/help_"+self.myLocale+".html")
