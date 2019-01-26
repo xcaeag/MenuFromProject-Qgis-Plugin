@@ -397,6 +397,7 @@ class MenuFromProject:
             project_storage.readProject(uri, temporary_zip, QgsReadWriteContext())
 
             temporary_unzip = QTemporaryDir()
+            temporary_unzip.setAutoRemove(False)
             with zipfile.ZipFile(zip_project, "r") as zip_ref:
                 zip_ref.extractall(temporary_unzip.path())
 
