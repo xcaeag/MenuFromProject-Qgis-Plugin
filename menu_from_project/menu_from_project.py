@@ -107,8 +107,13 @@ class MenuFromProject:
             self.translator.load(localePath)
             QCoreApplication.installTranslator(self.translator)
 
-    def tr(self, message):
+    @staticmethod
+    def tr(message):
         return QCoreApplication.translate('menu_from_project', message)
+
+    @staticmethod
+    def log(message, application='MenuFromProject'):
+        QgsMessageLog.logMessage(message, application)
 
     def store(self):
         """Store the configuration in the QSettings."""
@@ -268,10 +273,9 @@ class MenuFromProject:
                             if mapLayer is not None:
                                 self.addToolTip(mapLayer, action)
                             else:
-                                QgsMessageLog.logMessage(
+                                self.log(
                                     "Menu from layer: " + layerId +
-                                    " not found in project " + efilename,
-                                    'Extensions')
+                                    " not found in project " + efilename)
 
                 # layer is not embedded
                 else:
@@ -290,7 +294,7 @@ class MenuFromProject:
                     yaLayer = True
             except Exception as e:
                 for m in e.args:
-                    QgsMessageLog.logMessage(m, 'Extensions')
+                    self.log(m)
 
         # / if element.tagName() == "layer-tree-layer":
 
@@ -374,7 +378,7 @@ class MenuFromProject:
         :return: Tuple with XML XML document and the filepath.
         :rtype: (QDomDocument, basestring)
         """
-        #QgsMessageLog.logMessage(uri, 'Extensions')
+        # self.log(uri)
 
         doc = QtXml.QDomDocument()
         file = QFile(uri)
@@ -419,10 +423,10 @@ class MenuFromProject:
                 doc, path = self.getQgsDoc(uri)
                 self.addMenu(project["name"], path, doc)
             except Exception as e:
-                QgsMessageLog.logMessage(
-                    'Menu from layer: Invalid {}'.format(uri), 'Extensions')
+                self.log(
+                    'Menu from layer: Invalid {}'.format(uri))
                 for m in e.args:
-                    QgsMessageLog.logMessage(m, 'Extensions')
+                    self.log(m)
 
         QgsApplication.restoreOverrideCursor()
 
@@ -553,11 +557,10 @@ class MenuFromProject:
 
         except Exception as e:
             # fixme fileName is not defined
-            # QgsMessageLog.logMessage(
-            #     'Menu from layer: Invalid ' + (fileName if fileName is not None else ""),
-            #     'Extensions')
+            # self.log(
+            #     'Menu from layer: Invalid ' + (fileName if fileName is not None else ""))
             for m in e.args:
-                QgsMessageLog.logMessage(m, 'Extensions')
+                self.log(m)
 
         self.canvas.freeze(False)
         self.canvas.setRenderFlag(True)
@@ -574,4 +577,4 @@ class MenuFromProject:
 
         except Exception as e:
             for m in e.args:
-                QgsMessageLog.logMessage(m, 'Extensions')
+                self.log(m)

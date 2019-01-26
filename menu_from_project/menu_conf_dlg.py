@@ -10,7 +10,6 @@ from qgis.PyQt.QtCore import (Qt, QRect)
 from qgis.PyQt.QtWidgets import (QHeaderView, QApplication, QTableWidgetItem,
                              QToolButton, QLineEdit, QDialog, QFileDialog)
 
-from qgis.core import (QgsMessageLog)
 
 FORM_CLASS, _ = uic.loadUiType(join(dirname(__file__), 'conf_dialog.ui'))
 
@@ -104,12 +103,12 @@ class MenuConfDialog(QDialog, FORM_CLASS):
 
     def onAccepted(self):
         self.plugin.projects = []
-        #QgsMessageLog.logMessage("count : {}".format(self.tableWidget.rowCount()), 'Extensions')
+        # self.plugin.log("count : {}".format(self.tableWidget.rowCount()))
         for row in range(self.tableWidget.rowCount()):
             file_widget = self.tableWidget.cellWidget(row, 1)
-            #QgsMessageLog.logMessage("row : {}".format(row), 'Extensions')
+            # self.plugin.log("row : {}".format(row))
             if file_widget and file_widget.text():
-                #QgsMessageLog.logMessage("row {} : {}".format(row, file_widget.text()), 'Extensions')
+                # self.plugin.log("row {} : {}".format(row, file_widget.text()))
 
                 name_widget = self.tableWidget.cellWidget(row, 2)
                 name = name_widget.text()
