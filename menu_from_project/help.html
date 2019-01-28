@@ -2,13 +2,14 @@
 <body>
     <h1>Build layers shortcut menu based on QGis project</h1>
 
-<h2>Purpose</h2> 
+<h2>Purpose</h2>
 Allow easy opening of layers maintaining their style.
 
-<h2>Principle</h2> 
+<h2>Principle</h2>
 <p>When the plugin is configured (choice of a project via the plugin menu), a new menu appears, based on all the layers that contain the original project.</p>
 <p>Tip : a separator can be configured by creating (in the original project) a layer group named "-"</p>
 <p>Attention : the project must be configured to record absolute paths</p>
+<p>The project might be stored in a PostgreSQL database. You need to copy/paste the project path (Project properties -> General) into the field.</p>
 
 <p>Option of the plugin "Load all layers item" if it is checked load all the layers of the same level submenu</p>
 <p>"Create group" option put the new layer in a group with the name of the parent level menu (v 1.9)</p>
