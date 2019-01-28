@@ -78,7 +78,7 @@ class menu_conf_dlg(QDialog, Ui_ConfDialog):
             "menu_from_project",
             "Projects configuration", None
             ), item.text(),
-            QApplication.translate("menu_from_project", "QGis projects (*.qgs)", None))
+            QApplication.translate("menu_from_project", "QGis projects (*.qgs, *.qgz)", None))
 
         if filePath:
             try:
