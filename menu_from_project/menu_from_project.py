@@ -89,6 +89,7 @@ class MenuFromProject:
 
         # new multi projects var
         self.projects = []
+        self.docs = dict()
         self.menubarActions = []
         self.canvas = self.iface.mapCanvas()
         self.optionTooltip = False
@@ -378,7 +379,9 @@ class MenuFromProject:
         :return: Tuple with XML XML document and the filepath.
         :rtype: (QDomDocument, basestring)
         """
-        # self.log(uri)
+
+        if uri in self.docs:
+            return self.docs[uri], uri
 
         doc = QtXml.QDomDocument()
         file = QFile(uri)
@@ -419,6 +422,8 @@ class MenuFromProject:
             xml = QFile(project_path)
             if xml.open(QIODevice.ReadOnly | QIODevice.Text):
                 doc.setContent(xml)
+
+        self.docs[project_path] = doc
 
         return doc, project_path
 
@@ -512,6 +517,7 @@ class MenuFromProject:
                 absolute = self.isAbsolute(doc)
 
                 node = getFirstChildByTagNameValue(doc.documentElement(), "maplayer", "id", who)
+                node = node.cloneNode()
                 if node:
                     idNode = node.namedItem("id")
                     layerType = node.toElement().attribute("type", "vector")
@@ -568,6 +574,9 @@ class MenuFromProject:
                     else:
                         # create layer
                         QgsProject.instance().readLayer(node)
+
+                else:
+                    self.log("{} not found".format(who))
 
         except Exception as e:
             # fixme fileName is not defined
