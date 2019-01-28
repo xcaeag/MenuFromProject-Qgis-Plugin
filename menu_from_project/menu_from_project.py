@@ -383,9 +383,22 @@ class MenuFromProject:
         doc = QtXml.QDomDocument()
         file = QFile(uri)
         # file on disk
-        if file.exists() and file.open(QIODevice.ReadOnly | QIODevice.Text):
+        if file.exists() and file.open(QIODevice.ReadOnly | QIODevice.Text) and (QFileInfo(file).suffix() == 'qgs'):
             doc.setContent(file)
             project_path = uri
+
+        elif file.exists() and (QFileInfo(file).suffix() == 'qgz'):
+            temporary_unzip = QTemporaryDir()
+            temporary_unzip.setAutoRemove(False)
+            with zipfile.ZipFile(uri, "r") as zip_ref:
+                zip_ref.extractall(temporary_unzip.path())
+
+            project_filename = QDir(temporary_unzip.path()).entryList(['*.qgs'])[0]
+            project_path = os.path.join(temporary_unzip.path(), project_filename)
+            xml = QFile(project_path)
+            if xml.open(QIODevice.ReadOnly | QIODevice.Text):
+                doc.setContent(xml)
+
         else:
             # uri PG
             project_storage = self.project_registry.projectStorageFromUri(uri)
