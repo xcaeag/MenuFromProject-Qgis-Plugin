@@ -73,7 +73,7 @@
      </column>
      <column>
       <property name="text">
-       <string>QGis Project</string>
+       <string>QGIS Project</string>
       </property>
      </column>
      <column>
