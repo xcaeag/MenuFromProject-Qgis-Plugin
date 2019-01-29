@@ -15,14 +15,16 @@ qgisMaximumVersion=3.98
 description=Build layers shortcuts menus based on QGis projects
 about=Allow easy opening of layers maintaining their style.
 
-version=0.8.3
+version=0.9.0
 
 # end of mandatory metadata
 
 # Optional items:
 
 # Uncomment the following line and add your changelog entries:
-changelog=0.8.3 : When create group option is checked, the original layer visibility is preserved.
+changelog=0.9.0 : Allow a project stored in database, thanks to Etienne Trimaille (https://github.com/Gustry)
+      allow qgz projects
+    0.8.3 : When create group option is checked, the original layer visibility is preserved.
       thanks to Eric LAZZARETTI
     0.8.2 : Code cleaning
     0.8.1 : QGis 2.99 compatible, Python 3, QT5
