@@ -447,10 +447,12 @@ class MenuFromProject:
         QgsApplication.setOverrideCursor(Qt.WaitCursor)
         for project in self.projects:
             try:
+                project["valid"] = True
                 uri = project["file"]
                 doc, path = self.getQgsDoc(uri)
                 self.addMenu(project["name"], path, doc)
             except Exception as e:
+                project["valid"] = False
                 self.log(
                     'Menu from layer: Invalid {}'.format(uri))
                 for m in e.args:

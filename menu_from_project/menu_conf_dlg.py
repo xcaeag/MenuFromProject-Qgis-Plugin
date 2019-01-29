@@ -50,7 +50,9 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             # uri
             le = QLineEdit()
             le.setText((project["file"]))
+            le.setStyleSheet("color: {};".format('black' if project["valid"] else 'red'))
             self.tableWidget.setCellWidget(idx, 1, le)
+            le.textChanged.connect(self.onTextChanged)
 
             # name
             le = QLineEdit()
@@ -81,7 +83,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             "menu_from_project",
             "Projects configuration", None
             ), item.text(),
-            QApplication.translate("menu_from_project", "QGis projects (*.qgs, *.qgz)", None))
+            QApplication.translate("menu_from_project", "QGis projects (*.qgs *.qgz)", None))
 
         if filePath:
             try:
@@ -146,7 +148,11 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.tableWidget.setItem(row, 1, itemFile)
 
         self.tableWidget.setCellWidget(row, 0, pushButton)
-        self.tableWidget.setCellWidget(row, 1, QLineEdit())
+
+        le = QLineEdit()
+        le.textChanged.connect(self.onTextChanged)
+        self.tableWidget.setCellWidget(row, 1, le)
+
         self.tableWidget.setCellWidget(row, 2, QLineEdit())
 
         pushButton.clicked.connect(lambda checked,
@@ -157,4 +163,13 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         try:
             self.tableWidget.removeRow(sr[0].topRow())
         except:
+            pass
+
+    def onTextChanged(self, text):
+        file_widget = self.sender()
+        try:
+            self.plugin.getQgsDoc(text)
+            file_widget.setStyleSheet("color: {};".format('black'))
+        except:
+            file_widget.setStyleSheet("color: {};".format('red'))
             pass
