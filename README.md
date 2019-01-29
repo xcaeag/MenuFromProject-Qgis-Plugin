@@ -41,7 +41,7 @@ Chaque item de menu correspond alors à une couche du projet et déclenche son o
 
 Astuce : des séparateurs seront crées à l'emplacement des groupes de couche nommés "-" dans le projet original.
 
-Attention : le projet doit ëtre configuré de façon à enregistrer des chemins absolus.
+Attention : le projet doit être configuré de façon à enregistrer des chemins absolus.
 
 Le projet peut-être stocké en base PostgreSQL (https://qgis.org/en/site/forusers/visualchangelog32/index.html#feature-saving-and-loading-projects-in-postgresql-database). Pour cela il faut copier/coller le chemin/URI du projet (Propriétés du projet -> Général) dans le champ...  
 ...et QGZ (https://qgis.org/en/site/forusers/visualchangelog30/index.html#feature-new-zipped-project-file-format-qgz)
