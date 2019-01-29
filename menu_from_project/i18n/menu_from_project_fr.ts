@@ -10,8 +10,8 @@
       </message>
 
       <message>
-        <source>QGis projects (*.qgs)</source>
-        <translation>Projets QGis (*.qgs)</translation>
+        <source>QGis projects (*.qgs *.qgz)</source>
+        <translation>Projets QGis (*.qgs *.qgz)</translation>
       </message>
       
       <message>
