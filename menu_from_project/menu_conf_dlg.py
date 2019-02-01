@@ -83,7 +83,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             "menu_from_project",
             "Projects configuration", None
             ), item.text(),
-            QApplication.translate("menu_from_project", "QGis projects (*.qgs *.qgz)", None))
+            QApplication.translate("menu_from_project", "QGIS projects (*.qgs *.qgz)", None))
 
         if filePath:
             try:

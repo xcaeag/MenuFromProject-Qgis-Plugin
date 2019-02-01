@@ -2,7 +2,7 @@
 """
 /***************************************************************************
 Name            : menu_from_project plugin
-Description          : Build layers shortcut menu based on QGis project
+Description          : Build layers shortcut menu based on QGIS project
 Date                 :  10/11/2011
 copyright            : (C) 2011 by AEAG
 email                : xavier.culos@eau-adour-garonne.fr
@@ -523,7 +523,7 @@ class MenuFromProject:
                     if ((action.text() != self.tr("&Load all")) and (action.text() != "Load all")):
                         action.trigger()
             else:
-                # read QGis project
+                # read QGIS project
                 doc, path = self.getQgsDoc(uri)
 
                 # is project in relative path ?

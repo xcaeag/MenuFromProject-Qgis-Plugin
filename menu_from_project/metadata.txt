@@ -12,7 +12,7 @@
 name=Layers menu from project
 qgisMinimumVersion=3.0
 qgisMaximumVersion=3.98
-description=Build layers shortcuts menus based on QGis projects
+description=Build layers shortcuts menus based on QGIS projects
 about=Allow easy opening of layers maintaining their style.
 
 version=0.9.0
@@ -22,22 +22,23 @@ version=0.9.0
 # Optional items:
 
 # Uncomment the following line and add your changelog entries:
-changelog=0.9.0 : Allow a project stored in database, thanks to Etienne Trimaille (https://github.com/Gustry)
+changelog=
+    0.9.0 : Allow a project stored in database, thanks to Etienne Trimaille (https://github.com/Gustry)
       allow qgz projects
     0.8.3 : When create group option is checked, the original layer visibility is preserved.
       thanks to Eric LAZZARETTI
     0.8.2 : Code cleaning
-    0.8.1 : QGis 2.99 compatible, Python 3, QT5
-    0.8.0 : Migration for QGIS3 
+    0.8.1 : QGIS 2.99 compatible, Python 3, QT5
+    0.8.0 : Migration for QGIS3
     0.7.6 : Better documentation
     0.7.5 : Tooltip refinement
     0.7.4 : Some python cleaning
     0.7.3 : New layer id without special characters
     0.7.2 : Some optimizations
-    0.7.1 : QGis 2.4 compatible. Deprecated functions are deleted
+    0.7.1 : QGIS 2.4 compatible. Deprecated functions are deleted
     0.7 : Works with "relative path" projects, and embedded layers
-    0.6 : QGis 2.2 compatible 
-    0.5 : QGis 2.0 compatible 
+    0.6 : QGIS 2.2 compatible
+    0.5 : QGIS 2.0 compatible
     0.4.1 : Load all layers item, create group option (dev version 1.9)
 
 # tags are comma separated with spaces allowed
