@@ -1,5 +1,0 @@
-<RCC> 
-  <qresource prefix="/plugins/aeag_menu" > 
-    <file>menu_from_project.png</file> 
-  </qresource> 
-</RCC> 
