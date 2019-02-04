@@ -10,15 +10,15 @@
       </message>
 
       <message>
-        <source>QGis projects (*.qgs *.qgz)</source>
-        <translation>Projets QGis (*.qgs *.qgz)</translation>
+        <source>QGIS projects (*.qgs *.qgz)</source>
+        <translation>Projets QGIS (*.qgs *.qgz)</translation>
       </message>
-      
+
       <message>
         <source>Projects configuration</source>
         <translation>Configurer les projets</translation>
       </message>
-      
+
       <message>
         <source>&#38;Layers menu from project</source>
         <translation>&#38;Layers menu from project</translation>
@@ -37,8 +37,8 @@
         <translation>Projets</translation>
       </message>
       <message>
-        <source>QGis Project</source>
-        <translation>Projet QGis</translation>
+        <source>QGIS Project</source>
+        <translation>Projet QGIS</translation>
       </message>
       <message>
         <source>Name</source>

@@ -1,7 +1,7 @@
 MenuFromProject-Qgis-Plugin 
 ===========================
 
-That plugin provides a convenient way to add prestyled and configured frequently used layers using dropdown menus built by simply reading existing QGis projects (qgs, qgz, postgres)
+That plugin provides a convenient way to add prestyled and configured frequently used layers using dropdown menus built by simply reading existing QGIS projects (qgs, qgz, postgres)
 
 Styling, actions, labeling, metadata - every layer options in fact except joins - are reused as defined in source qgs projects
 
