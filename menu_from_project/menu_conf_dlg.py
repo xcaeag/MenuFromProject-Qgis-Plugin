@@ -57,6 +57,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             # name
             le = QLineEdit()
             le.setText((project["name"]))
+            le.setPlaceholderText(self.tr('Use project title'))
             self.tableWidget.setCellWidget(idx, 2, le)
 
             # helper = lambda _idx: (lambda: self.onFileSearchPressed(_idx))
@@ -115,18 +116,12 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 name_widget = self.tableWidget.cellWidget(row, 2)
                 name = name_widget.text()
                 filename = file_widget.text()
-                if not name:
-                    try:
-                        name = filename.split('/')[-1]
-                        name = name.split('.')[0]
-                    except:
-                        name = ""
 
                 self.plugin.projects.append({"file": filename, "name": name})
 
-        self.plugin.optionTooltip = (self.cbxShowTooltip.isChecked())
-        self.plugin.optionLoadAll = (self.cbxLoadAll.isChecked())
-        self.plugin.optionCreateGroup = (self.cbxCreateGroup.isChecked())
+        self.plugin.optionTooltip = self.cbxShowTooltip.isChecked()
+        self.plugin.optionLoadAll = self.cbxLoadAll.isChecked()
+        self.plugin.optionCreateGroup = self.cbxCreateGroup.isChecked()
 
         self.plugin.store()
 
@@ -149,11 +144,13 @@ class MenuConfDialog(QDialog, FORM_CLASS):
 
         self.tableWidget.setCellWidget(row, 0, pushButton)
 
-        le = QLineEdit()
-        le.textChanged.connect(self.onTextChanged)
-        self.tableWidget.setCellWidget(row, 1, le)
+        filepath_lineedit = QLineEdit()
+        filepath_lineedit.textChanged.connect(self.onTextChanged)
+        self.tableWidget.setCellWidget(row, 1, filepath_lineedit)
 
-        self.tableWidget.setCellWidget(row, 2, QLineEdit())
+        name_lineedit = QLineEdit()
+        name_lineedit.setPlaceholderText(self.tr('Use project title'))
+        self.tableWidget.setCellWidget(row, 2, name_lineedit)
 
         pushButton.clicked.connect(lambda checked,
                                    row=row: self.onFileSearchPressed(row))
