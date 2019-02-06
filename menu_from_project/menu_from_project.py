@@ -4,7 +4,7 @@
 Name            : menu_from_project plugin
 Description          : Build layers shortcut menu based on QGIS project
 Date                 :  10/11/2011
-copyright            : (C) 2011 by AEAG
+copyright            : (C) 2011 by Agence de l'Eau Adour Garonne
 email                : xavier.culos@eau-adour-garonne.fr
 ***************************************************************************/
 
@@ -104,6 +104,9 @@ class MenuFromProject:
 
         # If we want to hide the dialog setup to users.
         self.is_setup_visible = settings.value('menu_from_project/is_setup_visible', True, bool)
+
+        self.action_project_configuration = None
+        self.action_menu_help = None
 
         # default lang
         locale = settings.value("locale/userLocale")
@@ -271,7 +274,7 @@ class MenuFromProject:
                             lid=layerId,
                             m=menu,
                             v=visible,
-                            x=expanded:self.do_aeag_menu(f, lid, m, v, x))
+                            x=expanded:self.build_menu(f, lid, m, v, x))
 
                         menu.addAction(action)
                         yaLayer = True
@@ -298,7 +301,7 @@ class MenuFromProject:
                         lid=layerId,
                         m=menu,
                         v=visible,
-                        x=expanded: self.do_aeag_menu(f, lid, m, v, x))
+                        x=expanded: self.build_menu(f, lid, m, v, x))
 
                     menu.addAction(action)
                     yaLayer = True
@@ -342,7 +345,7 @@ class MenuFromProject:
                         lambda checked,
                         f=None,
                         w=None,
-                        m=sousmenu: self.do_aeag_menu(f, w, m))
+                        m=sousmenu: self.build_menu(f, w, m))
 
         # / if element.tagName() == "legendgroup":
 
@@ -462,17 +465,17 @@ class MenuFromProject:
 
     def initGui(self):
         if self.is_setup_visible:
-            self.act_aeag_menu_config = QAction(
+            self.action_project_configuration = QAction(
                 self.tr("Projects configuration")+"...", self.iface.mainWindow())
 
             self.iface.addPluginToMenu(
-                self.tr("&Layers menu from project"), self.act_aeag_menu_config)
+                self.tr("&Layers menu from project"), self.action_project_configuration)
             # Add actions to the toolbar
-            self.act_aeag_menu_config.triggered.connect(self.do_aeag_menu_config)
+            self.action_project_configuration.triggered.connect(self.open_projects_config)
 
-            self.act_aeag_menu_help = QAction(self.tr("Help") + "...", self.iface.mainWindow())
-            self.iface.addPluginToMenu(self.tr("&Layers menu from project"), self.act_aeag_menu_help)
-            self.act_aeag_menu_help.triggered.connect(self.do_help)
+            self.action_menu_help = QAction(self.tr("Help") + "...", self.iface.mainWindow())
+            self.iface.addPluginToMenu(self.tr("&Layers menu from project"), self.action_menu_help)
+            self.action_menu_help.triggered.connect(self.do_help)
 
         # build menu
         self.initMenus()
@@ -484,15 +487,15 @@ class MenuFromProject:
 
         if self.is_setup_visible:
             self.iface.removePluginMenu(self.tr("&Layers menu from project"),
-                                        self.act_aeag_menu_config)
+                                        self.action_project_configuration)
             self.iface.removePluginMenu(self.tr("&Layers menu from project"),
-                                        self.act_aeag_menu_help)
-            self.act_aeag_menu_config.triggered.disconnect(self.do_aeag_menu_config)
-            self.act_aeag_menu_help.triggered.disconnect(self.do_help)
+                                        self.action_menu_help)
+            self.action_project_configuration.triggered.disconnect(self.open_projects_config)
+            self.action_menu_help.triggered.disconnect(self.do_help)
 
         self.store()
 
-    def do_aeag_menu_config(self):
+    def open_projects_config(self):
         dlg = MenuConfDialog(self.iface.mainWindow(), self)
         dlg.setModal(True)
 
@@ -504,7 +507,7 @@ class MenuFromProject:
             self.initMenus()
 
     # run method that performs all the real work
-    def do_aeag_menu(self, uri, who, menu=None, visible=None, expanded=None):
+    def build_menu(self, uri, who, menu=None, visible=None, expanded=None):
         self.canvas.freeze(True)
         self.canvas.setRenderFlag(False)
         group = None

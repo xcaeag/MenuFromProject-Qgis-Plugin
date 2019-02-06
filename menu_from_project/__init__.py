@@ -4,7 +4,7 @@
 Name            : menu_from_project plugin
 Description          : Build layers shortcut menu based on QGIS project
 Date                 :  10/11/2011
-copyright            : (C) 2011 by AEAG
+copyright            : (C) 2011 by Agence de l'Eau Adour Garonne
 email                : xavier.culos@eau-adour-garonne.fr
  ***************************************************************************/
 
