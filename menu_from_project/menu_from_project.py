@@ -79,6 +79,44 @@ def getMapLayersDict(domdoc):
     return r
 
 
+def isAbsolute(doc):
+    """Return true if the given XML document is using absolute path.
+
+    :param doc: The QGIS project as XML document.
+    :type doc: QDomDocument
+    """
+    absolute = False
+    try:
+        props = doc.elementsByTagName("properties")
+        if props.count() == 1:
+            node = props.at(0)
+            pathNode = node.namedItem("Paths")
+            absNode = pathNode.namedItem("Absolute")
+            absolute = "true" == absNode.firstChild().toText().data()
+    except:
+        pass
+
+    return absolute
+
+
+def project_title(doc):
+    """Return the project title defined in the XML document.
+
+    :param doc: The QGIS project as XML document. Default to None.
+    :type doc: QDomDocument
+
+    :return: The title or None.
+    :rtype: basestring
+    """
+    tags = doc.elementsByTagName('qgis')
+    if tags.count():
+        node = tags.at(0)
+        title_node = node.namedItem('title')
+        return title_node.firstChild().toText().data()
+
+    return None
+
+
 class MenuFromProject:
 
     def __init__(self, iface):
@@ -188,25 +226,6 @@ class MenuFromProject:
 
         except:
             pass
-
-    def isAbsolute(self, doc):
-        """Return true if the given XML document is using absolute path.
-
-        :param doc: The QGIS project as XML document.
-        :type doc: QDomDocument
-        """
-        absolute = False
-        try:
-            props = doc.elementsByTagName("properties")
-            if props.count() == 1:
-                node = props.at(0)
-                pathNode = node.namedItem("Paths")
-                absNode = pathNode.namedItem("Absolute")
-                absolute = ("true" == absNode.firstChild().toText().data())
-        except:
-            pass
-
-        return absolute
 
     def addToolTip(self, ml, action):
         """Search and add a tooltip to a given action according to a maplayer.
@@ -357,7 +376,28 @@ class MenuFromProject:
 
         return yaLayer
 
-    def addMenu(self, name, filename, domdoc):
+    def addMenu(self, name, filepath, domdoc):
+        """Add menu to the QGIS interface.
+
+        :param name: The name of the parent menu. It might be an empty string.
+        :type name: basestring
+
+        :param filepath: The filepath of the project.
+        :type filepath: basestring
+
+        :param domdoc: The QGIS project as XML document.
+        :type domdoc: QDomDocument
+        """
+        if not name:
+            name = project_title(domdoc)
+
+            if not name:
+                try:
+                    name = filepath.split('/')[-1]
+                    name = name.split('.')[0]
+                except IndexError:
+                    name = ""
+
         # main project menu
         menuBar = self.iface.editMenu().parentWidget()
         projectMenu = QMenu('&'+name, menuBar)
@@ -367,8 +407,8 @@ class MenuFromProject:
         projectAction = menuBar.addMenu(projectMenu)
         self.menubarActions.append(projectAction)
 
-        self.absolute = self.isAbsolute(domdoc)
-        self.projectpath = QFileInfo(os.path.realpath(filename)).path()
+        self.absolute = isAbsolute(domdoc)
+        self.projectpath = QFileInfo(os.path.realpath(filepath)).path()
 
         mapLayersDict = getMapLayersDict(domdoc)
 
@@ -378,7 +418,7 @@ class MenuFromProject:
             node = legends.item(0)
             if node:
                 node = node.firstChild()
-                self.addMenuItem(filename, node, projectMenu, domdoc, mapLayersDict)
+                self.addMenuItem(filepath, node, projectMenu, domdoc, mapLayersDict)
 
     def getQgsDoc(self, uri):
         """Return the XML document and the path from an URI.
@@ -523,14 +563,14 @@ class MenuFromProject:
             # load all layers
             if uri is None and who is None and self.optionLoadAll:
                 for action in menu.actions():
-                    if ((action.text() != self.tr("&Load all")) and (action.text() != "Load all")):
+                    if action.text() != self.tr("&Load all") and action.text() != "Load all":
                         action.trigger()
             else:
                 # read QGIS project
                 doc, path = self.getQgsDoc(uri)
 
                 # is project in relative path ?
-                absolute = self.isAbsolute(doc)
+                absolute = isAbsolute(doc)
 
                 node = getFirstChildByTagNameValue(doc.documentElement(), "maplayer", "id", who)
                 node = node.cloneNode()
