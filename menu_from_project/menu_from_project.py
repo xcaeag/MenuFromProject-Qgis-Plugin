@@ -25,7 +25,7 @@ import webbrowser
 import zipfile
 
 from qgis.core import (QgsMessageLog, QgsApplication, QgsProject, QgsSettings,
-    QgsVectorLayer, QgsRasterLayer, QgsReadWriteContext)
+    QgsVectorLayer, QgsRasterLayer, QgsReadWriteContext, QgsLayerItem)
 
 from qgis.PyQt.QtCore import (QTranslator, QFile, QFileInfo,
                               QCoreApplication, QIODevice, Qt, QUuid,
@@ -59,7 +59,45 @@ def getFirstChildByAttrValue(elt, tagName, key, value):
     return None
 
 
+def icon_for_geometry_type(geometry_type):
+    """Return the icon for a geometry type.
+
+    If not found, it will return the default icon.
+
+    :param geometry_type: The geometry as a string.
+    :type geometry_type: basestring
+
+    :return: The icon.
+    :rtype: QIcon
+    """
+    if geometry_type == 'Raster':
+        return QgsLayerItem.iconRaster()
+    elif geometry_type == 'Mesh':
+        return QgsLayerItem.iconMesh()
+    elif geometry_type == 'Point':
+        return QgsLayerItem.iconPoint()
+    elif geometry_type == 'Line':
+        return QgsLayerItem.iconLine()
+    elif geometry_type == 'Polygon':
+        return QgsLayerItem.iconPolygon()
+    elif geometry_type == 'No geometry':
+        return QgsLayerItem.iconTable()
+    else:
+        return QgsLayerItem.iconDefault()
+
+
 def getMapLayerDomFromQgs(fileName, layerId):
+    """Return the maplayer node in a project filepath given a maplayer ID.
+
+    :param fileName: The project filepath on the filesystem.
+    :type fileName: basestring
+
+    :param layerId: The layer ID to look for in the project.
+    :type layerId: basestring
+
+    :return: The XML node of the layer.
+    :rtype: QDomNode
+    """
     doc = QtXml.QDomDocument()
     xml = QFile(fileName)
     if xml.open(QIODevice.ReadOnly | QIODevice.Text):
@@ -271,6 +309,9 @@ class MenuFromProject:
                 expanded = element.attribute("expanded", "0") == "1"
                 action = QAction(name, self.iface.mainWindow())
                 embedNd = getFirstChildByAttrValue(element, "property", "key", "embedded")
+                map_layer = getMapLayerDomFromQgs(filename, layerId).toElement()
+                geometry_type = map_layer.attribute('geometry')
+                action.setIcon(icon_for_geometry_type(geometry_type))
 
                 # is layer embedded ?
                 if embedNd and embedNd.toElement().attribute("value") == "1":
