@@ -11,6 +11,8 @@ Whole documentation is available just here :
 How to use it ?
 ----------------
 
+see https://github.com/xcaeag/MenuFromProject-Qgis-Plugin/wiki
+
 When the plugin is configured (choice of a project via the plugin menu), a new menu appears, based on all the layers that contain the original project.
 
 Tip : a separator can be configured by creating (in the original project) a layer group named "-".
