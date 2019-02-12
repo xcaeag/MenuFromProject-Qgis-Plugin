@@ -218,6 +218,7 @@ class MenuFromProject:
             s.setArrayIndex(i)
             s.setValue("file", project["file"])
             s.setValue("name", project["name"])
+            s.setValue("location", project["location"])
 
         s.endArray()
 
@@ -249,8 +250,9 @@ class MenuFromProject:
                     s.setArrayIndex(i)
                     file = s.value("file", "")
                     name = s.value("name", "")
+                    location = s.value("location", "new")
                     if file != "":
-                        self.projects.append({"file": file, "name": name})
+                        self.projects.append({"file": file, "name": name, "location": location})
 
                 s.endArray()
 

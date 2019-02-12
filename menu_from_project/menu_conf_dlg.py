@@ -8,7 +8,8 @@ from os.path import join, dirname
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import (Qt, QRect)
 from qgis.PyQt.QtWidgets import (QHeaderView, QApplication, QTableWidgetItem,
-                             QToolButton, QLineEdit, QDialog, QFileDialog)
+                             QToolButton, QLineEdit, QDialog, QFileDialog,
+                             QComboBox)
 
 
 FORM_CLASS, _ = uic.loadUiType(join(dirname(__file__), 'conf_dialog.ui'))
@@ -22,6 +23,11 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         self.defaultcursor = self.cursor
+
+        self.LOCATIONS = {
+                "new": {"index":0, "label":"New menu"}, 
+                "layer": {"index":1, "label":"Layer menu"}
+        }
 
         self.tableWidget.horizontalHeader().setSectionResizeMode(
             QHeaderView.ResizeToContents)
@@ -59,6 +65,16 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             le.setText((project["name"]))
             le.setPlaceholderText(self.tr('Use project title'))
             self.tableWidget.setCellWidget(idx, 2, le)
+
+            # location
+            location_combo = QComboBox()
+            for pk in self.LOCATIONS:
+                location_combo.addItem(self.LOCATIONS[pk]["label"], pk)
+            try:
+                location_combo.setCurrentIndex(self.LOCATIONS[project["location"]]["index"])
+            except:
+                location_combo.setCurrentIndex(0)
+            self.tableWidget.setCellWidget(idx, 3, location_combo)
 
             # helper = lambda _idx: (lambda: self.onFileSearchPressed(_idx))
             pushButton.clicked.connect(lambda checked, idx=idx: self.onFileSearchPressed(idx))
@@ -101,6 +117,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                         name = ""
 
                     name_widget.setText(name)
+
             except:
                 pass
 
@@ -117,7 +134,10 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 name = name_widget.text()
                 filename = file_widget.text()
 
-                self.plugin.projects.append({"file": filename, "name": name})
+                location_widget = self.tableWidget.cellWidget(row, 3)
+                location = location_widget.itemData(location_widget.currentIndex())
+
+                self.plugin.projects.append({"file": filename, "name": name, "location": location})
 
         self.plugin.optionTooltip = self.cbxShowTooltip.isChecked()
         self.plugin.optionLoadAll = self.cbxLoadAll.isChecked()
@@ -151,6 +171,12 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         name_lineedit = QLineEdit()
         name_lineedit.setPlaceholderText(self.tr('Use project title'))
         self.tableWidget.setCellWidget(row, 2, name_lineedit)
+
+        location_combo = QComboBox()
+        for pk in self.LOCATIONS:
+            location_combo.addItem(self.LOCATIONS[pk]["label"], pk)
+        location_combo.setCurrentIndex(0)
+        self.tableWidget.setCellWidget(row, 3, location_combo)
 
         pushButton.clicked.connect(lambda checked,
                                    row=row: self.onFileSearchPressed(row))
