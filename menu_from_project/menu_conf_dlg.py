@@ -25,8 +25,8 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.defaultcursor = self.cursor
 
         self.LOCATIONS = {
-                "new": {"index":0, "label":"New menu"}, 
-                "layer": {"index":1, "label":"Layer menu"}
+                "new": {"index":0, "label":QApplication.translate("ConfDialog", "New menu", None)}, 
+                "layer": {"index":1, "label":QApplication.translate("ConfDialog", "Add layer menu", None)}
         }
 
         self.tableWidget.horizontalHeader().setSectionResizeMode(

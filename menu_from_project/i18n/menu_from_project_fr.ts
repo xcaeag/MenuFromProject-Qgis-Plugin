@@ -56,5 +56,17 @@
         <source>Show title &amp;&amp; abstract in tooltip</source>
         <translation>Afficher titre et résumé en info bulle</translation>
       </message>
+      <message>
+        <source>Location</source>
+        <translation>Emplacement</translation>
+      </message>
+      <message>
+        <source>New menu</source>
+        <translation>Nouveau menu</translation>
+      </message>
+      <message>
+        <source>Add layer menu</source>
+        <translation>Ajouter une couche</translation>
+      </message>
     </context>
 </TS>
