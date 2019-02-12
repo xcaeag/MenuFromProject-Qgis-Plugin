@@ -521,7 +521,6 @@ class MenuFromProject:
         :return: The XML node of the layer.
         :rtype: QDomNode
         """
-        self.log(fileName)
         doc, path = self.getQgsDoc(fileName)
         return getFirstChildByTagNameValue(doc.documentElement(), "maplayer", "id", layerId)
 
