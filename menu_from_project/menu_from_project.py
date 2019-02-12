@@ -86,26 +86,6 @@ def icon_for_geometry_type(geometry_type):
         return QgsLayerItem.iconDefault()
 
 
-def getMapLayerDomFromQgs(fileName, layerId):
-    """Return the maplayer node in a project filepath given a maplayer ID.
-
-    :param fileName: The project filepath on the filesystem.
-    :type fileName: basestring
-
-    :param layerId: The layer ID to look for in the project.
-    :type layerId: basestring
-
-    :return: The XML node of the layer.
-    :rtype: QDomNode
-    """
-    doc = QtXml.QDomDocument()
-    xml = QFile(fileName)
-    if xml.open(QIODevice.ReadOnly | QIODevice.Text):
-        doc.setContent(xml)
-
-    return getFirstChildByTagNameValue(doc.documentElement(), "maplayer", "id", layerId)
-
-
 def getMapLayersDict(domdoc):
     r = {}
     nodes = domdoc.documentElement().elementsByTagName("maplayer")
@@ -167,6 +147,7 @@ class MenuFromProject:
         self.projects = []
         self.docs = dict()
         self.menubarActions = []
+        self.layerMenubarActions = []
         self.canvas = self.iface.mapCanvas()
         self.optionTooltip = False
         self.optionCreateGroup = False
@@ -311,7 +292,7 @@ class MenuFromProject:
                 expanded = element.attribute("expanded", "0") == "1"
                 action = QAction(name, self.iface.mainWindow())
                 embedNd = getFirstChildByAttrValue(element, "property", "key", "embedded")
-                map_layer = getMapLayerDomFromQgs(filename, layerId).toElement()
+                map_layer = self.getMapLayerDomFromQgs(filename, layerId).toElement()
                 geometry_type = map_layer.attribute('geometry')
                 action.setIcon(icon_for_geometry_type(geometry_type))
 
@@ -343,7 +324,7 @@ class MenuFromProject:
 
                         if self.optionTooltip:
                             # search embeded maplayer (for title, abstract)
-                            mapLayer = getMapLayerDomFromQgs(efilename,
+                            mapLayer = self.getMapLayerDomFromQgs(efilename,
                                                              layerId)
                             if mapLayer is not None:
                                 self.addToolTip(mapLayer, action)
@@ -419,7 +400,7 @@ class MenuFromProject:
 
         return yaLayer
 
-    def addMenu(self, name, filepath, domdoc):
+    def addMenu(self, name, filepath, domdoc, location):
         """Add menu to the QGIS interface.
 
         :param name: The name of the parent menu. It might be an empty string.
@@ -442,13 +423,19 @@ class MenuFromProject:
                     name = ""
 
         # main project menu
-        menuBar = self.iface.addLayerMenu()
+        if location == "layer":
+            menuBar = self.iface.addLayerMenu()
+        else:
+            menuBar = self.iface.editMenu().parentWidget()	
+
         projectMenu = QMenu('&'+name, menuBar)
-
         projectMenu.setToolTipsVisible(self.optionTooltip)
-
         projectAction = menuBar.addMenu(projectMenu)
-        self.menubarActions.append(projectAction)
+
+        if location == "layer":
+            self.layerMenubarActions.append(projectAction)
+        else:
+            self.menubarActions.append(projectAction)
 
         self.absolute = isAbsolute(domdoc)
         self.projectpath = QFileInfo(os.path.realpath(filepath)).path()
@@ -522,13 +509,36 @@ class MenuFromProject:
 
         return doc, project_path
 
+    def getMapLayerDomFromQgs(self, fileName, layerId):
+        """Return the maplayer node in a project filepath given a maplayer ID.
+
+        :param fileName: The project filepath on the filesystem.
+        :type fileName: basestring
+
+        :param layerId: The layer ID to look for in the project.
+        :type layerId: basestring
+
+        :return: The XML node of the layer.
+        :rtype: QDomNode
+        """
+        self.log(fileName)
+        doc, path = self.getQgsDoc(fileName)
+        return getFirstChildByTagNameValue(doc.documentElement(), "maplayer", "id", layerId)
+
     def initMenus(self):
-        menuBar = self.iface.addLayerMenu()
+        menuBar = self.iface.editMenu().parentWidget()
         for action in self.menubarActions:
             menuBar.removeAction(action)
             del action
 
         self.menubarActions = []
+
+        menuBar = self.iface.addLayerMenu()
+        for action in self.layerMenubarActions:
+            menuBar.removeAction(action)
+            del action
+
+        self.layerMenubarActions = []
 
         QgsApplication.setOverrideCursor(Qt.WaitCursor)
         for project in self.projects:
@@ -536,7 +546,7 @@ class MenuFromProject:
                 project["valid"] = True
                 uri = project["file"]
                 doc, path = self.getQgsDoc(uri)
-                self.addMenu(project["name"], path, doc)
+                self.addMenu(project["name"], path, doc, project["location"])
             except Exception as e:
                 project["valid"] = False
                 self.log(
@@ -564,8 +574,12 @@ class MenuFromProject:
         self.initMenus()
 
     def unload(self):
-        menuBar = self.iface.addLayerMenu()
+        menuBar = self.iface.editMenu().parentWidget()
         for action in self.menubarActions:
+            menuBar.removeAction(action)
+
+        menuBar = self.iface.addLayerMenu()
+        for action in self.layerMenubarActions:
             menuBar.removeAction(action)
 
         if self.is_setup_visible:
