@@ -8,8 +8,8 @@ from os.path import join, dirname
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import (Qt, QRect)
 from qgis.PyQt.QtWidgets import (QHeaderView, QApplication, QTableWidgetItem,
-                             QToolButton, QLineEdit, QDialog, QFileDialog,
-                             QComboBox)
+                                 QToolButton, QLineEdit, QDialog, QFileDialog,
+                                 QComboBox)
 
 
 FORM_CLASS, _ = uic.loadUiType(join(dirname(__file__), 'conf_dialog.ui'))
@@ -25,8 +25,10 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.defaultcursor = self.cursor
 
         self.LOCATIONS = {
-                "new": {"index":0, "label":QApplication.translate("ConfDialog", "New menu", None)}, 
-                "layer": {"index":1, "label":QApplication.translate("ConfDialog", "Add layer menu", None)}
+                "new": {"index": 0,
+                        "label": QApplication.translate("ConfDialog", "New menu", None)},
+                "layer": {"index": 1,
+                          "label": QApplication.translate("ConfDialog", "Add layer menu", None)}
         }
 
         self.tableWidget.horizontalHeader().setSectionResizeMode(
