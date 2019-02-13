@@ -25,7 +25,7 @@ import webbrowser
 import zipfile
 
 from qgis.core import (QgsMessageLog, QgsApplication, QgsProject, QgsSettings,
-    QgsVectorLayer, QgsRasterLayer, QgsReadWriteContext, QgsLayerItem)
+                       QgsVectorLayer, QgsRasterLayer, QgsReadWriteContext, QgsLayerItem)
 
 from qgis.PyQt.QtCore import (QTranslator, QFile, QFileInfo,
                               QCoreApplication, QIODevice, Qt, QUuid,
@@ -317,15 +317,14 @@ class MenuFromProject:
                             lid=layerId,
                             m=menu,
                             v=visible,
-                            x=expanded:self.build_menu(f, lid, m, v, x))
+                            x=expanded: self.build_menu(f, lid, m, v, x))
 
                         menu.addAction(action)
                         yaLayer = True
 
                         if self.optionTooltip:
                             # search embeded maplayer (for title, abstract)
-                            mapLayer = self.getMapLayerDomFromQgs(efilename,
-                                                             layerId)
+                            mapLayer = self.getMapLayerDomFromQgs(efilename, layerId)
                             if mapLayer is not None:
                                 self.addToolTip(mapLayer, action)
                             else:
@@ -426,7 +425,7 @@ class MenuFromProject:
         if location == "layer":
             menuBar = self.iface.addLayerMenu()
         else:
-            menuBar = self.iface.editMenu().parentWidget()	
+            menuBar = self.iface.editMenu().parentWidget()
 
         projectMenu = QMenu('&'+name, menuBar)
         projectMenu.setToolTipsVisible(self.optionTooltip)
@@ -468,7 +467,8 @@ class MenuFromProject:
         doc = QtXml.QDomDocument()
         file = QFile(uri)
         # file on disk
-        if file.exists() and file.open(QIODevice.ReadOnly | QIODevice.Text) and (QFileInfo(file).suffix() == 'qgs'):
+        if file.exists() and file.open(QIODevice.ReadOnly | QIODevice.Text)
+        and (QFileInfo(file).suffix() == 'qgs'):
             doc.setContent(file)
             project_path = uri
 
@@ -610,7 +610,8 @@ class MenuFromProject:
         QgsApplication.setOverrideCursor(Qt.WaitCursor)
 
         try:
-            if (type(menu.parentWidget()) == QMenu or type(menu.parentWidget()) == QWidget) and self.optionCreateGroup:
+            if (type(menu.parentWidget()) == QMenu or type(menu.parentWidget()) == QWidget)
+            and self.optionCreateGroup:
                 groupName = menu.title().replace("&", "")
                 group = QgsProject.instance().layerTreeRoot().findGroup(groupName)
                 if group is None:
@@ -660,7 +661,7 @@ class MenuFromProject:
                     # read modified layer node
                     if self.optionCreateGroup and group is not None:
                         """# sol 1 bug : layer incomplete
-                        # because of API strange behaviour, we clone the layer... 
+                        # because of API strange behaviour, we clone the layer...
                         theLayer = QgsProject.instance().mapLayer(newLayerId)
                         cloneLayer = theLayer.clone()
                         # removing the first
