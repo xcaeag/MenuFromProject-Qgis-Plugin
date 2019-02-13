@@ -70,17 +70,18 @@ def icon_for_geometry_type(geometry_type):
     :return: The icon.
     :rtype: QIcon
     """
-    if geometry_type == 'Raster':
+    geometry_type = geometry_type.lower()
+    if geometry_type == 'raster':
         return QgsLayerItem.iconRaster()
-    elif geometry_type == 'Mesh':
+    elif geometry_type == 'mesh':
         return QgsLayerItem.iconMesh()
-    elif geometry_type == 'Point':
+    elif geometry_type == 'point':
         return QgsLayerItem.iconPoint()
-    elif geometry_type == 'Line':
+    elif geometry_type == 'line':
         return QgsLayerItem.iconLine()
-    elif geometry_type == 'Polygon':
+    elif geometry_type == 'polygon':
         return QgsLayerItem.iconPolygon()
-    elif geometry_type == 'No geometry':
+    elif geometry_type == 'no geometry':
         return QgsLayerItem.iconTable()
     else:
         return QgsLayerItem.iconDefault()
@@ -294,6 +295,12 @@ class MenuFromProject:
                 embedNd = getFirstChildByAttrValue(element, "property", "key", "embedded")
                 map_layer = self.getMapLayerDomFromQgs(filename, layerId).toElement()
                 geometry_type = map_layer.attribute('geometry')
+                self.log(name + ' ' + geometry_type)
+                if geometry_type == '':
+                    # A TMS has not a geometry attribute.
+                    # Let's read the "type"
+                    geometry_type = map_layer.attribute('type')
+
                 action.setIcon(icon_for_geometry_type(geometry_type))
 
                 # is layer embedded ?
@@ -467,10 +474,10 @@ class MenuFromProject:
         doc = QtXml.QDomDocument()
         file = QFile(uri)
         # file on disk
-        if file.exists() and file.open(QIODevice.ReadOnly | QIODevice.Text)
-        and (QFileInfo(file).suffix() == 'qgs'):
-            doc.setContent(file)
-            project_path = uri
+        if file.exists() and file.open(QIODevice.ReadOnly | QIODevice.Text) \
+                and QFileInfo(file).suffix() == 'qgs':
+                    doc.setContent(file)
+                    project_path = uri
 
         elif file.exists() and (QFileInfo(file).suffix() == 'qgz'):
             temporary_unzip = QTemporaryDir()
@@ -610,8 +617,7 @@ class MenuFromProject:
         QgsApplication.setOverrideCursor(Qt.WaitCursor)
 
         try:
-            if (type(menu.parentWidget()) == QMenu or type(menu.parentWidget()) == QWidget)
-            and self.optionCreateGroup:
+            if isinstance(menu.parentWidget(), (QMenu, QWidget)) and self.optionCreateGroup:
                 groupName = menu.title().replace("&", "")
                 group = QgsProject.instance().layerTreeRoot().findGroup(groupName)
                 if group is None:
