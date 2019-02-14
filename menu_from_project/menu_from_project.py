@@ -626,7 +626,7 @@ class MenuFromProject:
             # load all layers
             if uri is None and who is None and self.optionLoadAll:
                 for action in menu.actions():
-                    if action.text() != self.tr("&Load all") and action.text() != "Load all":
+                    if action.text() != self.tr("Load all") and action.text() != "Load all":
                         action.trigger()
             else:
                 # read QGIS project
