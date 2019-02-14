@@ -713,9 +713,9 @@ class MenuFromProject:
         """Open the HTML help page in webbrowser."""
         try:
             if os.path.isfile(self.path+"/help_"+self.myLocale+".html"):
-                webbrowser.open(self.path+"/help_"+self.myLocale+".html")
+                webbrowser.open("file://"+self.path+"/help_"+self.myLocale+".html")
             else:
-                webbrowser.open(self.path+"/help.html")
+                webbrowser.open("file://"+self.path+"/help.html")
 
         except Exception as e:
             for m in e.args:

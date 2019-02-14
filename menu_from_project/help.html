@@ -1,22 +1,15 @@
 <html>
+
 <body>
     <h1>Build layers shortcut menu based on QGIS project</h1>
 
-<h2>Purpose</h2>
-Allow easy opening of layers maintaining their style.
+    <h2>Purpose</h2>
 
-<h2>Principle</h2>
-<p>When the plugin is configured (choice of a project via the plugin menu), a new menu appears, based on all the layers that contain the original project.</p>
-<p>Tip : a separator can be configured by creating (in the original project) a layer group named "-"</p>
-<p>Attention : the project must be configured to record absolute paths</p>
-<p>The project might be stored in a PostgreSQL database. You need to copy/paste the project path (Project properties -> General) into the field.</p>
-<p>In the configuration dialog, you can let the name field empty. It will use the project title field (Project properties -> Title)</p>
+    <p>That plugin provides a convenient way to add prestyled and preconfigured frequently used layers using dropdown menus built by simply reading existing QGIS projects (qgs, qgz, postgres)</p>
+    <p>Styling, actions, labeling, metadata - every layer options in fact except joins - are reused as defined in source projects</p>
 
-<p>Option of the plugin "Load all layers item" if it is checked load all the layers of the same level submenu</p>
-<p>"Create group" option put the new layer in a group with the name of the parent level menu (v 1.9)</p>
-<p>You can hide the administration dialog of the plugin by adding a <em>menu_from_project/is_setup_visible</em> to <em>false</em> in the QGIS INI file. This is useful when you deploy QGIS within an organization.</p>
+    <a href="https://github.com/xcaeag/MenuFromProject-Qgis-Plugin/wiki">Online documentation...</a>
 
 </body>
 
 </html>
-
