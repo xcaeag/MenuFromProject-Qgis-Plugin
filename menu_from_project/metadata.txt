@@ -15,7 +15,7 @@ qgisMaximumVersion=3.98
 description=Build layers shortcuts menus based on QGIS projects
 about=Allow easy opening of layers maintaining their style.
 
-version=0.9.0
+version=1.0.0
 
 # end of mandatory metadata
 
@@ -23,6 +23,9 @@ version=0.9.0
 
 # Uncomment the following line and add your changelog entries:
 changelog=
+    1.0.0 : Display geometry type icon, new location possible : "add layer" menu, code cleaning
+      thanks to Etienne Trimaille (https://github.com/Gustry)
+      Fix load-all failure
     0.9.0 : Allow a project stored in database, thanks to Etienne Trimaille (https://github.com/Gustry)
       allow qgz projects
     0.8.3 : When create group option is checked, the original layer visibility is preserved.
