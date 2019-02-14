@@ -275,10 +275,9 @@ class MenuFromProject:
             except:
                 pass
 
-    def addMenuItem(self, filename, node, menu, absolute, mapLayersDict):
+    def addMenuItem(self, uri, filename, node, menu, absolute, mapLayersDict):
         """Add menu to an item."""
         yaLayer = False
-        initialFilename = filename
         if node is None or node.nodeName() == "":
             return yaLayer
 
@@ -293,15 +292,6 @@ class MenuFromProject:
                 expanded = element.attribute("expanded", "0") == "1"
                 action = QAction(name, self.iface.mainWindow())
                 embedNd = getFirstChildByAttrValue(element, "property", "key", "embedded")
-                map_layer = self.getMapLayerDomFromQgs(filename, layerId).toElement()
-                geometry_type = map_layer.attribute('geometry')
-                # self.log(name + ' ' + geometry_type)
-                if geometry_type == '':
-                    # A TMS has not a geometry attribute.
-                    # Let's read the "type"
-                    geometry_type = map_layer.attribute('type')
-
-                action.setIcon(icon_for_geometry_type(geometry_type))
 
                 # is layer embedded ?
                 if embedNd and embedNd.toElement().attribute("value") == "1":
@@ -310,50 +300,69 @@ class MenuFromProject:
                     eFileNd = getFirstChildByAttrValue(element, "property", "key",
                                                        "embedded_project")
 
-                    # get project file name
-                    embeddedFile = eFileNd.toElement().attribute("value")
-                    if not absolute and (embeddedFile.find(".") == 0):
-                        efilename = self.projectpath + "/" + embeddedFile
+                    if eFileNd:
+                        # get project file name
+                        embeddedFile = eFileNd.toElement().attribute("value")
+                        if not absolute and (embeddedFile.find(".") == 0):
+                            efilename = QFileInfo(filename).path() + "/" + embeddedFile
 
-                    # if ok
-                    if efilename:
-                        # add menu item
-                        action.triggered.connect(
-                            lambda checked,
-                            f=efilename,
-                            lid=layerId,
-                            m=menu,
-                            v=visible,
-                            x=expanded: self.loadLayer(f, lid, m, v, x))
+                        # if ok
+                        if efilename:
+                            # add menu item
+                            action.triggered.connect(
+                                lambda checked,
+                                uri=uri,
+                                f=efilename,
+                                lid=layerId,
+                                m=menu,
+                                v=visible,
+                                x=expanded: self.loadLayer(uri, f, lid, m, v, x))
 
-                        menu.addAction(action)
-                        yaLayer = True
+                            menu.addAction(action)
+                            yaLayer = True
 
-                        if self.optionTooltip:
-                            # search embeded maplayer (for title, abstract)
-                            mapLayer = self.getMapLayerDomFromQgs(efilename, layerId)
-                            if mapLayer is not None:
-                                self.addToolTip(mapLayer, action)
-                            else:
-                                self.log(
-                                    "Menu from layer: " + layerId +
-                                    " not found in project " + efilename)
+                            if self.optionTooltip:
+                                # search embeded maplayer (for title, abstract)
+                                mapLayer = self.getMapLayerDomFromQgs(efilename, layerId)
+                                if mapLayer is not None:
+                                    self.addToolTip(mapLayer, action)
+                    else:
+                        self.log(
+                            "Menu from layer: " + layerId +
+                            " not found in project " + efilename)
 
                 # layer is not embedded
                 else:
+                    efilename = filename
+
                     if self.optionTooltip:
                         self.addToolTip(mapLayersDict[layerId], action)
 
                     action.triggered.connect(
                         lambda checked,
+                        uri=uri,
                         f=filename,
                         lid=layerId,
                         m=menu,
                         v=visible,
-                        x=expanded: self.loadLayer(f, lid, m, v, x))
+                        x=expanded: self.loadLayer(uri, f, lid, m, v, x))
 
                     menu.addAction(action)
                     yaLayer = True
+
+                # Add geometry type icon 
+                try:
+                    map_layer = self.getMapLayerDomFromQgs(efilename, layerId).toElement()
+                    geometry_type = map_layer.attribute('geometry')
+                    if geometry_type == '':
+                        # A TMS has not a geometry attribute.
+                        # Let's read the "type"
+                        geometry_type = map_layer.attribute('type')
+
+                    action.setIcon(icon_for_geometry_type(geometry_type))
+                except:
+                    pass
+
             except Exception as e:
                 for m in e.args:
                     self.log(m)
@@ -382,7 +391,7 @@ class MenuFromProject:
                 childNode = node.firstChild()
 
                 #  ! recursion
-                r = self.addMenuItem(initialFilename, childNode, sousmenu, absolute, mapLayersDict)
+                r = self.addMenuItem(uri, filename, childNode, sousmenu, absolute, mapLayersDict)
 
                 if r and self.optionLoadAll and (len(sousmenu.actions()) > 1):
                     action = QAction(self.tr("Load all"), self.iface.mainWindow())
@@ -394,19 +403,19 @@ class MenuFromProject:
                         lambda checked,
                         f=None,
                         w=None,
-                        m=sousmenu: self.loadLayer(f, w, m))
+                        m=sousmenu: self.loadLayer(uri, f, w, m))
 
         # / if element.tagName() == "legendgroup":
 
         nextNode = node.nextSibling()
         if nextNode is not None:
             # ! recursion
-            r = self.addMenuItem(initialFilename, nextNode, menu, absolute, mapLayersDict)
+            r = self.addMenuItem(uri, filename, nextNode, menu, absolute, mapLayersDict)
             yaLayer = yaLayer or r
 
         return yaLayer
 
-    def addMenu(self, name, filepath, domdoc, location):
+    def addMenu(self, name, uri, filepath, domdoc, location):
         """Add menu to the QGIS interface.
 
         :param name: The name of the parent menu. It might be an empty string.
@@ -443,8 +452,6 @@ class MenuFromProject:
         else:
             self.menubarActions.append(projectAction)
 
-        self.projectpath = QFileInfo(os.path.realpath(filepath)).path()
-
         mapLayersDict = getMapLayersDict(domdoc)
 
         # build menu on legend schema
@@ -453,7 +460,8 @@ class MenuFromProject:
             node = legends.item(0)
             if node:
                 node = node.firstChild()
-                self.addMenuItem(filepath, node, projectMenu, isAbsolute(domdoc), mapLayersDict)
+                self.addMenuItem(uri, filepath, node, projectMenu, isAbsolute(domdoc), 
+                                 mapLayersDict)
 
     def getQgsDoc(self, uri):
         """Return the XML document and the path from an URI.
@@ -551,7 +559,7 @@ class MenuFromProject:
                 project["valid"] = True
                 uri = project["file"]
                 doc, path = self.getQgsDoc(uri)
-                self.addMenu(project["name"], path, doc, project["location"])
+                self.addMenu(project["name"], uri, path, doc, project["location"])
             except Exception as e:
                 project["valid"] = False
                 self.log(
@@ -608,7 +616,7 @@ class MenuFromProject:
         if result != 0:
             self.initMenus()
 
-    def loadLayer(self, uri, layerId, menu=None, visible=None, expanded=None):
+    def loadLayer(self, uri, fileName, layerId, menu=None, visible=None, expanded=None):
         """Load the chosen layer(s)
 
         :param uri: The layer URI (file path or PG URI)
@@ -631,13 +639,13 @@ class MenuFromProject:
                     group = QgsProject.instance().layerTreeRoot().addGroup(groupName)
 
             # load all layers
-            if uri is None and layerId is None and self.optionLoadAll:
+            if fileName is None and layerId is None and self.optionLoadAll:
                 for action in menu.actions():
                     if action.text() != self.tr("Load all") and action.text() != "Load all":
                         action.trigger()
             else:
                 # read QGIS project
-                doc, path = self.getQgsDoc(uri)
+                doc, path = self.getQgsDoc(fileName)
 
                 # is project in relative path ?
                 absolute = isAbsolute(doc)
@@ -664,7 +672,7 @@ class MenuFromProject:
                             provider = providerNode.firstChild().toText().data()
 
                             if provider == "ogr" and (ds.find(".") == 0):
-                                projectpath = QFileInfo(path).path()
+                                projectpath = QFileInfo(uri).path()
                                 newlayerpath = projectpath + "/" + ds
                                 datasourceNode.firstChild().toText().setData(newlayerpath)
                         except:
