@@ -671,7 +671,7 @@ class MenuFromProject:
                             providerNode = node.namedItem("provider")
                             provider = providerNode.firstChild().toText().data()
 
-                            if provider == "ogr" and (ds.find(".") == 0):
+                            if (provider == "ogr" or provider == "gdal") and (ds.find(".") == 0):
                                 projectpath = QFileInfo(uri).path()
                                 newlayerpath = projectpath + "/" + ds
                                 datasourceNode.firstChild().toText().setData(newlayerpath)
