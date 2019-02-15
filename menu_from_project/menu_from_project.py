@@ -26,6 +26,7 @@ import zipfile
 
 from qgis.core import (QgsMessageLog, QgsApplication, QgsProject, QgsSettings,
                        QgsVectorLayer, QgsRasterLayer, QgsReadWriteContext, QgsLayerItem)
+from qgis.utils import plugins
 
 from qgis.PyQt.QtCore import (QTranslator, QFile, QFileInfo,
                               QCoreApplication, QIODevice, Qt, QUuid,
@@ -350,7 +351,7 @@ class MenuFromProject:
                     menu.addAction(action)
                     yaLayer = True
 
-                # Add geometry type icon 
+                # Add geometry type icon
                 try:
                     map_layer = self.getMapLayerDomFromQgs(efilename, layerId).toElement()
                     geometry_type = map_layer.attribute('geometry')
@@ -460,7 +461,7 @@ class MenuFromProject:
             node = legends.item(0)
             if node:
                 node = node.firstChild()
-                self.addMenuItem(uri, filepath, node, projectMenu, isAbsolute(domdoc), 
+                self.addMenuItem(uri, filepath, node, projectMenu, isAbsolute(domdoc),
                                  mapLayersDict)
 
     def getQgsDoc(self, uri):
@@ -698,6 +699,15 @@ class MenuFromProject:
                             theLayer = QgsVectorLayer()
 
                         theLayer.readLayerXml(node.toElement(), QgsReadWriteContext())
+
+                        # Special process if the plugin "DB Style Manager" is installed
+                        flag = 'use_db_style_manager_in_custom_menu' in os.environ
+                        if flag and 'db-style-manager' in plugins:
+                            try:
+                                plugins['db-style-manager'].load_style_from_database(theLayer)
+                            except Exception:
+                                self.log('DB-Style-Manager failed to load the style.')
+
                         # needed
                         QgsProject.instance().addMapLayer(theLayer, False)
                         # add to group
