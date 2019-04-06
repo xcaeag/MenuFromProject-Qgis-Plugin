@@ -1,7 +1,6 @@
 *.qgs
 *.qgz
-*.qgs~
-*.qgz~
+*~
 *.bak
 __pycache__
 .idea/
