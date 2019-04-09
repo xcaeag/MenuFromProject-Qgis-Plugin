@@ -15,7 +15,7 @@ qgisMaximumVersion=3.98
 description=Build layers shortcuts menus based on QGIS projects
 about=Allow easy opening of layers maintaining their style.
 
-version=1.0.1
+version=1.0.2
 
 # end of mandatory metadata
 
@@ -23,6 +23,7 @@ version=1.0.1
 
 # Uncomment the following line and add your changelog entries:
 changelog=
+    1.0.2 : Load all styles from DB if the plugin DB-Style-Manager is setup
     1.0.1 : Bugfix #18. Relative paths mode
     1.0.0 : Display geometry type icon, new location possible : "add layer" menu, code cleaning
       thanks to Etienne Trimaille (https://github.com/Gustry)

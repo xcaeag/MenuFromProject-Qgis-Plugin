@@ -41,14 +41,14 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         for idx, project in enumerate(self.plugin.projects):
             pushButton = QToolButton(self.parent)
             pushButton.setGeometry(QRect(0, 0, 20, 20))
-            pushButton.setObjectName(("x"))
+            pushButton.setObjectName("x")
             pushButton.setText("...")
 
             itemName = QTableWidgetItem(project["name"])
             itemName.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
             self.tableWidget.setItem(idx, 2, itemName)
 
-            itemFile = QTableWidgetItem((project["file"]))
+            itemFile = QTableWidgetItem(project["file"])
             itemFile.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
             self.tableWidget.setItem(idx, 1, itemFile)
 
@@ -57,14 +57,14 @@ class MenuConfDialog(QDialog, FORM_CLASS):
 
             # uri
             le = QLineEdit()
-            le.setText((project["file"]))
+            le.setText(project["file"])
             le.setStyleSheet("color: {};".format('black' if project["valid"] else 'red'))
             self.tableWidget.setCellWidget(idx, 1, le)
             le.textChanged.connect(self.onTextChanged)
 
             # name
             le = QLineEdit()
-            le.setText((project["name"]))
+            le.setText(project["name"])
             le.setPlaceholderText(self.tr('Use project title'))
             self.tableWidget.setCellWidget(idx, 2, le)
 
@@ -153,14 +153,14 @@ class MenuConfDialog(QDialog, FORM_CLASS):
 
         pushButton = QToolButton(self.parent)
         pushButton.setGeometry(QRect(0, 0, 20, 20))
-        pushButton.setObjectName(("x"))
+        pushButton.setObjectName("x")
         pushButton.setText("...")
 
-        itemName = QTableWidgetItem("")
+        itemName = QTableWidgetItem()
         itemName.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
         self.tableWidget.setItem(row, 2, itemName)
 
-        itemFile = QTableWidgetItem("")
+        itemFile = QTableWidgetItem()
         itemFile.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
         self.tableWidget.setItem(row, 1, itemFile)
 
