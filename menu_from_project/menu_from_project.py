@@ -329,8 +329,8 @@ class MenuFromProject:
                                     self.addToolTip(mapLayer, action)
                     else:
                         self.log(
-                            "Menu from layer: " + layerId +
-                            " not found in project " + efilename)
+                            "Menu from layer: {} not found in project {}"
+                            .format(layerId, efilename))
 
                 # layer is not embedded
                 else:
@@ -373,38 +373,81 @@ class MenuFromProject:
         # if legendgroup tag
         if node.nodeName() == "layer-tree-group":
             name = element.attribute("name")
-            if name == "-":
-                menu.addSeparator()
+            propertiesNode = node.firstChild()
+            embedNd = getFirstChildByAttrValue(
+                propertiesNode.toElement(), "property", "key", "embedded")
 
-            elif name.startswith("-"):
-                action = QAction(name[1:], self.iface.mainWindow())
-                font = QFont()
-                font.setBold(True)
-                action.setFont(font)
-                menu.addAction(action)
+            # is group embedded ?
+            if embedNd and embedNd.toElement().attribute("value") == "1":
+                # group is embeded
+                efilename = None
+                eFileNd = getFirstChildByAttrValue(
+                    element, "property", "key", "embedded_project")
 
+                if eFileNd:
+                    # get project file name
+                    embeddedFile = eFileNd.toElement().attribute("value")
+                    if not absolute and (embeddedFile.find(".") == 0):
+                        efilename = QFileInfo(filename).path() + "/" + embeddedFile
+
+                    # if ok
+                    if efilename:
+                        # add menu group
+                        doc, path = self.getQgsDoc(efilename)
+
+                        groupNode = getFirstChildByAttrValue(
+                            doc.documentElement(),
+                            "layer-tree-group", "name", name)
+
+                        # and do recursion
+                        r = self.addMenuItem(
+                            efilename, efilename, groupNode, menu, absolute,
+                            getMapLayersDict(doc))
+
+                        yaLayer = yaLayer or r
+
+                else:
+                    self.log(
+                        "Menu from layer: {} not found in project {}"
+                        .format(layerId, efilename)
+                    )
+
+            # group is not embedded
             else:
-                # sub-menu
-                sousmenu = menu.addMenu('&'+element.attribute("name"))
-                sousmenu.menuAction().setToolTip("")
-                sousmenu.setToolTipsVisible(self.optionTooltip)
 
-                childNode = node.firstChild()
+                if name == "-":
+                    menu.addSeparator()
 
-                #  ! recursion
-                r = self.addMenuItem(uri, filename, childNode, sousmenu, absolute, mapLayersDict)
-
-                if r and self.optionLoadAll and (len(sousmenu.actions()) > 1):
-                    action = QAction(self.tr("Load all"), self.iface.mainWindow())
+                elif name.startswith("-"):
+                    action = QAction(name[1:], self.iface.mainWindow())
                     font = QFont()
                     font.setBold(True)
                     action.setFont(font)
-                    sousmenu.addAction(action)
-                    action.triggered.connect(
-                        lambda checked,
-                        f=None,
-                        w=None,
-                        m=sousmenu: self.loadLayer(uri, f, w, m))
+                    menu.addAction(action)
+
+                else:
+                    # sub-menu
+                    sousmenu = menu.addMenu('&'+element.attribute("name"))
+                    sousmenu.menuAction().setToolTip("")
+                    sousmenu.setToolTipsVisible(self.optionTooltip)
+
+                    childNode = node.firstChild()
+
+                    #  ! recursion
+                    r = self.addMenuItem(
+                        uri, filename, childNode, sousmenu, absolute, mapLayersDict)
+
+                    if r and self.optionLoadAll and (len(sousmenu.actions()) > 1):
+                        action = QAction(self.tr("Load all"), self.iface.mainWindow())
+                        font = QFont()
+                        font.setBold(True)
+                        action.setFont(font)
+                        sousmenu.addAction(action)
+                        action.triggered.connect(
+                            lambda checked,
+                            f=None,
+                            w=None,
+                            m=sousmenu: self.loadLayer(uri, f, w, m))
 
         # / if element.tagName() == "legendgroup":
 
@@ -484,8 +527,8 @@ class MenuFromProject:
         # file on disk
         if file.exists() and file.open(QIODevice.ReadOnly | QIODevice.Text) \
                 and QFileInfo(file).suffix() == 'qgs':
-                    doc.setContent(file)
-                    project_path = uri
+            doc.setContent(file)
+            project_path = uri
 
         elif file.exists() and (QFileInfo(file).suffix() == 'qgz'):
             temporary_unzip = QTemporaryDir()
