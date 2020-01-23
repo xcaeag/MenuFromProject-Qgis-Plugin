@@ -190,13 +190,13 @@ class MenuFromProject:
     def store(self):
         """Store the configuration in the QSettings."""
         s = QgsSettings()
-        s.remove("menu_from_project/projectFilePath")
 
         s.setValue("menu_from_project/optionTooltip", self.optionTooltip)
         s.setValue("menu_from_project/optionCreateGroup", self.optionCreateGroup)
         s.setValue("menu_from_project/optionLoadAll", self.optionLoadAll)
 
-        s.beginWriteArray("menu_from_project/projects")
+        s.beginGroup("menu_from_project")
+        s.beginWriteArray("projects")
         for i, project in enumerate(self.projects):
             s.setArrayIndex(i)
             s.setValue("file", project["file"])
@@ -204,40 +204,24 @@ class MenuFromProject:
             s.setValue("location", project["location"])
 
         s.endArray()
+        s.endGroup()
 
     def read(self):
         """Read the configuration from QSettings."""
         s = QgsSettings()
         try:
-            # old single project conf
-            filePath = s.value("menu_from_project/projectFilePath", "")
+            s.beginGroup("menu_from_project")
+            size = s.beginReadArray("projects")
+            for i in range(size):
+                s.setArrayIndex(i)
+                file = s.value("file", "")
+                name = s.value("name", "")
+                location = s.value("location", "new")
+                if file != "":
+                    self.projects.append({"file": file, "name": name, "location": location})
 
-            if filePath:
-                title = filePath.split('/')[-1]
-                title = title.split('.')[0]
-                self.projects.append({"file": filePath, "name": title})
-                self.store()
-            else:
-                # patch : lecture ancienne conf
-                size = s.beginReadArray("projects")
-                for i in range(size):
-                    s.setArrayIndex(i)
-                    file = s.value("file").toString()
-                    name = s.value("name").toString()
-                    if file:
-                        self.projects.append({"file": file, "name": name})
-                s.endArray()
-
-                size = s.beginReadArray("menu_from_project/projects")
-                for i in range(size):
-                    s.setArrayIndex(i)
-                    file = s.value("file", "")
-                    name = s.value("name", "")
-                    location = s.value("location", "new")
-                    if file != "":
-                        self.projects.append({"file": file, "name": name, "location": location})
-
-                s.endArray()
+            s.endArray()
+            s.endGroup()
 
             self.optionTooltip = s.value("menu_from_project/optionTooltip",
                                          True, type=bool)
