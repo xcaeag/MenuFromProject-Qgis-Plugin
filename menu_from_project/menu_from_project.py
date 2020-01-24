@@ -137,6 +137,24 @@ def project_title(doc):
     return None
 
 
+def project_trusted(doc):
+    """Return if the project is trusted.
+
+    :param doc: The QGIS project as XML document. Default to None.
+    :type doc: QDomDocument
+
+    :return: True of False.
+    :rtype: bool
+    """
+    tags = doc.elementsByTagName('qgis')
+    if tags.count():
+        node = tags.at(0)
+        trust_node = node.namedItem('trust')
+        return trust_node.toElement().attribute("active") == "1"
+
+    return False
+
+
 class MenuFromProject:
 
     def __init__(self, iface):
@@ -677,6 +695,7 @@ class MenuFromProject:
 
                 # is project in relative path ?
                 absolute = isAbsolute(doc)
+                trusted = project_trusted(doc)
 
                 node = getFirstChildByTagNameValue(doc.documentElement(), "maplayer", "id",
                                                    layerId)
@@ -725,6 +744,7 @@ class MenuFromProject:
                         else:
                             theLayer = QgsVectorLayer()
 
+                        theLayer.setReadExtentFromXml(trusted)
                         theLayer.readLayerXml(node.toElement(), QgsReadWriteContext())
 
                         # Special process if the plugin "DB Style Manager" is installed
