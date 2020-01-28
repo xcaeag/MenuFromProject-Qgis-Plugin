@@ -743,8 +743,8 @@ class MenuFromProject:
                             theLayer = QgsRasterLayer()
                         else:
                             theLayer = QgsVectorLayer()
+                            theLayer.setReadExtentFromXml(trusted)
 
-                        theLayer.setReadExtentFromXml(trusted)
                         theLayer.readLayerXml(node.toElement(), QgsReadWriteContext())
 
                         # Special process if the plugin "DB Style Manager" is installed
