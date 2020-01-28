@@ -15,7 +15,7 @@ qgisMaximumVersion=3.98
 description=Build layers shortcuts menus based on QGIS projects
 about=Allow easy opening of layers maintaining their style.
 
-version=1.0.4
+version=1.0.5
 
 # end of mandatory metadata
 
@@ -23,6 +23,7 @@ version=1.0.4
 
 # Uncomment the following line and add your changelog entries:
 changelog=
+    1.0.5 : fix #25
     1.0.4 : Add support for "trusted project" option, thanks to https://github.com/Djedouas
     1.0.3 : fix #20 - Layer doesn't appear when sourced from "Integrate layers and group"
     1.0.2 : Load all styles from DB if the plugin DB-Style-Manager is setup
