@@ -25,10 +25,10 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.defaultcursor = self.cursor
 
         self.LOCATIONS = {
-                "new": {"index": 0,
-                        "label": QApplication.translate("ConfDialog", "New menu", None)},
-                "layer": {"index": 1,
-                          "label": QApplication.translate("ConfDialog", "Add layer menu", None)}
+            "new": {"index": 0,
+                    "label": QApplication.translate("ConfDialog", "New menu", None)},
+            "layer": {"index": 1,
+                      "label": QApplication.translate("ConfDialog", "Add layer menu", None)}
         }
 
         self.tableWidget.horizontalHeader().setSectionResizeMode(
@@ -58,7 +58,11 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             # uri
             le = QLineEdit()
             le.setText(project["file"])
-            le.setStyleSheet("color: {};".format('black' if project["valid"] else 'red'))
+            try:
+                le.setStyleSheet("color: {};".format('black' if project["valid"] else 'red'))
+            except:
+                le.setStyleSheet("color: {};".format('black'))
+
             self.tableWidget.setCellWidget(idx, 1, le)
             le.textChanged.connect(self.onTextChanged)
 
@@ -98,9 +102,10 @@ class MenuConfDialog(QDialog, FORM_CLASS):
     def onFileSearchPressed(self, row):
         item = self.tableWidget.item(row, 1)
 
-        filePath = QFileDialog.getOpenFileName(self, QApplication.translate(
-            "menu_from_project",
-            "Projects configuration", None
+        filePath = QFileDialog.getOpenFileName(
+            self, QApplication.translate(
+                "menu_from_project",
+                "Projects configuration", None
             ), item.text(),
             QApplication.translate("menu_from_project", "QGIS projects (*.qgs *.qgz)", None))
 

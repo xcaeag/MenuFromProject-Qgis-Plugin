@@ -157,6 +157,10 @@ def project_trusted(doc):
 
 class MenuFromProject:
 
+    def on_initializationCompleted(self):
+        # build menu
+        self.initMenus()
+
     def __init__(self, iface):
         self.path = QFileInfo(os.path.realpath(__file__)).path()
         self.iface = iface
@@ -202,7 +206,7 @@ class MenuFromProject:
         return QCoreApplication.translate('menu_from_project', message)
 
     @staticmethod
-    def log(message, application='MenuFromProject'):
+    def log(message, application='Extensions'):
         QgsMessageLog.logMessage(message, application)
 
     def store(self):
@@ -261,18 +265,18 @@ class MenuFromProject:
         :param action: The action.
         :type action: QAction
         """
+
         if ml is not None:
             try:
                 title = ml.namedItem("title").firstChild().toText().data()
                 abstract = ml.namedItem("abstract").firstChild().toText().data()
 
-                action.setStatusTip(title)
                 if (abstract != "") and (title == ""):
-                    action.setToolTip("<p>%s</p>" % ("<br/>".join(abstract.split("\n"))))
+                    action.setToolTip("<p>{}</p>".format("<br/>".join(abstract.split("\n"))))
                 else:
                     if abstract != "" or title != "":
                         action.setToolTip(
-                            "<b>%s</b><br/>%s" % (title, "<br/>".join(abstract.split("\n"))))
+                            "<b>{}</b><br/>{}".format(title, "<br/>".join(abstract.split("\n"))))
                     else:
                         action.setToolTip("")
             except:
@@ -629,8 +633,7 @@ class MenuFromProject:
             self.iface.addPluginToMenu(self.tr("&Layers menu from project"), self.action_menu_help)
             self.action_menu_help.triggered.connect(self.do_help)
 
-        # build menu
-        self.initMenus()
+        self.iface.initializationCompleted.connect(self.on_initializationCompleted)
 
     def unload(self):
         menuBar = self.iface.editMenu().parentWidget()
