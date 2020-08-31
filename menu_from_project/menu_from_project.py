@@ -209,49 +209,56 @@ class MenuFromProject:
     def log(message, application='Extensions'):
         QgsMessageLog.logMessage(message, application)
 
-    def store(self):
+    def store(self):       
         """Store the configuration in the QSettings."""
         s = QgsSettings()
 
-        s.setValue("menu_from_project/optionTooltip", self.optionTooltip)
-        s.setValue("menu_from_project/optionCreateGroup", self.optionCreateGroup)
-        s.setValue("menu_from_project/optionLoadAll", self.optionLoadAll)
+        #s.beginGroup("menu_from_project")
+        try:
+            s.setValue("menu_from_project/optionTooltip", self.optionTooltip)
+            s.setValue("menu_from_project/optionCreateGroup", self.optionCreateGroup)
+            s.setValue("menu_from_project/optionLoadAll", self.optionLoadAll)
 
-        s.beginGroup("menu_from_project")
-        s.beginWriteArray("projects")
-        for i, project in enumerate(self.projects):
-            s.setArrayIndex(i)
-            s.setValue("file", project["file"])
-            s.setValue("name", project["name"])
-            s.setValue("location", project["location"])
+            s.beginWriteArray("menu_from_project/projects")
+            try:
+                for i, project in enumerate(self.projects):
+                    s.setArrayIndex(i)
+                    s.setValue("file", project["file"])
+                    s.setValue("name", project["name"])
+                    s.setValue("location", project["location"])
+            finally:
+                s.endArray()
 
-        s.endArray()
-        s.endGroup()
+        finally:
+            pass
+            # s.endGroup()
 
     def read(self):
         """Read the configuration from QSettings."""
         s = QgsSettings()
         try:
-            s.beginGroup("menu_from_project")
-            size = s.beginReadArray("projects")
-            for i in range(size):
-                s.setArrayIndex(i)
-                file = s.value("file", "")
-                name = s.value("name", "")
-                location = s.value("location", "new")
-                if file != "":
-                    self.projects.append({"file": file, "name": name, "location": location})
+            #s.beginGroup("menu_from_project")
+            try:
+                self.optionTooltip = s.value("menu_from_project/optionTooltip", True, type=bool)
+                self.optionCreateGroup = s.value("menu_from_project/optionCreateGroup", False, type=bool)
+                self.optionLoadAll = s.value("menu_from_project/optionLoadAll", False, type=bool)
 
-            s.endArray()
-            s.endGroup()
+                size = s.beginReadArray("menu_from_project/projects")
+                try:
+                    for i in range(size):
+                        s.setArrayIndex(i)
+                        file = s.value("file", "")
+                        name = s.value("name", "")
+                        location = s.value("location", "new")
+                        if file != "":
+                            self.projects.append({"file": file, "name": name, "location": location})
+                finally:
+                    pass
+                    s.endArray()
 
-            self.optionTooltip = s.value("menu_from_project/optionTooltip",
-                                         True, type=bool)
-
-            # create group option only since 1.9
-            self.optionCreateGroup = s.value("menu_from_project/optionCreateGroup",
-                                             False, type=bool)
-            self.optionLoadAll = s.value("menu_from_project/optionLoadAll", False, type=bool)
+            finally:
+                pass
+                #s.endGroup()
 
         except:
             pass
@@ -399,7 +406,7 @@ class MenuFromProject:
                     # if ok
                     if efilename:
                         # add menu group
-                        doc, path = self.getQgsDoc(efilename)
+                        doc, _ = self.getQgsDoc(efilename)
 
                         groupNode = getFirstChildByAttrValue(
                             doc.documentElement(),
@@ -465,7 +472,7 @@ class MenuFromProject:
 
         return yaLayer
 
-    def addMenu(self, name, uri, filepath, domdoc, location):
+    def addMenu(self, name, uri, filepath, domdoc, location, previous=None):
         """Add menu to the QGIS interface.
 
         :param name: The name of the parent menu. It might be an empty string.
@@ -476,6 +483,12 @@ class MenuFromProject:
 
         :param domdoc: The QGIS project as XML document.
         :type domdoc: QDomDocument
+
+        :param location: The menu location (new menu, or added in "layer - add layer" sub-menu).
+        :type location: string
+
+        :param previous: The previous added menu (for merging eventually)
+        :type previous: QMenu
         """
         if not name:
             name = project_title(domdoc)
@@ -488,19 +501,23 @@ class MenuFromProject:
                     name = ""
 
         # main project menu
-        if location == "layer":
-            menuBar = self.iface.addLayerMenu()
+        if location == "merge":
+            projectMenu = previous
+            projectMenu.addSeparator()
         else:
-            menuBar = self.iface.editMenu().parentWidget()
+            if location == "layer":
+                menuBar = self.iface.addLayerMenu()
+            if location == "new":
+                menuBar = self.iface.editMenu().parentWidget()
 
-        projectMenu = QMenu('&'+name, menuBar)
-        projectMenu.setToolTipsVisible(self.optionTooltip)
-        projectAction = menuBar.addMenu(projectMenu)
+            projectMenu = QMenu('&'+name, menuBar)
+            projectMenu.setToolTipsVisible(self.optionTooltip)
+            projectAction = menuBar.addMenu(projectMenu)
 
-        if location == "layer":
-            self.layerMenubarActions.append(projectAction)
-        else:
-            self.menubarActions.append(projectAction)
+            if location == "layer":
+                self.layerMenubarActions.append(projectAction)
+            if location == "new":
+                self.menubarActions.append(projectAction)
 
         mapLayersDict = getMapLayersDict(domdoc)
 
@@ -512,6 +529,8 @@ class MenuFromProject:
                 node = node.firstChild()
                 self.addMenuItem(uri, filepath, node, projectMenu, isAbsolute(domdoc),
                                  mapLayersDict)
+
+        return projectMenu
 
     def getQgsDoc(self, uri):
         """Return the XML document and the path from an URI.
@@ -604,12 +623,13 @@ class MenuFromProject:
         self.layerMenubarActions = []
 
         QgsApplication.setOverrideCursor(Qt.WaitCursor)
+        previous = None
         for project in self.projects:
             try:
                 project["valid"] = True
                 uri = project["file"]
                 doc, path = self.getQgsDoc(uri)
-                self.addMenu(project["name"], uri, path, doc, project["location"])
+                previous = self.addMenu(project["name"], uri, path, doc, project["location"], previous)
             except Exception as e:
                 project["valid"] = False
                 self.log(

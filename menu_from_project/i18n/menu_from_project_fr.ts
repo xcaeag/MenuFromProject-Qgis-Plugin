@@ -68,5 +68,9 @@
         <source>Add layer menu</source>
         <translation>Ajouter une couche</translation>
       </message>
+      <message>
+        <source>Merge with previous</source>
+        <translation>Ajouter au précédent</translation>
+      </message>
     </context>
 </TS>

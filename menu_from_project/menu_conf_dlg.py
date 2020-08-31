@@ -9,7 +9,7 @@ from qgis.PyQt import uic
 from qgis.PyQt.QtCore import (Qt, QRect)
 from qgis.PyQt.QtWidgets import (QHeaderView, QApplication, QTableWidgetItem,
                                  QToolButton, QLineEdit, QDialog, QFileDialog,
-                                 QComboBox)
+                                 QComboBox, QCheckBox)
 
 
 FORM_CLASS, _ = uic.loadUiType(join(dirname(__file__), 'conf_dialog.ui'))
@@ -28,7 +28,9 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             "new": {"index": 0,
                     "label": QApplication.translate("ConfDialog", "New menu", None)},
             "layer": {"index": 1,
-                      "label": QApplication.translate("ConfDialog", "Add layer menu", None)}
+                      "label": QApplication.translate("ConfDialog", "Add layer menu", None)},
+            "merge": {"index": 2,
+                      "label": QApplication.translate("ConfDialog", "Merge with previous", None)}
         }
 
         self.tableWidget.horizontalHeader().setSectionResizeMode(
@@ -75,12 +77,19 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             # location
             location_combo = QComboBox()
             for pk in self.LOCATIONS:
-                location_combo.addItem(self.LOCATIONS[pk]["label"], pk)
+                if not(pk == 'merge' and idx == 0):
+                    location_combo.addItem(self.LOCATIONS[pk]["label"], pk)
+
             try:
                 location_combo.setCurrentIndex(self.LOCATIONS[project["location"]]["index"])
             except:
                 location_combo.setCurrentIndex(0)
             self.tableWidget.setCellWidget(idx, 3, location_combo)
+
+            # checkbox 'merge with previous'
+            # cb = QCheckBox(self.parent)
+            # cb.setChecked(False)
+            # self.tableWidget.setCellWidget(idx, 4, cb)
 
             # helper = lambda _idx: (lambda: self.onFileSearchPressed(_idx))
             pushButton.clicked.connect(lambda checked, idx=idx: self.onFileSearchPressed(idx))
@@ -181,7 +190,9 @@ class MenuConfDialog(QDialog, FORM_CLASS):
 
         location_combo = QComboBox()
         for pk in self.LOCATIONS:
-            location_combo.addItem(self.LOCATIONS[pk]["label"], pk)
+            if not(pk == 'merge' and row == 0):
+                location_combo.addItem(self.LOCATIONS[pk]["label"], pk)
+
         location_combo.setCurrentIndex(0)
         self.tableWidget.setCellWidget(row, 3, location_combo)
 
