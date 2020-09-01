@@ -72,5 +72,34 @@
         <source>Merge with previous</source>
         <translation>Ajouter au précédent</translation>
       </message>
+      <message>
+        <source>Add new project</source>
+        <translation>Ajouter un projet</translation>
+      </message>
+      <message>
+        <source>Delete selected</source>
+        <translation>Supprimer la ligne sélectionnée</translation>
+      </message>
+      <message>
+        <source>Move up selected project</source>
+        <translation>Déplacer vers le haut</translation>
+      </message>
+      <message>
+        <source>Move down selected project</source>
+        <translation>Déplacer vers le bas</translation>
+      </message>
+      <message>
+        <source>Add</source>
+        <translation>+</translation>
+      </message>
+      <message>
+        <source>Del</source>
+        <translation>-</translation>
+      </message>
     </context>
 </TS>
+
+
+
+
+

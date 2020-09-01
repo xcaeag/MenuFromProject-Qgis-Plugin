@@ -11,7 +11,6 @@ from qgis.PyQt.QtWidgets import (QHeaderView, QApplication, QTableWidgetItem,
                                  QToolButton, QLineEdit, QDialog, QFileDialog,
                                  QComboBox, QCheckBox)
 
-
 FORM_CLASS, _ = uic.loadUiType(join(dirname(__file__), 'conf_dialog.ui'))
 
 
@@ -39,6 +38,9 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.buttonBox.accepted.connect(self.onAccepted)
         self.btnAdd.clicked.connect(self.onAdd)
         self.btnDelete.clicked.connect(self.onDelete)
+        self.btnUp.clicked.connect(self.onMoveUp)
+        self.btnDown.clicked.connect(self.onMoveDown)
+
 
         for idx, project in enumerate(self.plugin.projects):
             pushButton = QToolButton(self.parent)
@@ -203,6 +205,55 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         sr = self.tableWidget.selectedRanges()
         try:
             self.tableWidget.removeRow(sr[0].topRow())
+        except:
+            pass
+
+    def onMoveUp(self):
+        sr = self.tableWidget.selectedRanges()
+        try:
+            r = sr[0].topRow()
+            if r > 0:
+                fileA= self.tableWidget.cellWidget(r-1, 1).text()
+                fileB = self.tableWidget.cellWidget(r, 1).text()
+                self.tableWidget.cellWidget(r-1, 1).setText(fileB)
+                self.tableWidget.cellWidget(r, 1).setText(fileA)
+
+                nameA= self.tableWidget.cellWidget(r-1, 2).text()
+                nameB = self.tableWidget.cellWidget(r, 2).text()
+                self.tableWidget.cellWidget(r-1, 2).setText(nameB)
+                self.tableWidget.cellWidget(r, 2).setText(nameA)
+
+                locA = self.tableWidget.cellWidget(r-1, 3).currentIndex()
+                locB = self.tableWidget.cellWidget(r, 3).currentIndex()
+                if locB == 2 and r == 1:
+                    locB = 0
+                self.tableWidget.cellWidget(r-1, 3).setCurrentIndex(locB)
+                self.tableWidget.cellWidget(r, 3).setCurrentIndex(locA)
+        except:
+            pass
+
+    def onMoveDown(self):
+        sr = self.tableWidget.selectedRanges()
+        nbRows = self.tableWidget.rowCount()
+        try:
+            r = sr[0].topRow()
+            if r < nbRows-1:
+                fileA= self.tableWidget.cellWidget(r, 1).text()
+                fileB = self.tableWidget.cellWidget(r+1, 1).text()
+                self.tableWidget.cellWidget(r, 1).setText(fileB)
+                self.tableWidget.cellWidget(r+1, 1).setText(fileA)
+
+                nameA= self.tableWidget.cellWidget(r, 2).text()
+                nameB = self.tableWidget.cellWidget(r+1, 2).text()
+                self.tableWidget.cellWidget(r, 2).setText(nameB)
+                self.tableWidget.cellWidget(r+1, 2).setText(nameA)
+
+                locA = self.tableWidget.cellWidget(r, 3).currentIndex()
+                locB = self.tableWidget.cellWidget(r+1, 3).currentIndex()
+                if locB == 2 and r == 0:
+                    locB = 0
+                self.tableWidget.cellWidget(r, 3).setCurrentIndex(locB)
+                self.tableWidget.cellWidget(r+1, 3).setCurrentIndex(locA)
         except:
             pass
 

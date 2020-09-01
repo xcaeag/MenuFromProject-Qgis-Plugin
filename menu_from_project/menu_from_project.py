@@ -193,8 +193,7 @@ class MenuFromProject:
         locale = settings.value("locale/userLocale")
         self.myLocale = locale[0:2]
         # dictionary
-        localePath = self.path+"/i18n/menu_from_project_" + self.myLocale + \
-            ".qm"
+        localePath = self.path+"/i18n/" + self.myLocale + ".qm"
         # translator
         if QFileInfo(localePath).exists():
             self.translator = QTranslator()
@@ -213,13 +212,13 @@ class MenuFromProject:
         """Store the configuration in the QSettings."""
         s = QgsSettings()
 
-        #s.beginGroup("menu_from_project")
+        s.beginGroup("menu_from_project")
         try:
-            s.setValue("menu_from_project/optionTooltip", self.optionTooltip)
-            s.setValue("menu_from_project/optionCreateGroup", self.optionCreateGroup)
-            s.setValue("menu_from_project/optionLoadAll", self.optionLoadAll)
+            s.setValue("optionTooltip", self.optionTooltip)
+            s.setValue("optionCreateGroup", self.optionCreateGroup)
+            s.setValue("optionLoadAll", self.optionLoadAll)
 
-            s.beginWriteArray("menu_from_project/projects")
+            s.beginWriteArray("projects", len(self.projects))
             try:
                 for i, project in enumerate(self.projects):
                     s.setArrayIndex(i)
@@ -228,22 +227,20 @@ class MenuFromProject:
                     s.setValue("location", project["location"])
             finally:
                 s.endArray()
-
         finally:
-            pass
-            # s.endGroup()
+            s.endGroup()
 
     def read(self):
         """Read the configuration from QSettings."""
         s = QgsSettings()
         try:
-            #s.beginGroup("menu_from_project")
+            s.beginGroup("menu_from_project")
             try:
-                self.optionTooltip = s.value("menu_from_project/optionTooltip", True, type=bool)
-                self.optionCreateGroup = s.value("menu_from_project/optionCreateGroup", False, type=bool)
-                self.optionLoadAll = s.value("menu_from_project/optionLoadAll", False, type=bool)
+                self.optionTooltip = s.value("optionTooltip", True, type=bool)
+                self.optionCreateGroup = s.value("optionCreateGroup", False, type=bool)
+                self.optionLoadAll = s.value("optionLoadAll", False, type=bool)
 
-                size = s.beginReadArray("menu_from_project/projects")
+                size = s.beginReadArray("projects")
                 try:
                     for i in range(size):
                         s.setArrayIndex(i)
@@ -253,12 +250,10 @@ class MenuFromProject:
                         if file != "":
                             self.projects.append({"file": file, "name": name, "location": location})
                 finally:
-                    pass
                     s.endArray()
 
             finally:
-                pass
-                #s.endGroup()
+                s.endGroup()
 
         except:
             pass
@@ -604,7 +599,7 @@ class MenuFromProject:
         :return: The XML node of the layer.
         :rtype: QDomNode
         """
-        doc, path = self.getQgsDoc(fileName)
+        doc, _ = self.getQgsDoc(fileName)
         return getFirstChildByTagNameValue(doc.documentElement(), "maplayer", "id", layerId)
 
     def initMenus(self):
@@ -714,7 +709,7 @@ class MenuFromProject:
                         action.trigger()
             else:
                 # read QGIS project
-                doc, path = self.getQgsDoc(fileName)
+                doc, _ = self.getQgsDoc(fileName)
 
                 # is project in relative path ?
                 absolute = isAbsolute(doc)
