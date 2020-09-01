@@ -229,6 +229,8 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                     locB = 0
                 self.tableWidget.cellWidget(r-1, 3).setCurrentIndex(locB)
                 self.tableWidget.cellWidget(r, 3).setCurrentIndex(locA)
+
+                self.tableWidget.setCurrentCell(r-1, 1)
         except:
             pass
 
@@ -254,6 +256,8 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                     locB = 0
                 self.tableWidget.cellWidget(r, 3).setCurrentIndex(locB)
                 self.tableWidget.cellWidget(r+1, 3).setCurrentIndex(locA)
+
+                self.tableWidget.setCurrentCell(r+1, 1)
         except:
             pass
 
