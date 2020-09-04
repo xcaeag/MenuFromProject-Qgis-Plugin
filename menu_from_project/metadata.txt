@@ -15,7 +15,7 @@ qgisMaximumVersion=3.98
 description=Build layers shortcuts menus based on QGIS projects
 about=Allow easy opening of layers maintaining their style.
 
-version=1.1
+version=1.1.0
 
 # end of mandatory metadata
 
@@ -23,7 +23,7 @@ version=1.1
 
 # Uncomment the following line and add your changelog entries:
 changelog=
-    1.1 : It is now possible to merge two projects (#27).
+    1.1.0 : It is now possible to merge two projects (#27).
     1.0.6 : Build menus on initializationCompleted, otherwise tooltips are imperfect
     1.0.5 : fix #25
     1.0.4 : Add support for "trusted project" option, thanks to https://github.com/Djedouas
