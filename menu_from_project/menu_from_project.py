@@ -113,7 +113,7 @@ def isAbsolute(doc):
             pathNode = node.namedItem("Paths")
             absNode = pathNode.namedItem("Absolute")
             absolute = "true" == absNode.firstChild().toText().data()
-    except:
+    except Exception:
         pass
 
     return absolute
@@ -208,7 +208,7 @@ class MenuFromProject:
     def log(message, application='Extensions'):
         QgsMessageLog.logMessage(message, application)
 
-    def store(self):       
+    def store(self):
         """Store the configuration in the QSettings."""
         s = QgsSettings()
 
@@ -255,7 +255,7 @@ class MenuFromProject:
             finally:
                 s.endGroup()
 
-        except:
+        except Exception:
             pass
 
     def addToolTip(self, ml, action):
@@ -281,7 +281,7 @@ class MenuFromProject:
                             "<b>{}</b><br/>{}".format(title, "<br/>".join(abstract.split("\n"))))
                     else:
                         action.setToolTip("")
-            except:
+            except Exception:
                 pass
 
     def addMenuItem(self, uri, filename, node, menu, absolute, mapLayersDict):
@@ -369,7 +369,7 @@ class MenuFromProject:
                         geometry_type = map_layer.attribute('type')
 
                     action.setIcon(icon_for_geometry_type(geometry_type))
-                except:
+                except Exception:
                     pass
 
             except Exception as e:
@@ -725,7 +725,7 @@ class MenuFromProject:
                     newLayerId = "L%s" % re.sub("[{}-]", "", QUuid.createUuid().toString())
                     try:
                         idNode.firstChild().toText().setData(newLayerId)
-                    except:
+                    except Exception:
                         pass
 
                     # if relative path, adapt datasource
@@ -740,7 +740,7 @@ class MenuFromProject:
                                 projectpath = QFileInfo(uri).path()
                                 newlayerpath = projectpath + "/" + ds
                                 datasourceNode.firstChild().toText().setData(newlayerpath)
-                        except:
+                        except Exception:
                             pass
 
                     # read modified layer node
