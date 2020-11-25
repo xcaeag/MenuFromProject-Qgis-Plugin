@@ -9,7 +9,7 @@ from qgis.PyQt import uic
 from qgis.PyQt.QtCore import (Qt, QRect)
 from qgis.PyQt.QtWidgets import (QHeaderView, QApplication, QTableWidgetItem,
                                  QToolButton, QLineEdit, QDialog, QFileDialog,
-                                 QComboBox, QCheckBox)
+                                 QComboBox)
 
 FORM_CLASS, _ = uic.loadUiType(join(dirname(__file__), 'conf_dialog.ui'))
 
@@ -41,7 +41,6 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.btnUp.clicked.connect(self.onMoveUp)
         self.btnDown.clicked.connect(self.onMoveDown)
 
-
         for idx, project in enumerate(self.plugin.projects):
             pushButton = QToolButton(self.parent)
             pushButton.setGeometry(QRect(0, 0, 20, 20))
@@ -64,7 +63,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             le.setText(project["file"])
             try:
                 le.setStyleSheet("color: {};".format('black' if project["valid"] else 'red'))
-            except:
+            except Exception:
                 le.setStyleSheet("color: {};".format('black'))
 
             self.tableWidget.setCellWidget(idx, 1, le)
@@ -84,7 +83,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
 
             try:
                 location_combo.setCurrentIndex(self.LOCATIONS[project["location"]]["index"])
-            except:
+            except Exception:
                 location_combo.setCurrentIndex(0)
             self.tableWidget.setCellWidget(idx, 3, location_combo)
 
@@ -131,12 +130,12 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                     try:
                         name = filePath[0].split('/')[-1]
                         name = name.split('.')[0]
-                    except:
+                    except Exception:
                         name = ""
 
                     name_widget.setText(name)
 
-            except:
+            except Exception:
                 pass
 
     def onAccepted(self):
@@ -205,7 +204,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         sr = self.tableWidget.selectedRanges()
         try:
             self.tableWidget.removeRow(sr[0].topRow())
-        except:
+        except Exception:
             pass
 
     def onMoveUp(self):
@@ -213,12 +212,12 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         try:
             r = sr[0].topRow()
             if r > 0:
-                fileA= self.tableWidget.cellWidget(r-1, 1).text()
+                fileA = self.tableWidget.cellWidget(r-1, 1).text()
                 fileB = self.tableWidget.cellWidget(r, 1).text()
                 self.tableWidget.cellWidget(r-1, 1).setText(fileB)
                 self.tableWidget.cellWidget(r, 1).setText(fileA)
 
-                nameA= self.tableWidget.cellWidget(r-1, 2).text()
+                nameA = self.tableWidget.cellWidget(r-1, 2).text()
                 nameB = self.tableWidget.cellWidget(r, 2).text()
                 self.tableWidget.cellWidget(r-1, 2).setText(nameB)
                 self.tableWidget.cellWidget(r, 2).setText(nameA)
@@ -231,7 +230,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 self.tableWidget.cellWidget(r, 3).setCurrentIndex(locA)
 
                 self.tableWidget.setCurrentCell(r-1, 1)
-        except:
+        except Exception:
             pass
 
     def onMoveDown(self):
@@ -240,12 +239,12 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         try:
             r = sr[0].topRow()
             if r < nbRows-1:
-                fileA= self.tableWidget.cellWidget(r, 1).text()
+                fileA = self.tableWidget.cellWidget(r, 1).text()
                 fileB = self.tableWidget.cellWidget(r+1, 1).text()
                 self.tableWidget.cellWidget(r, 1).setText(fileB)
                 self.tableWidget.cellWidget(r+1, 1).setText(fileA)
 
-                nameA= self.tableWidget.cellWidget(r, 2).text()
+                nameA = self.tableWidget.cellWidget(r, 2).text()
                 nameB = self.tableWidget.cellWidget(r+1, 2).text()
                 self.tableWidget.cellWidget(r, 2).setText(nameB)
                 self.tableWidget.cellWidget(r+1, 2).setText(nameA)
@@ -258,7 +257,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 self.tableWidget.cellWidget(r+1, 3).setCurrentIndex(locA)
 
                 self.tableWidget.setCurrentCell(r+1, 1)
-        except:
+        except Exception:
             pass
 
     def onTextChanged(self, text):
@@ -266,6 +265,6 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         try:
             self.plugin.getQgsDoc(text)
             file_widget.setStyleSheet("color: {};".format('black'))
-        except:
+        except Exception:
             file_widget.setStyleSheet("color: {};".format('red'))
             pass
