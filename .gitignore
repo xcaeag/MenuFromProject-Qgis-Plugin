@@ -1,5 +1,3 @@
-*.qgs
-*.qgz
 *~
 *.bak
 __pycache__
