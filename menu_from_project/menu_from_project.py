@@ -50,11 +50,10 @@ from qgis.PyQt.QtGui import QFont
 from qgis.PyQt.QtWidgets import QAction, QMenu, QWidget
 from qgis.utils import plugins
 
-# Initialize Qt resources from file resources.py
-from .resources_rc import *
 
-# Import
-from .menu_conf_dlg import MenuConfDialog
+# project
+from .resources_rc import *  # noqa: F4 I001 - Load Qt compiled resources
+from .menu_conf_dlg import MenuConfDialog  # noqa: F4 I001
 
 
 def getFirstChildByTagNameValue(elt, tagName, key, value):
