@@ -1,21 +1,26 @@
-# -*- coding: utf-8 -*-
 """
 Dialog for setting up the plugin.
 """
 
-from os.path import join, dirname
+from os.path import dirname, join
 
 from qgis.PyQt import uic
-from qgis.PyQt.QtCore import (Qt, QRect)
-from qgis.PyQt.QtWidgets import (QHeaderView, QApplication, QTableWidgetItem,
-                                 QToolButton, QLineEdit, QDialog, QFileDialog,
-                                 QComboBox)
+from qgis.PyQt.QtCore import QRect, Qt
+from qgis.PyQt.QtWidgets import (
+    QApplication,
+    QComboBox,
+    QDialog,
+    QFileDialog,
+    QHeaderView,
+    QLineEdit,
+    QTableWidgetItem,
+    QToolButton,
+)
 
-FORM_CLASS, _ = uic.loadUiType(join(dirname(__file__), 'conf_dialog.ui'))
+FORM_CLASS, _ = uic.loadUiType(join(dirname(__file__), "conf_dialog.ui"))
 
 
 class MenuConfDialog(QDialog, FORM_CLASS):
-
     def __init__(self, parent, plugin):
         self.plugin = plugin
         self.parent = parent
@@ -24,16 +29,25 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.defaultcursor = self.cursor
 
         self.LOCATIONS = {
-            "new": {"index": 0,
-                    "label": QApplication.translate("ConfDialog", "New menu", None)},
-            "layer": {"index": 1,
-                      "label": QApplication.translate("ConfDialog", "Add layer menu", None)},
-            "merge": {"index": 2,
-                      "label": QApplication.translate("ConfDialog", "Merge with previous", None)}
+            "new": {
+                "index": 0,
+                "label": QApplication.translate("ConfDialog", "New menu", None),
+            },
+            "layer": {
+                "index": 1,
+                "label": QApplication.translate("ConfDialog", "Add layer menu", None),
+            },
+            "merge": {
+                "index": 2,
+                "label": QApplication.translate(
+                    "ConfDialog", "Merge with previous", None
+                ),
+            },
         }
 
         self.tableWidget.horizontalHeader().setSectionResizeMode(
-            QHeaderView.ResizeToContents)
+            QHeaderView.ResizeToContents
+        )
         self.tableWidget.setRowCount(len(self.plugin.projects))
         self.buttonBox.accepted.connect(self.onAccepted)
         self.btnAdd.clicked.connect(self.onAdd)
@@ -62,9 +76,11 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             le = QLineEdit()
             le.setText(project["file"])
             try:
-                le.setStyleSheet("color: {};".format('black' if project["valid"] else 'red'))
+                le.setStyleSheet(
+                    "color: {};".format("black" if project["valid"] else "red")
+                )
             except Exception:
-                le.setStyleSheet("color: {};".format('black'))
+                le.setStyleSheet("color: {};".format("black"))
 
             self.tableWidget.setCellWidget(idx, 1, le)
             le.textChanged.connect(self.onTextChanged)
@@ -72,17 +88,19 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             # name
             le = QLineEdit()
             le.setText(project["name"])
-            le.setPlaceholderText(self.tr('Use project title'))
+            le.setPlaceholderText(self.tr("Use project title"))
             self.tableWidget.setCellWidget(idx, 2, le)
 
             # location
             location_combo = QComboBox()
             for pk in self.LOCATIONS:
-                if not(pk == 'merge' and idx == 0):
+                if not (pk == "merge" and idx == 0):
                     location_combo.addItem(self.LOCATIONS[pk]["label"], pk)
 
             try:
-                location_combo.setCurrentIndex(self.LOCATIONS[project["location"]]["index"])
+                location_combo.setCurrentIndex(
+                    self.LOCATIONS[project["location"]]["index"]
+                )
             except Exception:
                 location_combo.setCurrentIndex(0)
             self.tableWidget.setCellWidget(idx, 3, location_combo)
@@ -93,12 +111,18 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             # self.tableWidget.setCellWidget(idx, 4, cb)
 
             # helper = lambda _idx: (lambda: self.onFileSearchPressed(_idx))
-            pushButton.clicked.connect(lambda checked, idx=idx: self.onFileSearchPressed(idx))
+            pushButton.clicked.connect(
+                lambda checked, idx=idx: self.onFileSearchPressed(idx)
+            )
 
         self.tableWidget.horizontalHeader().setSectionResizeMode(0, QHeaderView.Fixed)
         self.tableWidget.horizontalHeader().resizeSection(0, 20)
-        self.tableWidget.horizontalHeader().setSectionResizeMode(1, QHeaderView.Interactive)
-        self.tableWidget.horizontalHeader().setSectionResizeMode(2, QHeaderView.Interactive)
+        self.tableWidget.horizontalHeader().setSectionResizeMode(
+            1, QHeaderView.Interactive
+        )
+        self.tableWidget.horizontalHeader().setSectionResizeMode(
+            2, QHeaderView.Interactive
+        )
 
         self.cbxLoadAll.setChecked(self.plugin.optionLoadAll)
         self.cbxLoadAll.setTristate(False)
@@ -113,11 +137,13 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         item = self.tableWidget.item(row, 1)
 
         filePath = QFileDialog.getOpenFileName(
-            self, QApplication.translate(
-                "menu_from_project",
-                "Projects configuration", None
-            ), item.text(),
-            QApplication.translate("menu_from_project", "QGIS projects (*.qgs *.qgz)", None))
+            self,
+            QApplication.translate("menu_from_project", "Projects configuration", None),
+            item.text(),
+            QApplication.translate(
+                "menu_from_project", "QGIS projects (*.qgs *.qgz)", None
+            ),
+        )
 
         if filePath:
             try:
@@ -128,8 +154,8 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 name = name_widget.text()
                 if not name:
                     try:
-                        name = filePath[0].split('/')[-1]
-                        name = name.split('.')[0]
+                        name = filePath[0].split("/")[-1]
+                        name = name.split(".")[0]
                     except Exception:
                         name = ""
 
@@ -154,7 +180,9 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 location_widget = self.tableWidget.cellWidget(row, 3)
                 location = location_widget.itemData(location_widget.currentIndex())
 
-                self.plugin.projects.append({"file": filename, "name": name, "location": location})
+                self.plugin.projects.append(
+                    {"file": filename, "name": name, "location": location}
+                )
 
         self.plugin.optionTooltip = self.cbxShowTooltip.isChecked()
         self.plugin.optionLoadAll = self.cbxLoadAll.isChecked()
@@ -164,7 +192,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
 
     def onAdd(self):
         row = self.tableWidget.rowCount()
-        self.tableWidget.setRowCount(row+1)
+        self.tableWidget.setRowCount(row + 1)
 
         pushButton = QToolButton(self.parent)
         pushButton.setGeometry(QRect(0, 0, 20, 20))
@@ -186,19 +214,20 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.tableWidget.setCellWidget(row, 1, filepath_lineedit)
 
         name_lineedit = QLineEdit()
-        name_lineedit.setPlaceholderText(self.tr('Use project title'))
+        name_lineedit.setPlaceholderText(self.tr("Use project title"))
         self.tableWidget.setCellWidget(row, 2, name_lineedit)
 
         location_combo = QComboBox()
         for pk in self.LOCATIONS:
-            if not(pk == 'merge' and row == 0):
+            if not (pk == "merge" and row == 0):
                 location_combo.addItem(self.LOCATIONS[pk]["label"], pk)
 
         location_combo.setCurrentIndex(0)
         self.tableWidget.setCellWidget(row, 3, location_combo)
 
-        pushButton.clicked.connect(lambda checked,
-                                   row=row: self.onFileSearchPressed(row))
+        pushButton.clicked.connect(
+            lambda checked, row=row: self.onFileSearchPressed(row)
+        )
 
     def onDelete(self):
         sr = self.tableWidget.selectedRanges()
@@ -212,24 +241,24 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         try:
             r = sr[0].topRow()
             if r > 0:
-                fileA = self.tableWidget.cellWidget(r-1, 1).text()
+                fileA = self.tableWidget.cellWidget(r - 1, 1).text()
                 fileB = self.tableWidget.cellWidget(r, 1).text()
-                self.tableWidget.cellWidget(r-1, 1).setText(fileB)
+                self.tableWidget.cellWidget(r - 1, 1).setText(fileB)
                 self.tableWidget.cellWidget(r, 1).setText(fileA)
 
-                nameA = self.tableWidget.cellWidget(r-1, 2).text()
+                nameA = self.tableWidget.cellWidget(r - 1, 2).text()
                 nameB = self.tableWidget.cellWidget(r, 2).text()
-                self.tableWidget.cellWidget(r-1, 2).setText(nameB)
+                self.tableWidget.cellWidget(r - 1, 2).setText(nameB)
                 self.tableWidget.cellWidget(r, 2).setText(nameA)
 
-                locA = self.tableWidget.cellWidget(r-1, 3).currentIndex()
+                locA = self.tableWidget.cellWidget(r - 1, 3).currentIndex()
                 locB = self.tableWidget.cellWidget(r, 3).currentIndex()
                 if locB == 2 and r == 1:
                     locB = 0
-                self.tableWidget.cellWidget(r-1, 3).setCurrentIndex(locB)
+                self.tableWidget.cellWidget(r - 1, 3).setCurrentIndex(locB)
                 self.tableWidget.cellWidget(r, 3).setCurrentIndex(locA)
 
-                self.tableWidget.setCurrentCell(r-1, 1)
+                self.tableWidget.setCurrentCell(r - 1, 1)
         except Exception:
             pass
 
@@ -238,25 +267,25 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         nbRows = self.tableWidget.rowCount()
         try:
             r = sr[0].topRow()
-            if r < nbRows-1:
+            if r < nbRows - 1:
                 fileA = self.tableWidget.cellWidget(r, 1).text()
-                fileB = self.tableWidget.cellWidget(r+1, 1).text()
+                fileB = self.tableWidget.cellWidget(r + 1, 1).text()
                 self.tableWidget.cellWidget(r, 1).setText(fileB)
-                self.tableWidget.cellWidget(r+1, 1).setText(fileA)
+                self.tableWidget.cellWidget(r + 1, 1).setText(fileA)
 
                 nameA = self.tableWidget.cellWidget(r, 2).text()
-                nameB = self.tableWidget.cellWidget(r+1, 2).text()
+                nameB = self.tableWidget.cellWidget(r + 1, 2).text()
                 self.tableWidget.cellWidget(r, 2).setText(nameB)
-                self.tableWidget.cellWidget(r+1, 2).setText(nameA)
+                self.tableWidget.cellWidget(r + 1, 2).setText(nameA)
 
                 locA = self.tableWidget.cellWidget(r, 3).currentIndex()
-                locB = self.tableWidget.cellWidget(r+1, 3).currentIndex()
+                locB = self.tableWidget.cellWidget(r + 1, 3).currentIndex()
                 if locB == 2 and r == 0:
                     locB = 0
                 self.tableWidget.cellWidget(r, 3).setCurrentIndex(locB)
-                self.tableWidget.cellWidget(r+1, 3).setCurrentIndex(locA)
+                self.tableWidget.cellWidget(r + 1, 3).setCurrentIndex(locA)
 
-                self.tableWidget.setCurrentCell(r+1, 1)
+                self.tableWidget.setCurrentCell(r + 1, 1)
         except Exception:
             pass
 
@@ -264,7 +293,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         file_widget = self.sender()
         try:
             self.plugin.getQgsDoc(text)
-            file_widget.setStyleSheet("color: {};".format('black'))
+            file_widget.setStyleSheet("color: {};".format("black"))
         except Exception:
-            file_widget.setStyleSheet("color: {};".format('red'))
+            file_widget.setStyleSheet("color: {};".format("red"))
             pass

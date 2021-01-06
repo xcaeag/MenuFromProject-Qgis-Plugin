@@ -1,6 +1,33 @@
-*~
-*.bak
+# dev tooling
+
+
+# python
 __pycache__
+*.pyc
+
+# virtual environment
+venv
+.venv
+
+# tooling
 .idea/
 .vscode/
-menu_from_project/pb_tool.cfg
+*.log
+
+# tests
+junit/
+.coverage
+coverage.xml
+
+# docs
+htmlcov/
+
+# qt stuff
+*_rc.py
+
+# project
+*~
+*.bak
+*.qgs
+*.qgz
+*.zip
