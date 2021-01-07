@@ -1,4 +1,4 @@
-name: Linter
+name: Linter 🐍
 
 env:
   PROJECT_FOLDER: "menu_from_project"

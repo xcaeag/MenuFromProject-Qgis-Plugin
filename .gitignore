@@ -18,9 +18,11 @@ venv
 junit/
 .coverage
 coverage.xml
+htmlcov/
 
 # docs
-htmlcov/
+docs/_apidoc/
+docs/_build/
 
 # qt stuff
 *_rc.py

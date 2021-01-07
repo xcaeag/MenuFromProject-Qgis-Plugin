@@ -57,7 +57,7 @@ tags=menu layer project
 homepage=https://github.com/xcaeag/MenuFromProject-Qgis-Plugin
 tracker=https://github.com/xcaeag/MenuFromProject-Qgis-Plugin/issues
 repository=https://github.com/xcaeag/MenuFromProject-Qgis-Plugin
-icon=menu_from_project.png
+icon=resources/menu_from_project.png
 # experimental flag
 experimental=False
 

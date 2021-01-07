@@ -48,7 +48,7 @@ from qgis.PyQt.QtCore import (
 )
 from qgis.PyQt.QtGui import QFont
 from qgis.PyQt.QtWidgets import QAction, QMenu, QWidget
-from qgis.utils import plugins
+from qgis.utils import plugins, showPluginHelp
 
 
 # project
@@ -701,7 +701,9 @@ class MenuFromProject:
             self.iface.addPluginToMenu(
                 self.tr("&Layers menu from project"), self.action_menu_help
             )
-            self.action_menu_help.triggered.connect(self.do_help)
+            self.action_menu_help.triggered.connect(
+                lambda: showPluginHelp(filename="doc/index")
+            )
 
         self.iface.initializationCompleted.connect(self.on_initializationCompleted)
 
@@ -724,7 +726,6 @@ class MenuFromProject:
             self.action_project_configuration.triggered.disconnect(
                 self.open_projects_config
             )
-            self.action_menu_help.triggered.disconnect(self.do_help)
 
         self.store()
 
@@ -869,17 +870,3 @@ class MenuFromProject:
         self.canvas.setRenderFlag(True)
         self.canvas.refresh()
         QgsApplication.restoreOverrideCursor()
-
-    def do_help(self):
-        """Open the HTML help page in webbrowser."""
-        try:
-            if os.path.isfile(self.path + "/help_" + self.myLocale + ".html"):
-                webbrowser.open(
-                    "file://" + self.path + "/help_" + self.myLocale + ".html"
-                )
-            else:
-                webbrowser.open("file://" + self.path + "/help.html")
-
-        except Exception as e:
-            for m in e.args:
-                self.log(m)
