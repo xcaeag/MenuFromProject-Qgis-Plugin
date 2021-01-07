@@ -67,11 +67,16 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.btnAdd.clicked.connect(self.onAdd)
         self.btnAdd.setIcon(QIcon(":/images/themes/default/mActionAdd.svg"))
         self.btnDelete.clicked.connect(self.onDelete)
+        self.btnDelete.setText(None)
         self.btnDelete.setIcon(
             QIcon(":/images/themes/default/mActionDeleteSelected.svg")
         )
         self.btnUp.clicked.connect(self.onMoveUp)
+        self.btnUp.setText(None)
+        self.btnUp.setIcon(QIcon(":/images/themes/default/mActionArrowUp.svg"))
         self.btnDown.clicked.connect(self.onMoveDown)
+        self.btnDown.setText(None)
+        self.btnDown.setIcon(QIcon(":/images/themes/default/mActionArrowDown.svg"))
 
         for idx, project in enumerate(self.plugin.projects):
             pushButton = QToolButton(self.parent)

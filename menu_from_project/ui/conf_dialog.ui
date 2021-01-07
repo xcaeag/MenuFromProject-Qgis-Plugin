@@ -136,6 +136,12 @@
      </property>
      <item>
       <widget class="QToolButton" name="btnAdd">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>25</height>
+        </size>
+       </property>
        <property name="focusPolicy">
         <enum>Qt::WheelFocus</enum>
        </property>
@@ -155,6 +161,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="btnDelete">
+       <property name="minimumSize">
+        <size>
+         <width>40</width>
+         <height>25</height>
+        </size>
+       </property>
        <property name="toolTip">
         <string>Delete selected</string>
        </property>
@@ -165,21 +177,45 @@
      </item>
      <item>
       <widget class="QPushButton" name="btnUp">
+       <property name="minimumSize">
+        <size>
+         <width>50</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>25</height>
+        </size>
+       </property>
        <property name="toolTip">
         <string>Move up selected project</string>
        </property>
        <property name="text">
-        <string>▲</string>
+        <string>Up</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="btnDown">
+       <property name="minimumSize">
+        <size>
+         <width>50</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>25</height>
+        </size>
+       </property>
        <property name="toolTip">
         <string>Move down selected project</string>
        </property>
        <property name="text">
-        <string>▼</string>
+        <string>Down</string>
        </property>
       </widget>
      </item>
