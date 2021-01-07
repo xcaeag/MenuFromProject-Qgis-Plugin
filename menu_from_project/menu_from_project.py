@@ -18,11 +18,14 @@ email                : xavier.culos@eau-adour-garonne.fr
 
 """
 
+# Standard library
 import os
 import re
 import webbrowser
 import zipfile
+from pathlib import Path
 
+# PyQGIS
 from qgis.core import (
     QgsApplication,
     QgsLayerItem,
@@ -46,14 +49,14 @@ from qgis.PyQt.QtCore import (
     QTranslator,
     QUuid,
 )
-from qgis.PyQt.QtGui import QFont
+from qgis.PyQt.QtGui import QFont, QIcon
 from qgis.PyQt.QtWidgets import QAction, QMenu, QWidget
 from qgis.utils import plugins, showPluginHelp
 
-
 # project
+from .__about__ import DIR_PLUGIN_ROOT, __title__, __version__
 from .resources_rc import *  # noqa: F4 I001 - Load Qt compiled resources
-from .menu_conf_dlg import MenuConfDialog  # noqa: F4 I001
+from .ui.menu_conf_dlg import MenuConfDialog  # noqa: F4 I001
 
 
 def getFirstChildByTagNameValue(elt, tagName, key, value):
@@ -683,8 +686,11 @@ class MenuFromProject:
 
     def initGui(self):
         if self.is_setup_visible:
+            # menu item - Main
             self.action_project_configuration = QAction(
-                self.tr("Projects configuration") + "...", self.iface.mainWindow()
+                QIcon(str(Path(DIR_PLUGIN_ROOT / "resources/menu_from_project.png"))),
+                self.tr("Projects configuration"),
+                self.iface.mainWindow(),
             )
 
             self.iface.addPluginToMenu(
@@ -695,8 +701,11 @@ class MenuFromProject:
                 self.open_projects_config
             )
 
+            # menu item - Documentation
             self.action_menu_help = QAction(
-                self.tr("Help") + "...", self.iface.mainWindow()
+                QIcon(":/images/themes/default/mActionHelpContents.svg"),
+                self.tr("Help") + "...",
+                self.iface.mainWindow(),
             )
             self.iface.addPluginToMenu(
                 self.tr("&Layers menu from project"), self.action_menu_help

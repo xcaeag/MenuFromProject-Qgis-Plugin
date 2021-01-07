@@ -2,19 +2,19 @@
 Dialog for setting up the plugin.
 """
 
-from os.path import dirname, join
+from os.path import join, dirname
 
 from qgis.PyQt import uic
-from qgis.PyQt.QtCore import QRect, Qt
+from qgis.PyQt.QtCore import Qt, QRect
 from qgis.PyQt.QtWidgets import (
-    QApplication,
-    QComboBox,
-    QDialog,
-    QFileDialog,
     QHeaderView,
-    QLineEdit,
+    QApplication,
     QTableWidgetItem,
     QToolButton,
+    QLineEdit,
+    QDialog,
+    QFileDialog,
+    QComboBox,
 )
 
 FORM_CLASS, _ = uic.loadUiType(join(dirname(__file__), "conf_dialog.ui"))
