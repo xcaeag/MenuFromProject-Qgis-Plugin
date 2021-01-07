@@ -694,7 +694,7 @@ class MenuFromProject:
             )
 
             self.iface.addPluginToMenu(
-                self.tr("&Layers menu from project"), self.action_project_configuration
+                self.tr("&" + __title__), self.action_project_configuration
             )
             # Add actions to the toolbar
             self.action_project_configuration.triggered.connect(
@@ -704,12 +704,10 @@ class MenuFromProject:
             # menu item - Documentation
             self.action_menu_help = QAction(
                 QIcon(":/images/themes/default/mActionHelpContents.svg"),
-                self.tr("Help") + "...",
+                self.tr("Help"),
                 self.iface.mainWindow(),
             )
-            self.iface.addPluginToMenu(
-                self.tr("&Layers menu from project"), self.action_menu_help
-            )
+            self.iface.addPluginToMenu(self.tr("&" + __title__), self.action_menu_help)
             self.action_menu_help.triggered.connect(
                 lambda: showPluginHelp(filename="doc/index")
             )
@@ -727,11 +725,9 @@ class MenuFromProject:
 
         if self.is_setup_visible:
             self.iface.removePluginMenu(
-                self.tr("&Layers menu from project"), self.action_project_configuration
+                self.tr("&" + __title__), self.action_project_configuration
             )
-            self.iface.removePluginMenu(
-                self.tr("&Layers menu from project"), self.action_menu_help
-            )
+            self.iface.removePluginMenu(self.tr("&" + __title__), self.action_menu_help)
             self.action_project_configuration.triggered.disconnect(
                 self.open_projects_config
             )

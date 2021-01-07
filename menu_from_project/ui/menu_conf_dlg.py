@@ -2,10 +2,14 @@
 Dialog for setting up the plugin.
 """
 
+# standard
 from os.path import join, dirname
+from pathlib import Path
 
+# PyQGIS
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import Qt, QRect
+from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import (
     QHeaderView,
     QApplication,
@@ -17,6 +21,10 @@ from qgis.PyQt.QtWidgets import (
     QComboBox,
 )
 
+# project
+from menu_from_project.__about__ import DIR_PLUGIN_ROOT, __title__, __version__
+
+# load ui
 FORM_CLASS, _ = uic.loadUiType(join(dirname(__file__), "conf_dialog.ui"))
 
 
@@ -27,6 +35,12 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         self.defaultcursor = self.cursor
+        self.setWindowTitle(
+            self.windowTitle() + " - {} v{}".format(__title__, __version__)
+        )
+        self.setWindowIcon(
+            QIcon(str(Path(DIR_PLUGIN_ROOT / "resources/gear.svg"))),
+        )
 
         self.LOCATIONS = {
             "new": {
