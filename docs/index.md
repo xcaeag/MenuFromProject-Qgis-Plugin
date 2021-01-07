@@ -1,6 +1,6 @@
 # {{ title }} - Documentation
 
-> **Author:** {{ author }}
+> **Author and contributors:** {{ author }}
 >
 > **Version:** {{ version }}
 >
@@ -10,18 +10,19 @@
 
 - [English version](#english-version)
 
-  - [How to use it ?](#how-to-use-it-)
-    - [1. Set up a classical qgis project somewhere](#1-set-up-a-classical-qgis-project-somewhere)
-    - [2. Configure the plugin to read those projects](#2-configure-the-plugin-to-read-those-projects)
+  - [How to use it ?](#how-to-use-it)
+    - [1. Set up a classical qgis project somewhere](#set-up-a-classical-qgis-project-somewhere)
+    - [2. Configure the plugin to read those projects](#configure-the-plugin-to-read-those-projects)
 
 - [En Français](#en-francais)
-  - [Comment l'utiliser ?](#comment-lutiliser-)
-    - [1. Construire un beau projet](#1-construire-un-beau-projet)
-    - [2. Configurer le plugin](#2-configurer-le-plugin)
+  - [Comment l'utiliser ?](#comment-lutiliser)
+    - [1. Construire un beau projet](#construire-de-beaux-projets)
+    - [2. Configurer le plugin](#configurer-le-plugin)
 
 ```{toctree}
 ---
 maxdepth: 1
+caption: Others
 ---
 history.md
 On QGIS Plugins repository <https://plugins.qgis.org/plugins/menu_from_project/>
@@ -119,8 +120,6 @@ Le projet placé dans un espace partagé du réseau permettra à différents uti
 ![dropdown menu en](static/mapping.png)
 
 #### 2. Configurer le plugin
-
-:smiley:
 
 - menu / Extension / Layer menu from project :
 
