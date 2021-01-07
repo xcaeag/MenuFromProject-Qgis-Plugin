@@ -1,6 +1,6 @@
 # Menu From Project - QGIS Plugin - Documentation
 
-Table of Contents:
+## Table of Contents
 
 - [English version](#english-version)
 
@@ -12,6 +12,13 @@ Table of Contents:
   - [Comment l'utiliser ?](#comment-lutiliser-)
     - [1. Construire un beau projet](#1-construire-un-beau-projet)
     - [2. Configurer le plugin](#2-configurer-le-plugin)
+
+```{toctree}
+---
+maxdepth: 1
+---
+history.md
+```
 
 ## English version
 
