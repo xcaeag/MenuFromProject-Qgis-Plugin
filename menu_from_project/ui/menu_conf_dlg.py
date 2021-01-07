@@ -25,7 +25,7 @@ from qgis.PyQt.QtWidgets import (
 from menu_from_project.__about__ import DIR_PLUGIN_ROOT, __title__, __version__
 
 # load ui
-FORM_CLASS, _ = uic.loadUiType(join(dirname(__file__), "conf_dialog.ui"))
+FORM_CLASS, _ = uic.loadUiType(DIR_PLUGIN_ROOT / "ui/conf_dialog.ui")
 
 
 class MenuConfDialog(QDialog, FORM_CLASS):
@@ -65,7 +65,11 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.tableWidget.setRowCount(len(self.plugin.projects))
         self.buttonBox.accepted.connect(self.onAccepted)
         self.btnAdd.clicked.connect(self.onAdd)
+        self.btnAdd.setIcon(QIcon(":/images/themes/default/mActionAdd.svg"))
         self.btnDelete.clicked.connect(self.onDelete)
+        self.btnDelete.setIcon(
+            QIcon(":/images/themes/default/mActionDeleteSelected.svg")
+        )
         self.btnUp.clicked.connect(self.onMoveUp)
         self.btnDown.clicked.connect(self.onMoveDown)
 
@@ -73,7 +77,8 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             pushButton = QToolButton(self.parent)
             pushButton.setGeometry(QRect(0, 0, 20, 20))
             pushButton.setObjectName("x")
-            pushButton.setText("...")
+            pushButton.setIcon(QIcon(str(DIR_PLUGIN_ROOT / "resources/edit.svg")))
+            pushButton.setToolTip((self.tr("Edit this project")))
 
             itemName = QTableWidgetItem(project["name"])
             itemName.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
@@ -211,7 +216,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         pushButton = QToolButton(self.parent)
         pushButton.setGeometry(QRect(0, 0, 20, 20))
         pushButton.setObjectName("x")
-        pushButton.setText("...")
+        pushButton.setIcon(QIcon(str(DIR_PLUGIN_ROOT / "resources/edit.svg")))
 
         itemName = QTableWidgetItem()
         itemName.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)

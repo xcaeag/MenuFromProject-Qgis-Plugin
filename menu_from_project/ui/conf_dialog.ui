@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>764</width>
-    <height>261</height>
+    <width>739</width>
+    <height>310</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -21,8 +21,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>540</width>
-    <height>150</height>
+    <width>550</width>
+    <height>310</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -30,7 +30,10 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>:/menu_from_project/resources/menu_from_project.png</normaloff>:/menu_from_project/resources/menu_from_project.png</iconset>
+    <normaloff>../resources/menu_from_project.png</normaloff>../resources/menu_from_project.png</iconset>
+  </property>
+  <property name="windowOpacity">
+   <double>0.980000000000000</double>
   </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
@@ -38,74 +41,87 @@
   <property name="sizeGripEnabled">
    <bool>true</bool>
   </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QTableWidget" name="tableWidget">
-     <property name="sizeAdjustPolicy">
-      <enum>QAbstractScrollArea::AdjustToContents</enum>
-     </property>
-     <property name="dragEnabled">
-      <bool>false</bool>
-     </property>
-     <property name="dragDropMode">
-      <enum>QAbstractItemView::NoDragDrop</enum>
-     </property>
-     <property name="defaultDropAction">
-      <enum>Qt::IgnoreAction</enum>
-     </property>
-     <property name="alternatingRowColors">
-      <bool>true</bool>
-     </property>
-     <property name="selectionMode">
-      <enum>QAbstractItemView::SingleSelection</enum>
-     </property>
-     <property name="selectionBehavior">
-      <enum>QAbstractItemView::SelectRows</enum>
-     </property>
-     <property name="textElideMode">
-      <enum>Qt::ElideNone</enum>
-     </property>
-     <property name="rowCount">
-      <number>2</number>
-     </property>
-     <property name="columnCount">
-      <number>4</number>
-     </property>
-     <attribute name="horizontalHeaderVisible">
-      <bool>true</bool>
-     </attribute>
-     <attribute name="horizontalHeaderHighlightSections">
-      <bool>true</bool>
-     </attribute>
-     <attribute name="verticalHeaderVisible">
-      <bool>true</bool>
-     </attribute>
-     <attribute name="verticalHeaderDefaultSectionSize">
-      <number>21</number>
-     </attribute>
-     <row/>
-     <row/>
-     <column>
-      <property name="text">
-       <string>...</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>QGIS Project</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Name</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Location</string>
-      </property>
-     </column>
-    </widget>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QTableWidget" name="tableWidget">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>100</height>
+        </size>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QAbstractScrollArea::AdjustToContents</enum>
+       </property>
+       <property name="dragEnabled">
+        <bool>false</bool>
+       </property>
+       <property name="dragDropMode">
+        <enum>QAbstractItemView::NoDragDrop</enum>
+       </property>
+       <property name="defaultDropAction">
+        <enum>Qt::IgnoreAction</enum>
+       </property>
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::SingleSelection</enum>
+       </property>
+       <property name="selectionBehavior">
+        <enum>QAbstractItemView::SelectRows</enum>
+       </property>
+       <property name="textElideMode">
+        <enum>Qt::ElideNone</enum>
+       </property>
+       <property name="rowCount">
+        <number>2</number>
+       </property>
+       <property name="columnCount">
+        <number>4</number>
+       </property>
+       <attribute name="horizontalHeaderVisible">
+        <bool>true</bool>
+       </attribute>
+       <attribute name="horizontalHeaderHighlightSections">
+        <bool>true</bool>
+       </attribute>
+       <attribute name="verticalHeaderVisible">
+        <bool>true</bool>
+       </attribute>
+       <attribute name="verticalHeaderDefaultSectionSize">
+        <number>21</number>
+       </attribute>
+       <row/>
+       <row/>
+       <column>
+        <property name="text">
+         <string>Name</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>QGIS Project</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Location</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Edit</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0">
@@ -148,7 +164,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="btnUp">
+      <widget class="QPushButton" name="btnUp">
        <property name="toolTip">
         <string>Move up selected project</string>
        </property>
@@ -158,7 +174,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="btnDown">
+      <widget class="QPushButton" name="btnDown">
        <property name="toolTip">
         <string>Move down selected project</string>
        </property>
@@ -183,8 +199,28 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QFormLayout" name="formLayout">
+     <item row="1" column="0">
       <widget class="QCheckBox" name="cbxLoadAll">
        <property name="text">
         <string>Load all layers item</string>
@@ -194,7 +230,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="1" column="1">
       <spacer name="horizontalSpacer_3">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -210,20 +246,7 @@
        </property>
       </spacer>
      </item>
-     <item>
-      <widget class="QCheckBox" name="cbxCreateGroup">
-       <property name="text">
-        <string>Create group</string>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="tristate">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
+     <item row="3" column="1">
       <spacer name="horizontalSpacer_4">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -239,7 +262,20 @@
        </property>
       </spacer>
      </item>
-     <item>
+     <item row="2" column="0">
+      <widget class="QCheckBox" name="cbxCreateGroup">
+       <property name="text">
+        <string>Create group</string>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="tristate">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
       <widget class="QCheckBox" name="cbxShowTooltip">
        <property name="text">
         <string>Show title &amp;&amp; abstract in tooltip</string>
@@ -252,7 +288,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="2" column="1">
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -264,6 +300,22 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="lblSettings">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="cursor">
+        <cursorShape>IBeamCursor</cursorShape>
+       </property>
+       <property name="text">
+        <string>Options</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -280,18 +332,13 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>tableWidget</tabstop>
   <tabstop>btnAdd</tabstop>
   <tabstop>btnDelete</tabstop>
   <tabstop>btnUp</tabstop>
   <tabstop>btnDown</tabstop>
   <tabstop>cbxLoadAll</tabstop>
-  <tabstop>cbxCreateGroup</tabstop>
-  <tabstop>cbxShowTooltip</tabstop>
  </tabstops>
- <!-- <resources>
-  <include location="../resources.qrc"/>
- </resources> -->
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>
