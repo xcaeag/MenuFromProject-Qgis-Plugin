@@ -53,7 +53,7 @@ from qgis.utils import plugins, showPluginHelp
 
 # project
 from .resources_rc import *  # noqa: F4 I001 - Load Qt compiled resources
-from .menu_conf_dlg import MenuConfDialog  # noqa: F4 I001
+from .ui.menu_conf_dlg import MenuConfDialog  # noqa: F4 I001
 
 
 def getFirstChildByTagNameValue(elt, tagName, key, value):

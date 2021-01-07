@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
-    <height>224</height>
+    <width>764</width>
+    <height>261</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -28,12 +28,22 @@
   <property name="windowTitle">
    <string>Projects</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/menu_from_project/resources/menu_from_project.png</normaloff>:/menu_from_project/resources/menu_from_project.png</iconset>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QTableWidget" name="tableWidget">
+     <property name="sizeAdjustPolicy">
+      <enum>QAbstractScrollArea::AdjustToContents</enum>
+     </property>
      <property name="dragEnabled">
       <bool>false</bool>
      </property>
@@ -71,7 +81,7 @@
       <bool>true</bool>
      </attribute>
      <attribute name="verticalHeaderDefaultSectionSize">
-      <number>17</number>
+      <number>21</number>
      </attribute>
      <row/>
      <row/>
@@ -119,10 +129,16 @@
        <property name="text">
         <string>Add</string>
        </property>
+       <property name="popupMode">
+        <enum>QToolButton::MenuButtonPopup</enum>
+       </property>
+       <property name="arrowType">
+        <enum>Qt::NoArrow</enum>
+       </property>
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="btnDelete">
+      <widget class="QPushButton" name="btnDelete">
        <property name="toolTip">
         <string>Delete selected</string>
        </property>
@@ -179,6 +195,22 @@
       </widget>
      </item>
      <item>
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Maximum</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
       <widget class="QCheckBox" name="cbxCreateGroup">
        <property name="text">
         <string>Create group</string>
@@ -190,6 +222,22 @@
         <bool>false</bool>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Maximum</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
      <item>
       <widget class="QCheckBox" name="cbxShowTooltip">
@@ -241,7 +289,9 @@
   <tabstop>cbxCreateGroup</tabstop>
   <tabstop>cbxShowTooltip</tabstop>
  </tabstops>
- <resources/>
+ <!-- <resources>
+  <include location="../resources.qrc"/>
+ </resources> -->
  <connections>
   <connection>
    <sender>buttonBox</sender>
