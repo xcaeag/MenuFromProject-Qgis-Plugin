@@ -18,6 +18,14 @@ copyright = __about__.__copyright__
 version = release = __about__.__version__
 github_doc_root = "{}/tree/master/doc/".format(__about__.__uri_repository__)
 
+myst_substitutions = {
+    "title": project,
+    "author": author,
+    "repo_url": __about__.__uri__,
+    "version": version,
+}
+
+myst_url_schemes = ("http", "https", "mailto")
 
 # -- General configuration ---------------------------------------------------
 
@@ -68,8 +76,23 @@ html_favicon = "../menu_from_project/resources/menu_from_project.png"
 html_logo = "../menu_from_project/resources/menu_from_project.png"
 html_static_path = ["static"]
 html_theme = "furo"
+# html_theme_options = {
+#     "github_url": __about__.__uri_repository__,
+#     "repository_url": __about__.__uri_repository__,
+# }
 
 
+myst_enable_extensions = [
+    "dollarmath",
+    "amsmath",
+    "deflist",
+    "html_image",
+    "colon_fence",
+    "smartquotes",
+    "replacements",
+    "linkify",
+    "substitution",
+]
 # -- EXTENSIONS --------------------------------------------------------
 
 # Configuration for intersphinx (refer to others docs).

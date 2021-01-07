@@ -1,4 +1,10 @@
-# Menu From Project - QGIS Plugin - Documentation
+# {{ title }} - Documentation
+
+> **Author:** {{ author }}
+>
+> **Version:** {{ version }}
+>
+> **Source code:** {{ repo_url }}
 
 ## Table of Contents
 
@@ -18,6 +24,7 @@
 maxdepth: 1
 ---
 history.md
+On QGIS Plugins repository <https://plugins.qgis.org/plugins/menu_from_project/>
 ```
 
 ## English version
