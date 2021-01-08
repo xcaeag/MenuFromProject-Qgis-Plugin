@@ -55,8 +55,11 @@
          <height>100</height>
         </size>
        </property>
+       <property name="autoFillBackground">
+        <bool>true</bool>
+       </property>
        <property name="sizeAdjustPolicy">
-        <enum>QAbstractScrollArea::AdjustToContents</enum>
+        <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
        </property>
        <property name="dragEnabled">
         <bool>false</bool>
@@ -79,6 +82,9 @@
        <property name="textElideMode">
         <enum>Qt::ElideNone</enum>
        </property>
+       <property name="sortingEnabled">
+        <bool>false</bool>
+       </property>
        <property name="rowCount">
         <number>2</number>
        </property>
@@ -91,11 +97,17 @@
        <attribute name="horizontalHeaderHighlightSections">
         <bool>true</bool>
        </attribute>
+       <attribute name="horizontalHeaderStretchLastSection">
+        <bool>false</bool>
+       </attribute>
        <attribute name="verticalHeaderVisible">
         <bool>true</bool>
        </attribute>
        <attribute name="verticalHeaderDefaultSectionSize">
         <number>21</number>
+       </attribute>
+       <attribute name="verticalHeaderStretchLastSection">
+        <bool>false</bool>
        </attribute>
        <row/>
        <row/>
