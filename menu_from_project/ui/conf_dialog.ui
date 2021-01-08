@@ -164,7 +164,7 @@
         <string>Add</string>
        </property>
        <property name="popupMode">
-        <enum>QToolButton::MenuButtonPopup</enum>
+        <enum>QToolButton::InstantPopup</enum>
        </property>
        <property name="arrowType">
         <enum>Qt::NoArrow</enum>

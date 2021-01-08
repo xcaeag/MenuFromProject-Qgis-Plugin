@@ -10,12 +10,14 @@ from qgis.PyQt import uic
 from qgis.PyQt.QtCore import QRect, Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import (
+    QAction,
     QApplication,
     QComboBox,
     QDialog,
     QFileDialog,
     QHeaderView,
     QLineEdit,
+    QMenu,
     QTableWidgetItem,
     QToolButton,
 )
@@ -64,8 +66,6 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         )
         self.tableWidget.setRowCount(len(self.plugin.projects))
         self.buttonBox.accepted.connect(self.onAccepted)
-        self.btnAdd.clicked.connect(self.onAdd)
-        self.btnAdd.setIcon(QIcon(":/images/themes/default/mActionAdd.svg"))
         self.btnDelete.clicked.connect(self.onDelete)
         self.btnDelete.setText(None)
         self.btnDelete.setIcon(
@@ -77,6 +77,29 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.btnDown.clicked.connect(self.onMoveDown)
         self.btnDown.setText(None)
         self.btnDown.setIcon(QIcon(":/images/themes/default/mActionArrowDown.svg"))
+
+        # add button
+        self.btnAdd.setIcon(QIcon(":/images/themes/default/mActionAdd.svg"))
+        self.addMenu = QMenu(self.btnAdd)
+        add_option_file = QAction(
+            QIcon(":/images/themes/default/mIconFile.svg"),
+            self.tr("Add from file"),
+            self.addMenu,
+        )
+        add_option_pgdb = QAction(
+            QIcon(":/images/themes/default/mIconPostgis.svg"),
+            self.tr("Add from PostgreSQL database"),
+            self.addMenu,
+        )
+        add_option_http = QAction(
+            QIcon(str(Path(DIR_PLUGIN_ROOT / "resources/globe.svg"))),
+            self.tr("Add from URL"),
+            self.addMenu,
+        )
+        self.addMenu.addAction(add_option_file)
+        self.addMenu.addAction(add_option_pgdb)
+        self.addMenu.addAction(add_option_http)
+        self.btnAdd.setMenu(self.addMenu)
 
         for idx, project in enumerate(self.plugin.projects):
             # project name

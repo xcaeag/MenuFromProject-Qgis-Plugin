@@ -54,7 +54,7 @@ from qgis.PyQt.QtWidgets import QAction, QMenu, QWidget
 from qgis.utils import plugins, showPluginHelp
 
 # project
-from .__about__ import DIR_PLUGIN_ROOT, __title__, __version__
+from .__about__ import DIR_PLUGIN_ROOT, __title__
 from .resources_rc import *  # noqa: F4 I001 - Load Qt compiled resources
 from .ui.menu_conf_dlg import MenuConfDialog  # noqa: F4 I001
 
