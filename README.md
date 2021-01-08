@@ -3,6 +3,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![Flake8](https://img.shields.io/badge/flake8-enabled-yellowgreen)](https://flake8.pycqa.org/)
+[![documentation badge](https://img.shields.io/badge/documentation-autobuilt%20with%20Sphinx-blue)](https://xcaeag.github.io/MenuFromProject-Qgis-Plugin/)
 
 ## English :gb:
 
@@ -10,7 +11,7 @@ This plugin provides a convenient way to add prestyled and configured frequently
 
 Styling, actions, labeling, metadata - every layer options in fact except joins - are reused as defined in source qgs projects
 
-Whole documentation is available just here: <https://github.com/xcaeag/MenuFromProject-Qgis-Plugin/wiki>
+:book: Whole documentation is available just here: <https://xcaeag.github.io/MenuFromProject-Qgis-Plugin/#english-version>
 
 ## Français :fr:
 
@@ -18,6 +19,6 @@ Cette extension pour QGIS permet de construire automatiquement des menus déroul
 
 Tous les paramètrages des couches, le style, les étiquettes, les actions, les métadonnées.. sont conservés. La maintenance se résume à la gestion de quelques projets QGIS centralisés.
 
-Une documentation ici : <https://github.com/xcaeag/MenuFromProject-Qgis-Plugin/wiki>
+:book: La documentation ici : <https://xcaeag.github.io/MenuFromProject-Qgis-Plugin/#en-francais>
 
 ![](https://raw.githubusercontent.com/xcaeag/MenuFromProject-Qgis-Plugin/master/menu_from_project/doc/menu-tuto-en.gif)
