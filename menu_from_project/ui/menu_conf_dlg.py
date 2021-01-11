@@ -2,22 +2,31 @@
 Dialog for setting up the plugin.
 """
 
-from os.path import join, dirname
+# standard
+from pathlib import Path
 
+# PyQGIS
 from qgis.PyQt import uic
-from qgis.PyQt.QtCore import Qt, QRect
+from qgis.PyQt.QtCore import QRect, Qt
+from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import (
-    QHeaderView,
+    QAction,
     QApplication,
-    QTableWidgetItem,
-    QToolButton,
-    QLineEdit,
+    QComboBox,
     QDialog,
     QFileDialog,
-    QComboBox,
+    QHeaderView,
+    QLineEdit,
+    QMenu,
+    QTableWidgetItem,
+    QToolButton,
 )
 
-FORM_CLASS, _ = uic.loadUiType(join(dirname(__file__), "conf_dialog.ui"))
+# project
+from menu_from_project.__about__ import DIR_PLUGIN_ROOT, __title__, __version__
+
+# load ui
+FORM_CLASS, _ = uic.loadUiType(DIR_PLUGIN_ROOT / "ui/conf_dialog.ui")
 
 
 class MenuConfDialog(QDialog, FORM_CLASS):
@@ -27,6 +36,12 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         self.defaultcursor = self.cursor
+        self.setWindowTitle(
+            self.windowTitle() + " - {} v{}".format(__title__, __version__)
+        )
+        self.setWindowIcon(
+            QIcon(str(Path(DIR_PLUGIN_ROOT / "resources/gear.svg"))),
+        )
 
         self.LOCATIONS = {
             "new": {
@@ -45,36 +60,63 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             },
         }
 
+        # -- Configured projects (table and related buttons)
         self.tableWidget.horizontalHeader().setSectionResizeMode(
             QHeaderView.ResizeToContents
         )
         self.tableWidget.setRowCount(len(self.plugin.projects))
         self.buttonBox.accepted.connect(self.onAccepted)
-        self.btnAdd.clicked.connect(self.onAdd)
         self.btnDelete.clicked.connect(self.onDelete)
+        self.btnDelete.setText(None)
+        self.btnDelete.setIcon(
+            QIcon(":/images/themes/default/mActionDeleteSelected.svg")
+        )
         self.btnUp.clicked.connect(self.onMoveUp)
+        self.btnUp.setText(None)
+        self.btnUp.setIcon(QIcon(":/images/themes/default/mActionArrowUp.svg"))
         self.btnDown.clicked.connect(self.onMoveDown)
+        self.btnDown.setText(None)
+        self.btnDown.setIcon(QIcon(":/images/themes/default/mActionArrowDown.svg"))
+
+        # add button
+        self.btnAdd.setIcon(QIcon(":/images/themes/default/mActionAdd.svg"))
+        self.addMenu = QMenu(self.btnAdd)
+        add_option_file = QAction(
+            QIcon(":/images/themes/default/mIconFile.svg"),
+            self.tr("Add from file"),
+            self.addMenu,
+        )
+        add_option_pgdb = QAction(
+            QIcon(":/images/themes/default/mIconPostgis.svg"),
+            self.tr("Add from PostgreSQL database"),
+            self.addMenu,
+        )
+        add_option_http = QAction(
+            QIcon(str(Path(DIR_PLUGIN_ROOT / "resources/globe.svg"))),
+            self.tr("Add from URL"),
+            self.addMenu,
+        )
+        self.addMenu.addAction(add_option_file)
+        self.addMenu.addAction(add_option_pgdb)
+        self.addMenu.addAction(add_option_http)
+        self.btnAdd.setMenu(self.addMenu)
 
         for idx, project in enumerate(self.plugin.projects):
-            pushButton = QToolButton(self.parent)
-            pushButton.setGeometry(QRect(0, 0, 20, 20))
-            pushButton.setObjectName("x")
-            pushButton.setText("...")
-
-            itemName = QTableWidgetItem(project["name"])
+            # project name
+            itemName = QTableWidgetItem(project.get("name"))
             itemName.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-            self.tableWidget.setItem(idx, 2, itemName)
+            self.tableWidget.setItem(idx, 0, itemName)
+            le = QLineEdit()
+            le.setText(project.get("name"))
+            le.setPlaceholderText(self.tr("Use project title"))
+            self.tableWidget.setCellWidget(idx, 0, le)
 
-            itemFile = QTableWidgetItem(project["file"])
+            # project path
+            itemFile = QTableWidgetItem(project.get("file"))
             itemFile.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
             self.tableWidget.setItem(idx, 1, itemFile)
-
-            # button
-            self.tableWidget.setCellWidget(idx, 0, pushButton)
-
-            # uri
             le = QLineEdit()
-            le.setText(project["file"])
+            le.setText(project.get("file"))
             try:
                 le.setStyleSheet(
                     "color: {};".format("black" if project["valid"] else "red")
@@ -85,13 +127,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             self.tableWidget.setCellWidget(idx, 1, le)
             le.textChanged.connect(self.onTextChanged)
 
-            # name
-            le = QLineEdit()
-            le.setText(project["name"])
-            le.setPlaceholderText(self.tr("Use project title"))
-            self.tableWidget.setCellWidget(idx, 2, le)
-
-            # location
+            # menu location
             location_combo = QComboBox()
             for pk in self.LOCATIONS:
                 if not (pk == "merge" and idx == 0):
@@ -103,27 +139,20 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 )
             except Exception:
                 location_combo.setCurrentIndex(0)
-            self.tableWidget.setCellWidget(idx, 3, location_combo)
+            self.tableWidget.setCellWidget(idx, 2, location_combo)
 
-            # checkbox 'merge with previous'
-            # cb = QCheckBox(self.parent)
-            # cb.setChecked(False)
-            # self.tableWidget.setCellWidget(idx, 4, cb)
-
-            # helper = lambda _idx: (lambda: self.onFileSearchPressed(_idx))
+            # edit project
+            pushButton = QToolButton(self.parent)
+            pushButton.setGeometry(QRect(0, 0, 20, 20))
+            pushButton.setObjectName("x")
+            pushButton.setIcon(QIcon(str(DIR_PLUGIN_ROOT / "resources/edit.svg")))
+            pushButton.setToolTip((self.tr("Edit this project")))
+            self.tableWidget.setCellWidget(idx, 3, pushButton)
             pushButton.clicked.connect(
                 lambda checked, idx=idx: self.onFileSearchPressed(idx)
             )
 
-        self.tableWidget.horizontalHeader().setSectionResizeMode(0, QHeaderView.Fixed)
-        self.tableWidget.horizontalHeader().resizeSection(0, 20)
-        self.tableWidget.horizontalHeader().setSectionResizeMode(
-            1, QHeaderView.Interactive
-        )
-        self.tableWidget.horizontalHeader().setSectionResizeMode(
-            2, QHeaderView.Interactive
-        )
-
+        # -- Options
         self.cbxLoadAll.setChecked(self.plugin.optionLoadAll)
         self.cbxLoadAll.setTristate(False)
 
@@ -132,6 +161,8 @@ class MenuConfDialog(QDialog, FORM_CLASS):
 
         self.cbxShowTooltip.setCheckState(self.plugin.optionTooltip)
         self.cbxShowTooltip.setTristate(False)
+
+        self.tableTunning()
 
     def onFileSearchPressed(self, row):
         item = self.tableWidget.item(row, 1)
@@ -173,11 +204,11 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             if file_widget and file_widget.text():
                 # self.plugin.log("row {} : {}".format(row, file_widget.text()))
 
-                name_widget = self.tableWidget.cellWidget(row, 2)
+                name_widget = self.tableWidget.cellWidget(row, 0)
                 name = name_widget.text()
                 filename = file_widget.text()
 
-                location_widget = self.tableWidget.cellWidget(row, 3)
+                location_widget = self.tableWidget.cellWidget(row, 2)
                 location = location_widget.itemData(location_widget.currentIndex())
 
                 self.plugin.projects.append(
@@ -194,40 +225,42 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         row = self.tableWidget.rowCount()
         self.tableWidget.setRowCount(row + 1)
 
-        pushButton = QToolButton(self.parent)
-        pushButton.setGeometry(QRect(0, 0, 20, 20))
-        pushButton.setObjectName("x")
-        pushButton.setText("...")
-
+        # project name
         itemName = QTableWidgetItem()
         itemName.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-        self.tableWidget.setItem(row, 2, itemName)
+        self.tableWidget.setItem(row, 0, itemName)
+        name_lineedit = QLineEdit()
+        name_lineedit.setPlaceholderText(self.tr("Use project title"))
+        self.tableWidget.setCellWidget(row, 0, name_lineedit)
 
+        # project file path
         itemFile = QTableWidgetItem()
         itemFile.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
         self.tableWidget.setItem(row, 1, itemFile)
-
-        self.tableWidget.setCellWidget(row, 0, pushButton)
-
         filepath_lineedit = QLineEdit()
         filepath_lineedit.textChanged.connect(self.onTextChanged)
         self.tableWidget.setCellWidget(row, 1, filepath_lineedit)
 
-        name_lineedit = QLineEdit()
-        name_lineedit.setPlaceholderText(self.tr("Use project title"))
-        self.tableWidget.setCellWidget(row, 2, name_lineedit)
-
+        # menu location
         location_combo = QComboBox()
         for pk in self.LOCATIONS:
             if not (pk == "merge" and row == 0):
                 location_combo.addItem(self.LOCATIONS[pk]["label"], pk)
 
         location_combo.setCurrentIndex(0)
-        self.tableWidget.setCellWidget(row, 3, location_combo)
+        self.tableWidget.setCellWidget(row, 2, location_combo)
 
+        # edit button
+        pushButton = QToolButton(self.parent)
+        pushButton.setGeometry(QRect(0, 0, 20, 20))
+        pushButton.setObjectName("x")
+        pushButton.setIcon(QIcon(str(DIR_PLUGIN_ROOT / "resources/edit.svg")))
+        self.tableWidget.setCellWidget(row, 3, pushButton)
         pushButton.clicked.connect(
             lambda checked, row=row: self.onFileSearchPressed(row)
         )
+
+        self.tableTunning()
 
     def onDelete(self):
         sr = self.tableWidget.selectedRanges()
@@ -297,3 +330,22 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         except Exception:
             file_widget.setStyleSheet("color: {};".format("red"))
             pass
+
+    def tableTunning(self):
+        """Prettify table aspect"""
+        self.tableWidget.horizontalHeader().setSectionResizeMode(
+            0, QHeaderView.Interactive
+        )
+        self.tableWidget.horizontalHeader().setSectionResizeMode(
+            1, QHeaderView.Interactive
+        )
+        self.tableWidget.horizontalHeader().setSectionResizeMode(
+            2, QHeaderView.Interactive
+        )
+        self.tableWidget.horizontalHeader().setSectionResizeMode(3, QHeaderView.Fixed)
+        self.tableWidget.horizontalHeader().resizeSection(3, 20)
+
+        # fit to content
+        self.tableWidget.resizeColumnToContents(0)
+        self.tableWidget.resizeColumnToContents(1)
+        self.tableWidget.resizeColumnToContents(2)

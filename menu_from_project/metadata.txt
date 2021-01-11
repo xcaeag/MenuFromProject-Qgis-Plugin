@@ -15,7 +15,7 @@ qgisMaximumVersion=3.98
 description=Build layers shortcuts menus based on QGIS projects
 about=Allow easy opening of layers maintaining their style.
 
-version=1.1.0
+version=1.2.0-beta1
 
 # end of mandatory metadata
 
@@ -58,6 +58,7 @@ homepage=https://github.com/xcaeag/MenuFromProject-Qgis-Plugin
 tracker=https://github.com/xcaeag/MenuFromProject-Qgis-Plugin/issues
 repository=https://github.com/xcaeag/MenuFromProject-Qgis-Plugin
 icon=resources/menu_from_project.png
+
 # experimental flag
 experimental=False
 
@@ -65,5 +66,5 @@ experimental=False
 deprecated=False
 
 # Author contact information
-author=Agence de l'eau Adour Garonne
+author=Agence de l'eau Adour Garonne, Julien M. (Oslandia)
 email=xavier.culos@eau-adour-garonne.fr
