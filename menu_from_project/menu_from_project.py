@@ -21,9 +21,7 @@ email                : xavier.culos@eau-adour-garonne.fr
 # Standard library
 import os
 import re
-import webbrowser
 import zipfile
-from pathlib import Path
 
 # PyQGIS
 from qgis.core import (
@@ -688,7 +686,7 @@ class MenuFromProject:
         if self.is_setup_visible:
             # menu item - Main
             self.action_project_configuration = QAction(
-                QIcon(str(Path(DIR_PLUGIN_ROOT / "resources/menu_from_project.png"))),
+                QIcon(str(DIR_PLUGIN_ROOT / "resources/menu_from_project.png")),
                 self.tr("Projects configuration"),
                 self.iface.mainWindow(),
             )
@@ -703,10 +701,11 @@ class MenuFromProject:
 
             # menu item - Documentation
             self.action_menu_help = QAction(
-                QIcon(":/images/themes/default/mActionHelpContents.svg"),
+                QIcon(QgsApplication.iconPath("mActionHelpContents.svg")),
                 self.tr("Help"),
                 self.iface.mainWindow(),
             )
+
             self.iface.addPluginToMenu(self.tr("&" + __title__), self.action_menu_help)
             self.action_menu_help.triggered.connect(
                 lambda: showPluginHelp(filename="doc/index")
