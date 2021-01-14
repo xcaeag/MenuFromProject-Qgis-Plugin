@@ -5,8 +5,8 @@
 """
 
 # Standard library
-from functools import partial
 import logging
+from functools import partial
 
 # PyQGIS
 from qgis.core import QgsApplication
@@ -28,7 +28,8 @@ from qgis.PyQt.QtWidgets import (
 
 # project
 from menu_from_project.__about__ import DIR_PLUGIN_ROOT, __title__, __version__
-from menu_from_project.logic.tools import guess_type_from_location, icon_per_type
+from menu_from_project.logic.custom_datatypes import TABLE_COLUMNS_ORDER
+from menu_from_project.logic.tools import guess_type_from_uri, icon_per_storage_type
 
 # ############################################################################
 # ########## Globals ###############
@@ -58,6 +59,12 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             QIcon(str(DIR_PLUGIN_ROOT / "resources/gear.svg")),
         )
 
+        # column order reference
+        self.cols = TABLE_COLUMNS_ORDER(
+            edit=0, name=1, type_menu_location=3, type_storage=2, uri=4
+        )
+
+        # menu locations
         self.LOCATIONS = {
             "new": {
                 "index": 0,
@@ -126,7 +133,8 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             pushButton.setObjectName("x")
             pushButton.setIcon(QIcon(str(DIR_PLUGIN_ROOT / "resources/edit.svg")))
             pushButton.setToolTip((self.tr("Edit this project")))
-            self.tableWidget.setCellWidget(idx, 0, pushButton)
+            self.tableWidget.setCellWidget(idx, self.cols.edit, pushButton)
+
             pushButton.clicked.connect(
                 lambda checked, idx=idx: self.onFileSearchPressed(idx)
             )
@@ -134,22 +142,26 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             # project name
             itemName = QTableWidgetItem(project.get("name"))
             itemName.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-            self.tableWidget.setItem(idx, 1, itemName)
+            self.tableWidget.setItem(idx, self.cols.name, itemName)
             le = QLineEdit()
             le.setText(project.get("name"))
             le.setPlaceholderText(self.tr("Use project title"))
-            self.tableWidget.setCellWidget(idx, 1, le)
+            self.tableWidget.setCellWidget(idx, self.cols.name, le)
 
-            # project location type
-            qgs_location_type = project.get(
-                "type", guess_type_from_location(project.get("location"))
+            # project storage type
+            qgs_type_storage = project.get(
+                "type", guess_type_from_uri(project.get("location"))
             )
             lbl_location_type = QLabel(self.tableWidget)
-            lbl_location_type.setPixmap(QPixmap(icon_per_type(qgs_location_type)))
+            lbl_location_type.setPixmap(
+                QPixmap(icon_per_storage_type(qgs_type_storage))
+            )
             lbl_location_type.setAlignment(Qt.AlignCenter)
             lbl_location_type.setTextInteractionFlags(Qt.NoTextInteraction)
-            lbl_location_type.setToolTip(qgs_location_type)
-            self.tableWidget.setCellWidget(idx, 2, lbl_location_type)
+            lbl_location_type.setToolTip(qgs_type_storage)
+            self.tableWidget.setCellWidget(
+                idx, self.cols.type_storage, lbl_location_type
+            )
 
             # project menu location
             location_combo = QComboBox()
@@ -163,12 +175,14 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 )
             except Exception:
                 location_combo.setCurrentIndex(0)
-            self.tableWidget.setCellWidget(idx, 3, location_combo)
+            self.tableWidget.setCellWidget(
+                idx, self.cols.type_menu_location, location_combo
+            )
 
             # project path
             itemFile = QTableWidgetItem(project.get("file"))
             itemFile.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-            self.tableWidget.setItem(idx, 4, itemFile)
+            self.tableWidget.setItem(idx, self.cols.uri, itemFile)
             le = QLineEdit()
             le.setText(project.get("file"))
             try:
@@ -178,7 +192,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             except Exception:
                 le.setStyleSheet("color: {};".format("black"))
 
-            self.tableWidget.setCellWidget(idx, 4, le)
+            self.tableWidget.setCellWidget(idx, self.cols.uri, le)
             le.textChanged.connect(self.onTextChanged)
 
         # -- Options
@@ -193,7 +207,13 @@ class MenuConfDialog(QDialog, FORM_CLASS):
 
         self.tableTunning()
 
-    def onFileSearchPressed(self, row):
+    def onFileSearchPressed(self, row: int):
+        """Open file browser to allow user pick a QGIS project file. \
+        Trigered when edit button is pressed for a project with type_storage == file.
+
+        :param row: row indice
+        :type row: int
+        """
         item = self.tableWidget.item(row, 1)
 
         filePath = QFileDialog.getOpenFileName(
@@ -209,10 +229,10 @@ class MenuConfDialog(QDialog, FORM_CLASS):
 
         if filePath:
             try:
-                file_widget = self.tableWidget.cellWidget(row, 1)
+                file_widget = self.tableWidget.cellWidget(row, self.cols.uri)
                 file_widget.setText(filePath[0])
 
-                name_widget = self.tableWidget.cellWidget(row, 2)
+                name_widget = self.tableWidget.cellWidget(row, self.cols.name)
                 name = name_widget.text()
                 if not name:
                     try:
@@ -230,16 +250,18 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.plugin.projects = []
         # self.plugin.log("count : {}".format(self.tableWidget.rowCount()))
         for row in range(self.tableWidget.rowCount()):
-            file_widget = self.tableWidget.cellWidget(row, 1)
+            file_widget = self.tableWidget.cellWidget(row, self.cols.uri)
             # self.plugin.log("row : {}".format(row))
             if file_widget and file_widget.text():
                 # self.plugin.log("row {} : {}".format(row, file_widget.text()))
 
-                name_widget = self.tableWidget.cellWidget(row, 0)
+                name_widget = self.tableWidget.cellWidget(row, self.cols.name)
                 name = name_widget.text()
                 filename = file_widget.text()
 
-                location_widget = self.tableWidget.cellWidget(row, 2)
+                location_widget = self.tableWidget.cellWidget(
+                    row, self.cols.type_menu_location
+                )
                 location = location_widget.itemData(location_widget.currentIndex())
 
                 self.plugin.projects.append(
@@ -252,7 +274,12 @@ class MenuConfDialog(QDialog, FORM_CLASS):
 
         self.plugin.store()
 
-    def onAdd(self, qgs_location_type: str = "file"):
+    def onAdd(self, qgs_type_storage: str = "file"):
+        """Add a new line to the table.
+
+        Args:
+            qgs_type_storage (str, optional): [description]. Defaults to "file".
+        """  #
         row = self.tableWidget.rowCount()
         self.tableWidget.setRowCount(row + 1)
 
@@ -261,7 +288,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         pushButton.setGeometry(QRect(0, 0, 20, 20))
         pushButton.setObjectName("x")
         pushButton.setIcon(QIcon(str(DIR_PLUGIN_ROOT / "resources/edit.svg")))
-        self.tableWidget.setCellWidget(row, 0, pushButton)
+        self.tableWidget.setCellWidget(row, self.cols.edit, pushButton)
         pushButton.clicked.connect(
             lambda checked, row=row: self.onFileSearchPressed(row)
         )
@@ -269,20 +296,20 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         # project name
         itemName = QTableWidgetItem()
         itemName.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-        self.tableWidget.setItem(row, 1, itemName)
+        self.tableWidget.setItem(row, self.cols.name, itemName)
         name_lineedit = QLineEdit()
         name_lineedit.setPlaceholderText(self.tr("Use project title"))
-        self.tableWidget.setCellWidget(row, 1, name_lineedit)
+        self.tableWidget.setCellWidget(row, self.cols.name, name_lineedit)
 
         # project location type
         lbl_location_type = QLabel(self.tableWidget)
-        lbl_location_type.setPixmap(QPixmap(icon_per_type(qgs_location_type)))
+        lbl_location_type.setPixmap(QPixmap(icon_per_storage_type(qgs_type_storage)))
         lbl_location_type.setMaximumSize(20, 20)
         lbl_location_type.setAlignment(Qt.AlignHCenter)
         lbl_location_type.setScaledContents(True)
         lbl_location_type.setTextInteractionFlags(Qt.NoTextInteraction)
-        lbl_location_type.setToolTip(qgs_location_type)
-        self.tableWidget.setCellWidget(row, 2, lbl_location_type)
+        lbl_location_type.setToolTip(qgs_type_storage)
+        self.tableWidget.setCellWidget(row, self.cols.type_storage, lbl_location_type)
 
         # menu location
         location_combo = QComboBox()
@@ -291,20 +318,23 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 location_combo.addItem(self.LOCATIONS[pk]["label"], pk)
 
         location_combo.setCurrentIndex(0)
-        self.tableWidget.setCellWidget(row, 3, location_combo)
+        self.tableWidget.setCellWidget(
+            row, self.cols.type_menu_location, location_combo
+        )
 
         # project file path
         itemFile = QTableWidgetItem()
         itemFile.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-        self.tableWidget.setItem(row, 4, itemFile)
+        self.tableWidget.setItem(row, self.cols.uri, itemFile)
         filepath_lineedit = QLineEdit()
         filepath_lineedit.textChanged.connect(self.onTextChanged)
-        self.tableWidget.setCellWidget(row, 4, filepath_lineedit)
+        self.tableWidget.setCellWidget(row, self.cols.uri, filepath_lineedit)
 
         # apply table styling
         self.tableTunning()
 
     def onDelete(self):
+        """Remove selected lines from the table."""
         sr = self.tableWidget.selectedRanges()
         try:
             self.tableWidget.removeRow(sr[0].topRow())
@@ -312,26 +342,38 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             pass
 
     def onMoveUp(self):
+        """Move the selected lines upwards."""
         sr = self.tableWidget.selectedRanges()
         try:
             r = sr[0].topRow()
             if r > 0:
-                fileA = self.tableWidget.cellWidget(r - 1, 1).text()
-                fileB = self.tableWidget.cellWidget(r, 1).text()
-                self.tableWidget.cellWidget(r - 1, 1).setText(fileB)
-                self.tableWidget.cellWidget(r, 1).setText(fileA)
+                # project path
+                fileA = self.tableWidget.cellWidget(r - 1, self.cols.uri).text()
+                fileB = self.tableWidget.cellWidget(r, self.cols.uri).text()
+                self.tableWidget.cellWidget(r - 1, self.cols.uri).setText(fileB)
+                self.tableWidget.cellWidget(r, self.cols.uri).setText(fileA)
 
-                nameA = self.tableWidget.cellWidget(r - 1, 2).text()
-                nameB = self.tableWidget.cellWidget(r, 2).text()
-                self.tableWidget.cellWidget(r - 1, 2).setText(nameB)
-                self.tableWidget.cellWidget(r, 2).setText(nameA)
+                # project name
+                nameA = self.tableWidget.cellWidget(r - 1, self.cols.name).text()
+                nameB = self.tableWidget.cellWidget(r, self.cols.name).text()
+                self.tableWidget.cellWidget(r - 1, self.cols.name).setText(nameB)
+                self.tableWidget.cellWidget(r, self.cols.name).setText(nameA)
 
-                locA = self.tableWidget.cellWidget(r - 1, 3).currentIndex()
-                locB = self.tableWidget.cellWidget(r, 3).currentIndex()
+                # project location
+                locA = self.tableWidget.cellWidget(
+                    r - 1, self.cols.type_menu_location
+                ).currentIndex()
+                locB = self.tableWidget.cellWidget(
+                    r, self.cols.type_menu_location
+                ).currentIndex()
                 if locB == 2 and r == 1:
                     locB = 0
-                self.tableWidget.cellWidget(r - 1, 3).setCurrentIndex(locB)
-                self.tableWidget.cellWidget(r, 3).setCurrentIndex(locA)
+                self.tableWidget.cellWidget(
+                    r - 1, self.cols.type_menu_location
+                ).setCurrentIndex(locB)
+                self.tableWidget.cellWidget(
+                    r, self.cols.type_menu_location
+                ).setCurrentIndex(locA)
 
                 self.tableWidget.setCurrentCell(r - 1, 1)
         except Exception:
@@ -371,34 +413,37 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             file_widget.setStyleSheet("color: {};".format("black"))
         except Exception:
             file_widget.setStyleSheet("color: {};".format("red"))
-            pass
 
     def tableTunning(self):
         """Prettify table aspect"""
         # edit button
-        self.tableWidget.horizontalHeader().setSectionResizeMode(0, QHeaderView.Fixed)
-        self.tableWidget.horizontalHeader().resizeSection(0, 20)
+        self.tableWidget.horizontalHeader().setSectionResizeMode(
+            self.cols.edit, QHeaderView.Fixed
+        )
+        self.tableWidget.horizontalHeader().resizeSection(self.cols.edit, 20)
 
         # project name
         self.tableWidget.horizontalHeader().setSectionResizeMode(
-            1, QHeaderView.Interactive
+            self.cols.name, QHeaderView.Interactive
         )
 
         # project type
-        self.tableWidget.horizontalHeader().setSectionResizeMode(2, QHeaderView.Fixed)
-        self.tableWidget.horizontalHeader().resizeSection(2, 10)
+        self.tableWidget.horizontalHeader().setSectionResizeMode(
+            self.cols.type_storage, QHeaderView.Fixed
+        )
+        self.tableWidget.horizontalHeader().resizeSection(self.cols.type_storage, 10)
 
         # project menu location
         self.tableWidget.horizontalHeader().setSectionResizeMode(
-            3, QHeaderView.Interactive
+            self.cols.type_menu_location, QHeaderView.Interactive
         )
 
         # project path
         self.tableWidget.horizontalHeader().setSectionResizeMode(
-            4, QHeaderView.Interactive
+            self.cols.uri, QHeaderView.Interactive
         )
 
         # fit to content
-        self.tableWidget.resizeColumnToContents(1)
-        self.tableWidget.resizeColumnToContents(3)
-        self.tableWidget.resizeColumnToContents(4)
+        self.tableWidget.resizeColumnToContents(self.cols.name)
+        self.tableWidget.resizeColumnToContents(self.cols.type_menu_location)
+        self.tableWidget.resizeColumnToContents(self.cols.uri)
