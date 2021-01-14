@@ -1,21 +1,25 @@
+#! python3  # noqa: E265
+
 """
-Dialog for setting up the plugin.
+    Dialog for setting up the plugin.
 """
 
-# standard
-from pathlib import Path
+# Standard library
+from functools import partial
+import logging
 
 # PyQGIS
+from qgis.core import QgsApplication
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import QRect, Qt
-from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtGui import QIcon, QPixmap
 from qgis.PyQt.QtWidgets import (
     QAction,
-    QApplication,
     QComboBox,
     QDialog,
     QFileDialog,
     QHeaderView,
+    QLabel,
     QLineEdit,
     QMenu,
     QTableWidgetItem,
@@ -24,9 +28,20 @@ from qgis.PyQt.QtWidgets import (
 
 # project
 from menu_from_project.__about__ import DIR_PLUGIN_ROOT, __title__, __version__
+from menu_from_project.logic.tools import guess_type_from_location, icon_per_type
+
+# ############################################################################
+# ########## Globals ###############
+# ##################################
+
+logger = logging.getLogger(__name__)
 
 # load ui
 FORM_CLASS, _ = uic.loadUiType(DIR_PLUGIN_ROOT / "ui/conf_dialog.ui")
+
+# ############################################################################
+# ########## Classes ###############
+# ##################################
 
 
 class MenuConfDialog(QDialog, FORM_CLASS):
@@ -40,21 +55,21 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             self.windowTitle() + " - {} v{}".format(__title__, __version__)
         )
         self.setWindowIcon(
-            QIcon(str(Path(DIR_PLUGIN_ROOT / "resources/gear.svg"))),
+            QIcon(str(DIR_PLUGIN_ROOT / "resources/gear.svg")),
         )
 
         self.LOCATIONS = {
             "new": {
                 "index": 0,
-                "label": QApplication.translate("ConfDialog", "New menu", None),
+                "label": QgsApplication.translate("ConfDialog", "New menu", None),
             },
             "layer": {
                 "index": 1,
-                "label": QApplication.translate("ConfDialog", "Add layer menu", None),
+                "label": QgsApplication.translate("ConfDialog", "Add layer menu", None),
             },
             "merge": {
                 "index": 2,
-                "label": QApplication.translate(
+                "label": QgsApplication.translate(
                     "ConfDialog", "Merge with previous", None
                 ),
             },
@@ -69,65 +84,74 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.btnDelete.clicked.connect(self.onDelete)
         self.btnDelete.setText(None)
         self.btnDelete.setIcon(
-            QIcon(":/images/themes/default/mActionDeleteSelected.svg")
+            QIcon(QgsApplication.iconPath("mActionDeleteSelected.svg"))
         )
         self.btnUp.clicked.connect(self.onMoveUp)
         self.btnUp.setText(None)
-        self.btnUp.setIcon(QIcon(":/images/themes/default/mActionArrowUp.svg"))
+        self.btnUp.setIcon(QIcon(QgsApplication.iconPath("mActionArrowUp.svg")))
         self.btnDown.clicked.connect(self.onMoveDown)
         self.btnDown.setText(None)
-        self.btnDown.setIcon(QIcon(":/images/themes/default/mActionArrowDown.svg"))
+        self.btnDown.setIcon(QIcon(QgsApplication.iconPath("mActionArrowDown.svg")))
 
         # add button
-        self.btnAdd.setIcon(QIcon(":/images/themes/default/mActionAdd.svg"))
+        self.btnAdd.setIcon(QIcon(QgsApplication.iconPath("mActionAdd.svg")))
         self.addMenu = QMenu(self.btnAdd)
         add_option_file = QAction(
-            QIcon(":/images/themes/default/mIconFile.svg"),
+            QIcon(QgsApplication.iconPath("mIconFile.svg")),
             self.tr("Add from file"),
             self.addMenu,
         )
         add_option_pgdb = QAction(
-            QIcon(":/images/themes/default/mIconPostgis.svg"),
+            QIcon(QgsApplication.iconPath("mIconPostgis.svg")),
             self.tr("Add from PostgreSQL database"),
             self.addMenu,
         )
         add_option_http = QAction(
-            QIcon(str(Path(DIR_PLUGIN_ROOT / "resources/globe.svg"))),
+            QIcon(str(DIR_PLUGIN_ROOT / "resources/globe.svg")),
             self.tr("Add from URL"),
             self.addMenu,
         )
+        add_option_file.triggered.connect(partial(self.onAdd, "file"))
+        add_option_http.triggered.connect(partial(self.onAdd, "remote_url"))
+        add_option_pgdb.triggered.connect(partial(self.onAdd, "database"))
         self.addMenu.addAction(add_option_file)
         self.addMenu.addAction(add_option_pgdb)
         self.addMenu.addAction(add_option_http)
         self.btnAdd.setMenu(self.addMenu)
 
         for idx, project in enumerate(self.plugin.projects):
+            # edit project
+            pushButton = QToolButton(self.tableWidget)
+            pushButton.setGeometry(QRect(0, 0, 20, 20))
+            pushButton.setObjectName("x")
+            pushButton.setIcon(QIcon(str(DIR_PLUGIN_ROOT / "resources/edit.svg")))
+            pushButton.setToolTip((self.tr("Edit this project")))
+            self.tableWidget.setCellWidget(idx, 0, pushButton)
+            pushButton.clicked.connect(
+                lambda checked, idx=idx: self.onFileSearchPressed(idx)
+            )
+
             # project name
             itemName = QTableWidgetItem(project.get("name"))
             itemName.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-            self.tableWidget.setItem(idx, 0, itemName)
+            self.tableWidget.setItem(idx, 1, itemName)
             le = QLineEdit()
             le.setText(project.get("name"))
             le.setPlaceholderText(self.tr("Use project title"))
-            self.tableWidget.setCellWidget(idx, 0, le)
-
-            # project path
-            itemFile = QTableWidgetItem(project.get("file"))
-            itemFile.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-            self.tableWidget.setItem(idx, 1, itemFile)
-            le = QLineEdit()
-            le.setText(project.get("file"))
-            try:
-                le.setStyleSheet(
-                    "color: {};".format("black" if project["valid"] else "red")
-                )
-            except Exception:
-                le.setStyleSheet("color: {};".format("black"))
-
             self.tableWidget.setCellWidget(idx, 1, le)
-            le.textChanged.connect(self.onTextChanged)
 
-            # menu location
+            # project location type
+            qgs_location_type = project.get(
+                "type", guess_type_from_location(project.get("location"))
+            )
+            lbl_location_type = QLabel(self.tableWidget)
+            lbl_location_type.setPixmap(QPixmap(icon_per_type(qgs_location_type)))
+            lbl_location_type.setAlignment(Qt.AlignCenter)
+            lbl_location_type.setTextInteractionFlags(Qt.NoTextInteraction)
+            lbl_location_type.setToolTip(qgs_location_type)
+            self.tableWidget.setCellWidget(idx, 2, lbl_location_type)
+
+            # project menu location
             location_combo = QComboBox()
             for pk in self.LOCATIONS:
                 if not (pk == "merge" and idx == 0):
@@ -139,18 +163,23 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 )
             except Exception:
                 location_combo.setCurrentIndex(0)
-            self.tableWidget.setCellWidget(idx, 2, location_combo)
+            self.tableWidget.setCellWidget(idx, 3, location_combo)
 
-            # edit project
-            pushButton = QToolButton(self.parent)
-            pushButton.setGeometry(QRect(0, 0, 20, 20))
-            pushButton.setObjectName("x")
-            pushButton.setIcon(QIcon(str(DIR_PLUGIN_ROOT / "resources/edit.svg")))
-            pushButton.setToolTip((self.tr("Edit this project")))
-            self.tableWidget.setCellWidget(idx, 3, pushButton)
-            pushButton.clicked.connect(
-                lambda checked, idx=idx: self.onFileSearchPressed(idx)
-            )
+            # project path
+            itemFile = QTableWidgetItem(project.get("file"))
+            itemFile.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+            self.tableWidget.setItem(idx, 4, itemFile)
+            le = QLineEdit()
+            le.setText(project.get("file"))
+            try:
+                le.setStyleSheet(
+                    "color: {};".format("black" if project["valid"] else "red")
+                )
+            except Exception:
+                le.setStyleSheet("color: {};".format("black"))
+
+            self.tableWidget.setCellWidget(idx, 4, le)
+            le.textChanged.connect(self.onTextChanged)
 
         # -- Options
         self.cbxLoadAll.setChecked(self.plugin.optionLoadAll)
@@ -169,9 +198,11 @@ class MenuConfDialog(QDialog, FORM_CLASS):
 
         filePath = QFileDialog.getOpenFileName(
             self,
-            QApplication.translate("menu_from_project", "Projects configuration", None),
+            QgsApplication.translate(
+                "menu_from_project", "Projects configuration", None
+            ),
             item.text(),
-            QApplication.translate(
+            QgsApplication.translate(
                 "menu_from_project", "QGIS projects (*.qgs *.qgz)", None
             ),
         )
@@ -221,25 +252,37 @@ class MenuConfDialog(QDialog, FORM_CLASS):
 
         self.plugin.store()
 
-    def onAdd(self):
+    def onAdd(self, qgs_location_type: str = "file"):
         row = self.tableWidget.rowCount()
         self.tableWidget.setRowCount(row + 1)
+
+        # edit button
+        pushButton = QToolButton(self.parent)
+        pushButton.setGeometry(QRect(0, 0, 20, 20))
+        pushButton.setObjectName("x")
+        pushButton.setIcon(QIcon(str(DIR_PLUGIN_ROOT / "resources/edit.svg")))
+        self.tableWidget.setCellWidget(row, 0, pushButton)
+        pushButton.clicked.connect(
+            lambda checked, row=row: self.onFileSearchPressed(row)
+        )
 
         # project name
         itemName = QTableWidgetItem()
         itemName.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-        self.tableWidget.setItem(row, 0, itemName)
+        self.tableWidget.setItem(row, 1, itemName)
         name_lineedit = QLineEdit()
         name_lineedit.setPlaceholderText(self.tr("Use project title"))
-        self.tableWidget.setCellWidget(row, 0, name_lineedit)
+        self.tableWidget.setCellWidget(row, 1, name_lineedit)
 
-        # project file path
-        itemFile = QTableWidgetItem()
-        itemFile.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-        self.tableWidget.setItem(row, 1, itemFile)
-        filepath_lineedit = QLineEdit()
-        filepath_lineedit.textChanged.connect(self.onTextChanged)
-        self.tableWidget.setCellWidget(row, 1, filepath_lineedit)
+        # project location type
+        lbl_location_type = QLabel(self.tableWidget)
+        lbl_location_type.setPixmap(QPixmap(icon_per_type(qgs_location_type)))
+        lbl_location_type.setMaximumSize(20, 20)
+        lbl_location_type.setAlignment(Qt.AlignHCenter)
+        lbl_location_type.setScaledContents(True)
+        lbl_location_type.setTextInteractionFlags(Qt.NoTextInteraction)
+        lbl_location_type.setToolTip(qgs_location_type)
+        self.tableWidget.setCellWidget(row, 2, lbl_location_type)
 
         # menu location
         location_combo = QComboBox()
@@ -248,18 +291,17 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 location_combo.addItem(self.LOCATIONS[pk]["label"], pk)
 
         location_combo.setCurrentIndex(0)
-        self.tableWidget.setCellWidget(row, 2, location_combo)
+        self.tableWidget.setCellWidget(row, 3, location_combo)
 
-        # edit button
-        pushButton = QToolButton(self.parent)
-        pushButton.setGeometry(QRect(0, 0, 20, 20))
-        pushButton.setObjectName("x")
-        pushButton.setIcon(QIcon(str(DIR_PLUGIN_ROOT / "resources/edit.svg")))
-        self.tableWidget.setCellWidget(row, 3, pushButton)
-        pushButton.clicked.connect(
-            lambda checked, row=row: self.onFileSearchPressed(row)
-        )
+        # project file path
+        itemFile = QTableWidgetItem()
+        itemFile.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+        self.tableWidget.setItem(row, 4, itemFile)
+        filepath_lineedit = QLineEdit()
+        filepath_lineedit.textChanged.connect(self.onTextChanged)
+        self.tableWidget.setCellWidget(row, 4, filepath_lineedit)
 
+        # apply table styling
         self.tableTunning()
 
     def onDelete(self):
@@ -333,19 +375,30 @@ class MenuConfDialog(QDialog, FORM_CLASS):
 
     def tableTunning(self):
         """Prettify table aspect"""
-        self.tableWidget.horizontalHeader().setSectionResizeMode(
-            0, QHeaderView.Interactive
-        )
+        # edit button
+        self.tableWidget.horizontalHeader().setSectionResizeMode(0, QHeaderView.Fixed)
+        self.tableWidget.horizontalHeader().resizeSection(0, 20)
+
+        # project name
         self.tableWidget.horizontalHeader().setSectionResizeMode(
             1, QHeaderView.Interactive
         )
+
+        # project type
+        self.tableWidget.horizontalHeader().setSectionResizeMode(2, QHeaderView.Fixed)
+        self.tableWidget.horizontalHeader().resizeSection(2, 10)
+
+        # project menu location
         self.tableWidget.horizontalHeader().setSectionResizeMode(
-            2, QHeaderView.Interactive
+            3, QHeaderView.Interactive
         )
-        self.tableWidget.horizontalHeader().setSectionResizeMode(3, QHeaderView.Fixed)
-        self.tableWidget.horizontalHeader().resizeSection(3, 20)
+
+        # project path
+        self.tableWidget.horizontalHeader().setSectionResizeMode(
+            4, QHeaderView.Interactive
+        )
 
         # fit to content
-        self.tableWidget.resizeColumnToContents(0)
         self.tableWidget.resizeColumnToContents(1)
-        self.tableWidget.resizeColumnToContents(2)
+        self.tableWidget.resizeColumnToContents(3)
+        self.tableWidget.resizeColumnToContents(4)
