@@ -28,13 +28,13 @@ def guess_type_from_uri(qgs_uri: str) -> str:
     :param qgs_uri: QGS project URI (filepath, url or connection string)
     :type qgs_uri: str
 
-    :return: storage type: "database", "file" or "remote_url"
+    :return: storage type: "database", "file" or "http"
     :rtype: str
     """
     if qgs_uri.startswith("postgresql"):
         return "database"
     elif qgs_uri.startswith("http"):
-        return "remote_url"
+        return "http"
     else:
         return "file"
 
@@ -53,7 +53,7 @@ def icon_per_storage_type(type_storage: str) -> str:
         return QgsApplication.iconPath("mIconFile.svg")
     elif type_storage == "database":
         return QgsApplication.iconPath("mIconPostgis.svg")
-    elif type_storage == "remote_url":
+    elif type_storage == "http":
         return str(DIR_PLUGIN_ROOT / "resources/globe.svg")
     else:
         return QgsApplication.iconPath("mIconFile.svg")
