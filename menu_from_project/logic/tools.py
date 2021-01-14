@@ -2,9 +2,10 @@
 
 # Standard library
 import logging
+from functools import lru_cache
 
 # PyQGIS
-from qgis.core import QgsApplication
+from qgis.core import QgsApplication, QgsLayerItem
 
 # project
 from menu_from_project.__about__ import DIR_PLUGIN_ROOT
@@ -20,21 +21,68 @@ logger = logging.getLogger(__name__)
 # ##################################
 
 
-def guess_type_from_location(qgs_location: str) -> str:
-    if qgs_location.startswith("postgresql"):
+@lru_cache()
+def guess_type_from_uri(qgs_uri: str) -> str:
+    """Return project storage type based on the QGS URI.
+
+    :param qgs_uri: QGS project URI (filepath, url or connection string)
+    :type qgs_uri: str
+
+    :return: storage type: "database", "file" or "remote_url"
+    :rtype: str
+    """
+    if qgs_uri.startswith("postgresql"):
         return "database"
-    elif qgs_location.startswith("http"):
+    elif qgs_uri.startswith("http"):
         return "remote_url"
     else:
         return "file"
 
 
-def icon_per_type(qgs_location_type: str) -> str:
-    if qgs_location_type == "file":
+@lru_cache()
+def icon_per_storage_type(type_storage: str) -> str:
+    """Returns the icon for a storage type,
+
+    :param type_storage: [description]
+    :type type_storage: str
+
+    :return: icon path
+    :rtype: str
+    """
+    if type_storage == "file":
         return QgsApplication.iconPath("mIconFile.svg")
-    elif qgs_location_type == "database":
+    elif type_storage == "database":
         return QgsApplication.iconPath("mIconPostgis.svg")
-    elif qgs_location_type == "remote_url":
+    elif type_storage == "remote_url":
         return str(DIR_PLUGIN_ROOT / "resources/globe.svg")
     else:
         return QgsApplication.iconPath("mIconFile.svg")
+
+
+@lru_cache()
+def icon_per_geometry_type(geometry_type: str):
+    """Return the icon for a geometry type.
+
+    If not found, it will return the default icon.
+
+    :param geometry_type: The geometry as a string.
+    :type geometry_type: basestring
+
+    :return: The icon.
+    :rtype: QIcon
+    """
+    geometry_type = geometry_type.lower()
+    if geometry_type == "raster":
+        return QgsLayerItem.iconRaster()
+    elif geometry_type == "mesh":
+        return QgsLayerItem.iconMesh()
+    elif geometry_type == "point":
+        return QgsLayerItem.iconPoint()
+    elif geometry_type == "line":
+        return QgsLayerItem.iconLine()
+    elif geometry_type == "polygon":
+        return QgsLayerItem.iconPolygon()
+    elif geometry_type == "no geometry":
+        return QgsLayerItem.iconTable()
+    else:
+        return QgsLayerItem.iconDefault()
