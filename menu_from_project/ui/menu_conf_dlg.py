@@ -119,7 +119,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             self.addMenu,
         )
         add_option_file.triggered.connect(partial(self.onAdd, "file"))
-        add_option_http.triggered.connect(partial(self.onAdd, "remote_url"))
+        add_option_http.triggered.connect(partial(self.onAdd, "http"))
         add_option_pgdb.triggered.connect(partial(self.onAdd, "database"))
         self.addMenu.addAction(add_option_file)
         self.addMenu.addAction(add_option_pgdb)
@@ -149,13 +149,13 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             self.tableWidget.setCellWidget(idx, self.cols.name, le)
 
             # project storage type
-            qgs_type_storage = project.get(
-                "type", guess_type_from_uri(project.get("location"))
-            )
+            qgs_type_storage = guess_type_from_uri(project.get("file"))
             lbl_location_type = QLabel(self.tableWidget)
             lbl_location_type.setPixmap(
                 QPixmap(icon_per_storage_type(qgs_type_storage))
             )
+            lbl_location_type.setScaledContents(True)
+            lbl_location_type.setMaximumSize(20, 20)
             lbl_location_type.setAlignment(Qt.AlignCenter)
             lbl_location_type.setTextInteractionFlags(Qt.NoTextInteraction)
             lbl_location_type.setToolTip(qgs_type_storage)
@@ -277,9 +277,9 @@ class MenuConfDialog(QDialog, FORM_CLASS):
     def onAdd(self, qgs_type_storage: str = "file"):
         """Add a new line to the table.
 
-        Args:
-            qgs_type_storage (str, optional): [description]. Defaults to "file".
-        """  #
+        :param qgs_type_storage: [description], defaults to "file"
+        :type qgs_type_storage: str, optional
+        """
         row = self.tableWidget.rowCount()
         self.tableWidget.setRowCount(row + 1)
 
@@ -301,12 +301,12 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         name_lineedit.setPlaceholderText(self.tr("Use project title"))
         self.tableWidget.setCellWidget(row, self.cols.name, name_lineedit)
 
-        # project location type
+        # project storage type
         lbl_location_type = QLabel(self.tableWidget)
         lbl_location_type.setPixmap(QPixmap(icon_per_storage_type(qgs_type_storage)))
-        lbl_location_type.setMaximumSize(20, 20)
-        lbl_location_type.setAlignment(Qt.AlignHCenter)
         lbl_location_type.setScaledContents(True)
+        lbl_location_type.setAlignment(Qt.AlignHCenter)
+        lbl_location_type.setMaximumSize(20, 20)
         lbl_location_type.setTextInteractionFlags(Qt.NoTextInteraction)
         lbl_location_type.setToolTip(qgs_type_storage)
         self.tableWidget.setCellWidget(row, self.cols.type_storage, lbl_location_type)
@@ -406,12 +406,18 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         except Exception:
             pass
 
-    def onTextChanged(self, text):
+    def onTextChanged(self, text: str):
+        """Read the project using the URI of the project that changed into the table.
+
+        :param text: project path URI
+        :type text: str
+        """
         file_widget = self.sender()
         try:
             self.plugin.getQgsDoc(text)
             file_widget.setStyleSheet("color: {};".format("black"))
-        except Exception:
+        except Exception as err:
+            self.plugin.log("Error during project reading: {}".format(err))
             file_widget.setStyleSheet("color: {};".format("red"))
 
     def tableTunning(self):
