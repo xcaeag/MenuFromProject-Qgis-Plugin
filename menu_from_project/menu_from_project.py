@@ -26,7 +26,6 @@ import zipfile
 # PyQGIS
 from qgis.core import (
     QgsApplication,
-    QgsLayerItem,
     QgsMessageLog,
     QgsProject,
     QgsRasterLayer,
@@ -52,6 +51,7 @@ from qgis.PyQt.QtWidgets import QAction, QMenu, QWidget
 from qgis.utils import plugins, showPluginHelp
 
 # project
+from .logic.tools import icon_per_geometry_type
 from .__about__ import DIR_PLUGIN_ROOT, __title__
 from .resources_rc import *  # noqa: F4 I001 - Load Qt compiled resources
 from .ui.menu_conf_dlg import MenuConfDialog  # noqa: F4 I001
@@ -79,34 +79,6 @@ def getFirstChildByAttrValue(elt, tagName, key, value):
             return node
 
     return None
-
-
-def icon_for_geometry_type(geometry_type):
-    """Return the icon for a geometry type.
-
-    If not found, it will return the default icon.
-
-    :param geometry_type: The geometry as a string.
-    :type geometry_type: basestring
-
-    :return: The icon.
-    :rtype: QIcon
-    """
-    geometry_type = geometry_type.lower()
-    if geometry_type == "raster":
-        return QgsLayerItem.iconRaster()
-    elif geometry_type == "mesh":
-        return QgsLayerItem.iconMesh()
-    elif geometry_type == "point":
-        return QgsLayerItem.iconPoint()
-    elif geometry_type == "line":
-        return QgsLayerItem.iconLine()
-    elif geometry_type == "polygon":
-        return QgsLayerItem.iconPolygon()
-    elif geometry_type == "no geometry":
-        return QgsLayerItem.iconTable()
-    else:
-        return QgsLayerItem.iconDefault()
 
 
 def getMapLayersDict(domdoc):
@@ -400,7 +372,7 @@ class MenuFromProject:
                         # Let's read the "type"
                         geometry_type = map_layer.attribute("type")
 
-                    action.setIcon(icon_for_geometry_type(geometry_type))
+                    action.setIcon(icon_per_geometry_type(geometry_type))
                 except Exception:
                     pass
 
