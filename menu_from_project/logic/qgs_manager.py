@@ -156,7 +156,7 @@ def read_from_http(uri: str, cache_folder: Path):
     """
     # get filename from URL parts
     parsed = urlparse(uri)
-    if not parsed.path.rpartition("/")[2].endswith([".qgs", ".qgz"]):
+    if not parsed.path.rpartition("/")[2].endswith((".qgs", ".qgz")):
         raise ValueError(
             "URI doesn't ends with QGIS project extension (.qgs or .qgz): {}".format(
                 uri

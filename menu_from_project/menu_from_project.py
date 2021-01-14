@@ -528,7 +528,6 @@ class MenuFromProject:
         """
         # determine storage type: file, database or http
         qgs_storage_type = guess_type_from_uri(uri)
-        self.log(qgs_storage_type)
 
         # check if docs is already here
         if uri in self.docs:
@@ -539,9 +538,7 @@ class MenuFromProject:
         elif qgs_storage_type == "database":
             doc, project_path = read_from_database(uri, self.project_registry)
         elif qgs_storage_type == "http":
-            self.log("youpi")
             doc, project_path = read_from_http(uri, cache_folder)
-            self.log("qfskjqfbkjfb")
         else:
             self.log(f"Unrecognized project type: {uri}")
 
