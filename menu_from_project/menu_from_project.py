@@ -19,9 +19,10 @@ email                : xavier.culos@eau-adour-garonne.fr
 """
 
 # Standard library
+import logging
 import os
 import re
-import zipfile
+from pathlib import Path
 
 # PyQGIS
 from qgis.core import (
@@ -33,28 +34,34 @@ from qgis.core import (
     QgsSettings,
     QgsVectorLayer,
 )
-from qgis.PyQt import QtXml
-from qgis.PyQt.QtCore import (
-    QCoreApplication,
-    QDir,
-    QFile,
-    QFileInfo,
-    QIODevice,
-    Qt,
-    QTemporaryDir,
-    QTemporaryFile,
-    QTranslator,
-    QUuid,
-)
+from qgis.PyQt.QtCore import QCoreApplication, QFileInfo, Qt, QTranslator, QUuid
 from qgis.PyQt.QtGui import QFont, QIcon
 from qgis.PyQt.QtWidgets import QAction, QMenu, QWidget
 from qgis.utils import plugins, showPluginHelp
 
 # project
-from .logic.tools import icon_per_geometry_type
-from .__about__ import DIR_PLUGIN_ROOT, __title__
-from .resources_rc import *  # noqa: F4 I001 - Load Qt compiled resources
+from .__about__ import DIR_PLUGIN_ROOT, __title__, __title_clean__
+from .logic.qgs_manager import (
+    get_project_title,
+    is_absolute,
+    read_from_database,
+    read_from_file,
+    read_from_http,
+)
+from .logic.tools import guess_type_from_uri, icon_per_geometry_type
 from .ui.menu_conf_dlg import MenuConfDialog  # noqa: F4 I001
+
+# ############################################################################
+# ########## Globals ###############
+# ##################################
+
+logger = logging.getLogger(__name__)
+cache_folder = Path.home() / f".cache/QGIS/{__title_clean__}"
+cache_folder.mkdir(exist_ok=True)
+
+# ############################################################################
+# ########## Functions #############
+# ##################################
 
 
 def getFirstChildByTagNameValue(elt, tagName, key, value):
@@ -92,44 +99,6 @@ def getMapLayersDict(domdoc):
     return r
 
 
-def isAbsolute(doc):
-    """Return true if the given XML document is using absolute path.
-
-    :param doc: The QGIS project as XML document.
-    :type doc: QDomDocument
-    """
-    absolute = False
-    try:
-        props = doc.elementsByTagName("properties")
-        if props.count() == 1:
-            node = props.at(0)
-            pathNode = node.namedItem("Paths")
-            absNode = pathNode.namedItem("Absolute")
-            absolute = "true" == absNode.firstChild().toText().data()
-    except Exception:
-        pass
-
-    return absolute
-
-
-def project_title(doc):
-    """Return the project title defined in the XML document.
-
-    :param doc: The QGIS project as XML document. Default to None.
-    :type doc: QDomDocument
-
-    :return: The title or None.
-    :rtype: basestring
-    """
-    tags = doc.elementsByTagName("qgis")
-    if tags.count():
-        node = tags.at(0)
-        title_node = node.namedItem("title")
-        return title_node.firstChild().toText().data()
-
-    return None
-
-
 def project_trusted(doc):
     """Return if the project is trusted.
 
@@ -146,6 +115,11 @@ def project_trusted(doc):
         return trust_node.toElement().attribute("active") == "1"
 
     return False
+
+
+# ############################################################################
+# ########## Classes ###############
+# ##################################
 
 
 class MenuFromProject:
@@ -499,7 +473,7 @@ class MenuFromProject:
         :type previous: QMenu
         """
         if not name:
-            name = project_title(domdoc)
+            name = get_project_title(domdoc)
 
             if not name:
                 try:
@@ -536,7 +510,7 @@ class MenuFromProject:
             if node:
                 node = node.firstChild()
                 self.addMenuItem(
-                    uri, filepath, node, projectMenu, isAbsolute(domdoc), mapLayersDict
+                    uri, filepath, node, projectMenu, is_absolute(domdoc), mapLayersDict
                 )
 
         return projectMenu
@@ -549,57 +523,29 @@ class MenuFromProject:
         :param uri: The URI to fetch.
         :type uri: basestring
 
-        :return: Tuple with XML XML document and the filepath.
+        :return: Tuple with XML document and the filepath.
         :rtype: (QDomDocument, basestring)
         """
+        # determine storage type: file, database or http
+        qgs_storage_type = guess_type_from_uri(uri)
+        self.log(qgs_storage_type)
 
+        # check if docs is already here
         if uri in self.docs:
             return self.docs[uri], uri
 
-        doc = QtXml.QDomDocument()
-        file = QFile(uri)
-        # file on disk
-        if (
-            file.exists()
-            and file.open(QIODevice.ReadOnly | QIODevice.Text)
-            and QFileInfo(file).suffix() == "qgs"
-        ):
-            doc.setContent(file)
-            project_path = uri
-
-        elif file.exists() and (QFileInfo(file).suffix() == "qgz"):
-            temporary_unzip = QTemporaryDir()
-            temporary_unzip.setAutoRemove(False)
-            with zipfile.ZipFile(uri, "r") as zip_ref:
-                zip_ref.extractall(temporary_unzip.path())
-
-            project_filename = QDir(temporary_unzip.path()).entryList(["*.qgs"])[0]
-            project_path = os.path.join(temporary_unzip.path(), project_filename)
-            xml = QFile(project_path)
-            if xml.open(QIODevice.ReadOnly | QIODevice.Text):
-                doc.setContent(xml)
-
+        if qgs_storage_type == "file":
+            doc, project_path = read_from_file(uri)
+        elif qgs_storage_type == "database":
+            doc, project_path = read_from_database(uri, self.project_registry)
+        elif qgs_storage_type == "http":
+            self.log("youpi")
+            doc, project_path = read_from_http(uri, cache_folder)
+            self.log("qfskjqfbkjfb")
         else:
-            # uri PG
-            project_storage = self.project_registry.projectStorageFromUri(uri)
+            self.log(f"Unrecognized project type: {uri}")
 
-            temporary_zip = QTemporaryFile()
-            temporary_zip.open()
-            zip_project = temporary_zip.fileName()
-
-            project_storage.readProject(uri, temporary_zip, QgsReadWriteContext())
-
-            temporary_unzip = QTemporaryDir()
-            temporary_unzip.setAutoRemove(False)
-            with zipfile.ZipFile(zip_project, "r") as zip_ref:
-                zip_ref.extractall(temporary_unzip.path())
-
-            project_filename = QDir(temporary_unzip.path()).entryList(["*.qgs"])[0]
-            project_path = os.path.join(temporary_unzip.path(), project_filename)
-            xml = QFile(project_path)
-            if xml.open(QIODevice.ReadOnly | QIODevice.Text):
-                doc.setContent(xml)
-
+        # store doc intothe plugin registry
         self.docs[project_path] = doc
 
         return doc, project_path
@@ -754,7 +700,7 @@ class MenuFromProject:
                 doc, _ = self.getQgsDoc(fileName)
 
                 # is project in relative path ?
-                absolute = isAbsolute(doc)
+                absolute = is_absolute(doc)
                 trusted = project_trusted(doc)
 
                 node = getFirstChildByTagNameValue(
