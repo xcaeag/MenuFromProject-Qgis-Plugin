@@ -199,8 +199,8 @@ class MenuFromProject:
         return QCoreApplication.translate("menu_from_project", message)
 
     @staticmethod
-    def log(message, application="Extensions"):
-        QgsMessageLog.logMessage(message, application)
+    def log(message, application=__title__, log_level=1):
+        QgsMessageLog.logMessage(message, application, notifyUser=True)
 
     def store(self):
         """Store the configuration in the QSettings."""
