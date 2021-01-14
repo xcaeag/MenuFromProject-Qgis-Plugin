@@ -89,7 +89,7 @@
         <number>2</number>
        </property>
        <property name="columnCount">
-        <number>4</number>
+        <number>5</number>
        </property>
        <attribute name="horizontalHeaderVisible">
         <bool>true</bool>
@@ -113,12 +113,17 @@
        <row/>
        <column>
         <property name="text">
+         <string>Edit</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
          <string>Name</string>
         </property>
        </column>
        <column>
         <property name="text">
-         <string>QGIS Project</string>
+         <string>Type</string>
         </property>
        </column>
        <column>
@@ -128,7 +133,7 @@
        </column>
        <column>
         <property name="text">
-         <string>Edit</string>
+         <string>QGIS Project</string>
         </property>
        </column>
       </widget>
@@ -268,6 +273,22 @@
    </item>
    <item>
     <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="lblSettings">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="cursor">
+        <cursorShape>IBeamCursor</cursorShape>
+       </property>
+       <property name="text">
+        <string>Options</string>
+       </property>
+      </widget>
+     </item>
      <item row="1" column="0">
       <widget class="QCheckBox" name="cbxLoadAll">
        <property name="text">
@@ -280,22 +301,6 @@
      </item>
      <item row="1" column="1">
       <spacer name="horizontalSpacer_3">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Maximum</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="3" column="1">
-      <spacer name="horizontalSpacer_4">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -323,19 +328,6 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QCheckBox" name="cbxShowTooltip">
-       <property name="text">
-        <string>Show title &amp;&amp; abstract in tooltip</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-       <property name="tristate">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="1">
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
@@ -349,21 +341,34 @@
        </property>
       </spacer>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="lblSettings">
-       <property name="font">
-        <font>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="cursor">
-        <cursorShape>IBeamCursor</cursorShape>
-       </property>
+     <item row="3" column="0">
+      <widget class="QCheckBox" name="cbxShowTooltip">
        <property name="text">
-        <string>Options</string>
+        <string>Show title &amp;&amp; abstract in tooltip</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+       <property name="tristate">
+        <bool>false</bool>
        </property>
       </widget>
+     </item>
+     <item row="3" column="1">
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Maximum</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
