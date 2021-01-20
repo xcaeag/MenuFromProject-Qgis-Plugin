@@ -347,6 +347,12 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         try:
             r = sr[0].topRow()
             if r > 0:
+                # edit button
+                fileA = self.tableWidget.cellWidget(r - 1, self.cols.edit).text()
+                fileB = self.tableWidget.cellWidget(r, self.cols.edit).text()
+                self.tableWidget.cellWidget(r - 1, self.cols.edit).setText(fileB)
+                self.tableWidget.cellWidget(r, self.cols.edit).setText(fileA)
+
                 # project path
                 fileA = self.tableWidget.cellWidget(r - 1, self.cols.uri).text()
                 fileB = self.tableWidget.cellWidget(r, self.cols.uri).text()
@@ -359,7 +365,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 self.tableWidget.cellWidget(r - 1, self.cols.name).setText(nameB)
                 self.tableWidget.cellWidget(r, self.cols.name).setText(nameA)
 
-                # project location
+                # project type location
                 locA = self.tableWidget.cellWidget(
                     r - 1, self.cols.type_menu_location
                 ).currentIndex()
@@ -375,6 +381,16 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                     r, self.cols.type_menu_location
                 ).setCurrentIndex(locA)
 
+                # project type storage
+                storageA = self.tableWidget.cellWidget(
+                    r - 1, self.cols.type_storage
+                ).text()
+                storageB = self.tableWidget.cellWidget(r, self.cols.type_storage).text()
+                self.tableWidget.cellWidget(r - 1, self.cols.type_storage).setText(
+                    storageB
+                )
+                self.tableWidget.cellWidget(r, self.cols.type_storage).setText(storageA)
+
                 self.tableWidget.setCurrentCell(r - 1, 1)
         except Exception:
             pass
@@ -385,15 +401,17 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         try:
             r = sr[0].topRow()
             if r < nbRows - 1:
+                # project path
                 fileA = self.tableWidget.cellWidget(r, 1).text()
                 fileB = self.tableWidget.cellWidget(r + 1, 1).text()
                 self.tableWidget.cellWidget(r, 1).setText(fileB)
                 self.tableWidget.cellWidget(r + 1, 1).setText(fileA)
 
-                nameA = self.tableWidget.cellWidget(r, 2).text()
-                nameB = self.tableWidget.cellWidget(r + 1, 2).text()
-                self.tableWidget.cellWidget(r, 2).setText(nameB)
-                self.tableWidget.cellWidget(r + 1, 2).setText(nameA)
+                # project name
+                nameA = self.tableWidget.cellWidget(r, self.cols.name).text()
+                nameB = self.tableWidget.cellWidget(r + 1, self.cols.name).text()
+                self.tableWidget.cellWidget(r, self.cols.name).setText(nameB)
+                self.tableWidget.cellWidget(r + 1, self.cols.name).setText(nameA)
 
                 locA = self.tableWidget.cellWidget(r, 3).currentIndex()
                 locB = self.tableWidget.cellWidget(r + 1, 3).currentIndex()
