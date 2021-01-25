@@ -128,14 +128,9 @@ class MenuConfDialog(QDialog, FORM_CLASS):
 
         for idx, project in enumerate(self.plugin.projects):
             # edit project
-            pushButton = QToolButton(self.tableWidget)
-            pushButton.setGeometry(QRect(0, 0, 20, 20))
-            pushButton.setObjectName("x")
-            pushButton.setIcon(QIcon(str(DIR_PLUGIN_ROOT / "resources/edit.svg")))
-            pushButton.setToolTip((self.tr("Edit this project")))
-            self.tableWidget.setCellWidget(idx, self.cols.edit, pushButton)
-
-            pushButton.clicked.connect(
+            edit_button = self.mk_prj_edit_button()
+            self.tableWidget.setCellWidget(idx, self.cols.edit, edit_button)
+            edit_button.clicked.connect(
                 lambda checked, idx=idx: self.onFileSearchPressed(idx)
             )
 
@@ -149,18 +144,10 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             self.tableWidget.setCellWidget(idx, self.cols.name, le)
 
             # project storage type
-            qgs_type_storage = guess_type_from_uri(project.get("file"))
-            lbl_location_type = QLabel(self.tableWidget)
-            lbl_location_type.setPixmap(
-                QPixmap(icon_per_storage_type(qgs_type_storage))
-            )
-            lbl_location_type.setScaledContents(True)
-            lbl_location_type.setMaximumSize(20, 20)
-            lbl_location_type.setAlignment(Qt.AlignCenter)
-            lbl_location_type.setTextInteractionFlags(Qt.NoTextInteraction)
-            lbl_location_type.setToolTip(qgs_type_storage)
             self.tableWidget.setCellWidget(
-                idx, self.cols.type_storage, lbl_location_type
+                idx,
+                self.cols.type_storage,
+                self.mk_prj_storage_icon(guess_type_from_uri(project.get("file"))),
             )
 
             # project menu location
@@ -284,13 +271,10 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.tableWidget.setRowCount(row + 1)
 
         # edit button
-        pushButton = QToolButton(self.parent)
-        pushButton.setGeometry(QRect(0, 0, 20, 20))
-        pushButton.setObjectName("x")
-        pushButton.setIcon(QIcon(str(DIR_PLUGIN_ROOT / "resources/edit.svg")))
-        self.tableWidget.setCellWidget(row, self.cols.edit, pushButton)
-        pushButton.clicked.connect(
-            lambda checked, row=row: self.onFileSearchPressed(row)
+        edit_button = self.mk_prj_edit_button()
+        self.tableWidget.setCellWidget(row, self.cols.edit, edit_button)
+        edit_button.clicked.connect(
+            lambda checked, idx=row: self.onFileSearchPressed(row)
         )
 
         # project name
@@ -302,14 +286,9 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.tableWidget.setCellWidget(row, self.cols.name, name_lineedit)
 
         # project storage type
-        lbl_location_type = QLabel(self.tableWidget)
-        lbl_location_type.setPixmap(QPixmap(icon_per_storage_type(qgs_type_storage)))
-        lbl_location_type.setScaledContents(True)
-        lbl_location_type.setAlignment(Qt.AlignHCenter)
-        lbl_location_type.setMaximumSize(20, 20)
-        lbl_location_type.setTextInteractionFlags(Qt.NoTextInteraction)
-        lbl_location_type.setToolTip(qgs_type_storage)
-        self.tableWidget.setCellWidget(row, self.cols.type_storage, lbl_location_type)
+        self.tableWidget.setCellWidget(
+            row, self.cols.type_storage, self.mk_prj_storage_icon(qgs_type_storage)
+        )
 
         # menu location
         location_combo = QComboBox()
@@ -471,3 +450,30 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.tableWidget.resizeColumnToContents(self.cols.name)
         self.tableWidget.resizeColumnToContents(self.cols.type_menu_location)
         self.tableWidget.resizeColumnToContents(self.cols.uri)
+
+    # -- Widgets factory ---------------------------------------------------------------
+    def mk_prj_edit_button(self) -> QToolButton:
+        edit_button = QToolButton(self.tableWidget)
+        edit_button.setGeometry(QRect(0, 0, 20, 20))
+        edit_button.setIcon(QIcon(str(DIR_PLUGIN_ROOT / "resources/edit.svg")))
+        edit_button.setToolTip(self.tr("Edit this project"))
+
+        return edit_button
+
+    def mk_prj_storage_icon(self, qgs_type_storage: str) -> QLabel:
+        """Returns a QLabel with the matching icon for the storage type.
+
+        :param qgs_type_storage: storage type
+        :type qgs_type_storage: str
+        :return: QLabel to be set in a cellWidget
+        :rtype: QLabel
+        """
+        lbl_location_type = QLabel(self.tableWidget)
+        lbl_location_type.setPixmap(QPixmap(icon_per_storage_type(qgs_type_storage)))
+        lbl_location_type.setScaledContents(True)
+        lbl_location_type.setMaximumSize(20, 20)
+        lbl_location_type.setAlignment(Qt.AlignCenter)
+        lbl_location_type.setTextInteractionFlags(Qt.NoTextInteraction)
+        lbl_location_type.setToolTip(qgs_type_storage)
+
+        return lbl_location_type
