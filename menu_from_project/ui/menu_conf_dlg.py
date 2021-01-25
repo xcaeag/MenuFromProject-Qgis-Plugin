@@ -327,10 +327,10 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             r = sr[0].topRow()
             if r > 0:
                 # edit button
-                fileA = self.tableWidget.cellWidget(r - 1, self.cols.edit).text()
-                fileB = self.tableWidget.cellWidget(r, self.cols.edit).text()
-                self.tableWidget.cellWidget(r - 1, self.cols.edit).setText(fileB)
-                self.tableWidget.cellWidget(r, self.cols.edit).setText(fileA)
+                edit_btnA = self.tableWidget.cellWidget(r - 1, self.cols.edit).text()
+                edit_btnB = self.tableWidget.cellWidget(r, self.cols.edit).text()
+                self.tableWidget.cellWidget(r - 1, self.cols.edit).setText(edit_btnB)
+                self.tableWidget.cellWidget(r, self.cols.edit).setText(edit_btnA)
 
                 # project path
                 fileA = self.tableWidget.cellWidget(r - 1, self.cols.uri).text()
@@ -344,7 +344,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 self.tableWidget.cellWidget(r - 1, self.cols.name).setText(nameB)
                 self.tableWidget.cellWidget(r, self.cols.name).setText(nameA)
 
-                # project type location
+                # project type menu location
                 locA = self.tableWidget.cellWidget(
                     r - 1, self.cols.type_menu_location
                 ).currentIndex()
@@ -361,18 +361,21 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 ).setCurrentIndex(locA)
 
                 # project type storage
-                storageA = self.tableWidget.cellWidget(
-                    r - 1, self.cols.type_storage
-                ).text()
-                storageB = self.tableWidget.cellWidget(r, self.cols.type_storage).text()
-                self.tableWidget.cellWidget(r - 1, self.cols.type_storage).setText(
-                    storageB
+                self.tableWidget.setCellWidget(
+                    r,
+                    self.cols.type_storage,
+                    self.mk_prj_storage_icon(guess_type_from_uri(fileA)),
                 )
-                self.tableWidget.cellWidget(r, self.cols.type_storage).setText(storageA)
+                self.tableWidget.setCellWidget(
+                    r - 1,
+                    self.cols.type_storage,
+                    self.mk_prj_storage_icon(guess_type_from_uri(fileB)),
+                )
 
+                # selected row
                 self.tableWidget.setCurrentCell(r - 1, 1)
-        except Exception:
-            pass
+        except Exception as err:
+            logger.error(err)
 
     def onMoveDown(self):
         sr = self.tableWidget.selectedRanges()
