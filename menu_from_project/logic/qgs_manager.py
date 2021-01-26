@@ -170,9 +170,6 @@ def read_from_http(uri: str, cache_folder: Path):
         url=QUrl(uri), outputFileName=str(cached_filepath.resolve()), delayStart=True
     )
     project_download.downloadExited.connect(loop.quit)
-    # project_download.downloadError.connect(self.error)
-    # project_download.downloadCanceled.connect(self.canceled)
-    # project_download.downloadCompleted.connect(self.completed)
     project_download.startDownload()
     loop.exec_()
 

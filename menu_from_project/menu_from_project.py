@@ -57,7 +57,7 @@ from .ui.menu_conf_dlg import MenuConfDialog  # noqa: F4 I001
 
 logger = logging.getLogger(__name__)
 cache_folder = Path.home() / f".cache/QGIS/{__title_clean__}"
-cache_folder.mkdir(exist_ok=True)
+cache_folder.mkdir(exist_ok=True, parents=True)
 
 # ############################################################################
 # ########## Functions #############
@@ -193,6 +193,12 @@ class MenuFromProject:
                     s.setValue("file", project["file"])
                     s.setValue("name", project["name"])
                     s.setValue("location", project["location"])
+                    s.setValue(
+                        "type_storage",
+                        project.get(
+                            "type_storage", guess_type_from_uri(project.get("file"))
+                        ),
+                    )
             finally:
                 s.endArray()
         finally:
@@ -215,9 +221,17 @@ class MenuFromProject:
                         file = s.value("file", "")
                         name = s.value("name", "")
                         location = s.value("location", "new")
+                        type_storage = s.value(
+                            "type_storage", guess_type_from_uri(file)
+                        )
                         if file != "":
                             self.projects.append(
-                                {"file": file, "name": name, "location": location}
+                                {
+                                    "file": file,
+                                    "name": name,
+                                    "location": location,
+                                    "type_storage": type_storage,
+                                }
                             )
                 finally:
                     s.endArray()

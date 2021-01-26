@@ -128,14 +128,9 @@ class MenuConfDialog(QDialog, FORM_CLASS):
 
         for idx, project in enumerate(self.plugin.projects):
             # edit project
-            pushButton = QToolButton(self.tableWidget)
-            pushButton.setGeometry(QRect(0, 0, 20, 20))
-            pushButton.setObjectName("x")
-            pushButton.setIcon(QIcon(str(DIR_PLUGIN_ROOT / "resources/edit.svg")))
-            pushButton.setToolTip((self.tr("Edit this project")))
-            self.tableWidget.setCellWidget(idx, self.cols.edit, pushButton)
-
-            pushButton.clicked.connect(
+            edit_button = self.mk_prj_edit_button()
+            self.tableWidget.setCellWidget(idx, self.cols.edit, edit_button)
+            edit_button.clicked.connect(
                 lambda checked, idx=idx: self.onFileSearchPressed(idx)
             )
 
@@ -149,18 +144,10 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             self.tableWidget.setCellWidget(idx, self.cols.name, le)
 
             # project storage type
-            qgs_type_storage = guess_type_from_uri(project.get("file"))
-            lbl_location_type = QLabel(self.tableWidget)
-            lbl_location_type.setPixmap(
-                QPixmap(icon_per_storage_type(qgs_type_storage))
-            )
-            lbl_location_type.setScaledContents(True)
-            lbl_location_type.setMaximumSize(20, 20)
-            lbl_location_type.setAlignment(Qt.AlignCenter)
-            lbl_location_type.setTextInteractionFlags(Qt.NoTextInteraction)
-            lbl_location_type.setToolTip(qgs_type_storage)
             self.tableWidget.setCellWidget(
-                idx, self.cols.type_storage, lbl_location_type
+                idx,
+                self.cols.type_storage,
+                self.mk_prj_storage_icon(guess_type_from_uri(project.get("file"))),
             )
 
             # project menu location
@@ -277,20 +264,17 @@ class MenuConfDialog(QDialog, FORM_CLASS):
     def onAdd(self, qgs_type_storage: str = "file"):
         """Add a new line to the table.
 
-        :param qgs_type_storage: [description], defaults to "file"
+        :param qgs_type_storage: project storage type, defaults to "file"
         :type qgs_type_storage: str, optional
         """
         row = self.tableWidget.rowCount()
         self.tableWidget.setRowCount(row + 1)
 
         # edit button
-        pushButton = QToolButton(self.parent)
-        pushButton.setGeometry(QRect(0, 0, 20, 20))
-        pushButton.setObjectName("x")
-        pushButton.setIcon(QIcon(str(DIR_PLUGIN_ROOT / "resources/edit.svg")))
-        self.tableWidget.setCellWidget(row, self.cols.edit, pushButton)
-        pushButton.clicked.connect(
-            lambda checked, row=row: self.onFileSearchPressed(row)
+        edit_button = self.mk_prj_edit_button()
+        self.tableWidget.setCellWidget(row, self.cols.edit, edit_button)
+        edit_button.clicked.connect(
+            lambda checked, idx=row: self.onFileSearchPressed(row)
         )
 
         # project name
@@ -302,14 +286,9 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.tableWidget.setCellWidget(row, self.cols.name, name_lineedit)
 
         # project storage type
-        lbl_location_type = QLabel(self.tableWidget)
-        lbl_location_type.setPixmap(QPixmap(icon_per_storage_type(qgs_type_storage)))
-        lbl_location_type.setScaledContents(True)
-        lbl_location_type.setAlignment(Qt.AlignHCenter)
-        lbl_location_type.setMaximumSize(20, 20)
-        lbl_location_type.setTextInteractionFlags(Qt.NoTextInteraction)
-        lbl_location_type.setToolTip(qgs_type_storage)
-        self.tableWidget.setCellWidget(row, self.cols.type_storage, lbl_location_type)
+        self.tableWidget.setCellWidget(
+            row, self.cols.type_storage, self.mk_prj_storage_icon(qgs_type_storage)
+        )
 
         # menu location
         location_combo = QComboBox()
@@ -347,6 +326,12 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         try:
             r = sr[0].topRow()
             if r > 0:
+                # edit button
+                edit_btnA = self.tableWidget.cellWidget(r - 1, self.cols.edit).text()
+                edit_btnB = self.tableWidget.cellWidget(r, self.cols.edit).text()
+                self.tableWidget.cellWidget(r - 1, self.cols.edit).setText(edit_btnB)
+                self.tableWidget.cellWidget(r, self.cols.edit).setText(edit_btnA)
+
                 # project path
                 fileA = self.tableWidget.cellWidget(r - 1, self.cols.uri).text()
                 fileB = self.tableWidget.cellWidget(r, self.cols.uri).text()
@@ -359,7 +344,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 self.tableWidget.cellWidget(r - 1, self.cols.name).setText(nameB)
                 self.tableWidget.cellWidget(r, self.cols.name).setText(nameA)
 
-                # project location
+                # project type menu location
                 locA = self.tableWidget.cellWidget(
                     r - 1, self.cols.type_menu_location
                 ).currentIndex()
@@ -375,9 +360,22 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                     r, self.cols.type_menu_location
                 ).setCurrentIndex(locA)
 
+                # project type storage
+                self.tableWidget.setCellWidget(
+                    r,
+                    self.cols.type_storage,
+                    self.mk_prj_storage_icon(guess_type_from_uri(fileA)),
+                )
+                self.tableWidget.setCellWidget(
+                    r - 1,
+                    self.cols.type_storage,
+                    self.mk_prj_storage_icon(guess_type_from_uri(fileB)),
+                )
+
+                # selected row
                 self.tableWidget.setCurrentCell(r - 1, 1)
-        except Exception:
-            pass
+        except Exception as err:
+            self.plugin.log("Error moving up row {}. Trace: {}".format(r, err))
 
     def onMoveDown(self):
         sr = self.tableWidget.selectedRanges()
@@ -385,26 +383,56 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         try:
             r = sr[0].topRow()
             if r < nbRows - 1:
-                fileA = self.tableWidget.cellWidget(r, 1).text()
-                fileB = self.tableWidget.cellWidget(r + 1, 1).text()
-                self.tableWidget.cellWidget(r, 1).setText(fileB)
-                self.tableWidget.cellWidget(r + 1, 1).setText(fileA)
+                # edit button
+                edit_btnA = self.tableWidget.cellWidget(r, self.cols.edit).text()
+                edit_btnB = self.tableWidget.cellWidget(r + 1, self.cols.edit).text()
+                self.tableWidget.cellWidget(r, self.cols.edit).setText(edit_btnB)
+                self.tableWidget.cellWidget(r + 1, self.cols.edit).setText(edit_btnA)
 
-                nameA = self.tableWidget.cellWidget(r, 2).text()
-                nameB = self.tableWidget.cellWidget(r + 1, 2).text()
-                self.tableWidget.cellWidget(r, 2).setText(nameB)
-                self.tableWidget.cellWidget(r + 1, 2).setText(nameA)
+                # project path
+                fileA = self.tableWidget.cellWidget(r, self.cols.uri).text()
+                fileB = self.tableWidget.cellWidget(r + 1, self.cols.uri).text()
+                self.tableWidget.cellWidget(r, self.cols.uri).setText(fileB)
+                self.tableWidget.cellWidget(r + 1, self.cols.uri).setText(fileA)
 
-                locA = self.tableWidget.cellWidget(r, 3).currentIndex()
-                locB = self.tableWidget.cellWidget(r + 1, 3).currentIndex()
+                # project name
+                nameA = self.tableWidget.cellWidget(r, self.cols.name).text()
+                nameB = self.tableWidget.cellWidget(r + 1, self.cols.name).text()
+                self.tableWidget.cellWidget(r, self.cols.name).setText(nameB)
+                self.tableWidget.cellWidget(r + 1, self.cols.name).setText(nameA)
+
+                # project type menu location
+                locA = self.tableWidget.cellWidget(
+                    r, self.cols.type_menu_location
+                ).currentIndex()
+                locB = self.tableWidget.cellWidget(
+                    r + 1, self.cols.type_menu_location
+                ).currentIndex()
                 if locB == 2 and r == 0:
                     locB = 0
-                self.tableWidget.cellWidget(r, 3).setCurrentIndex(locB)
-                self.tableWidget.cellWidget(r + 1, 3).setCurrentIndex(locA)
+                self.tableWidget.cellWidget(
+                    r, self.cols.type_menu_location
+                ).setCurrentIndex(locB)
+                self.tableWidget.cellWidget(
+                    r + 1, self.cols.type_menu_location
+                ).setCurrentIndex(locA)
 
+                # project type storage
+                self.tableWidget.setCellWidget(
+                    r,
+                    self.cols.type_storage,
+                    self.mk_prj_storage_icon(guess_type_from_uri(fileB)),
+                )
+                self.tableWidget.setCellWidget(
+                    r + 1,
+                    self.cols.type_storage,
+                    self.mk_prj_storage_icon(guess_type_from_uri(fileA)),
+                )
+
+                # selected row
                 self.tableWidget.setCurrentCell(r + 1, 1)
-        except Exception:
-            pass
+        except Exception as err:
+            self.plugin.log("Error moving down row {}. Trace: {}".format(r, err))
 
     def onTextChanged(self, text: str):
         """Read the project using the URI of the project that changed into the table.
@@ -453,3 +481,35 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.tableWidget.resizeColumnToContents(self.cols.name)
         self.tableWidget.resizeColumnToContents(self.cols.type_menu_location)
         self.tableWidget.resizeColumnToContents(self.cols.uri)
+
+    # -- Widgets factory ---------------------------------------------------------------
+    def mk_prj_edit_button(self) -> QToolButton:
+        """Returns a tool button for the project edition.
+
+        :return: button
+        :rtype: QToolButton
+        """
+        edit_button = QToolButton(self.tableWidget)
+        edit_button.setGeometry(QRect(0, 0, 20, 20))
+        edit_button.setIcon(QIcon(str(DIR_PLUGIN_ROOT / "resources/edit.svg")))
+        edit_button.setToolTip(self.tr("Edit this project"))
+
+        return edit_button
+
+    def mk_prj_storage_icon(self, qgs_type_storage: str) -> QLabel:
+        """Returns a QLabel with the matching icon for the storage type.
+
+        :param qgs_type_storage: storage type
+        :type qgs_type_storage: str
+        :return: QLabel to be set in a cellWidget
+        :rtype: QLabel
+        """
+        lbl_location_type = QLabel(self.tableWidget)
+        lbl_location_type.setPixmap(QPixmap(icon_per_storage_type(qgs_type_storage)))
+        lbl_location_type.setScaledContents(True)
+        lbl_location_type.setMaximumSize(20, 20)
+        lbl_location_type.setAlignment(Qt.AlignCenter)
+        lbl_location_type.setTextInteractionFlags(Qt.NoTextInteraction)
+        lbl_location_type.setToolTip(qgs_type_storage)
+
+        return lbl_location_type
