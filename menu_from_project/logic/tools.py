@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 # ##################################
 
 
-@lru_cache
+@lru_cache()
 def guess_type_from_uri(qgs_uri: str) -> str:
     """Return project storage type based on the QGS URI.
 
@@ -39,7 +39,7 @@ def guess_type_from_uri(qgs_uri: str) -> str:
         return "file"
 
 
-@lru_cache
+@lru_cache()
 def icon_per_storage_type(type_storage: str) -> str:
     """Returns the icon for a storage type,
 
@@ -59,7 +59,7 @@ def icon_per_storage_type(type_storage: str) -> str:
         return QgsApplication.iconPath("mIconFile.svg")
 
 
-@lru_cache
+@lru_cache()
 def icon_per_geometry_type(geometry_type: str):
     """Return the icon for a geometry type.
 
