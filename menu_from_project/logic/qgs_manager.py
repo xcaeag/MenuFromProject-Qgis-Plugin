@@ -144,7 +144,7 @@ def read_from_database(uri: str, project_registry) -> Tuple[QtXml.QDomDocument, 
     return doc, project_path
 
 
-@lru_cache
+@lru_cache()
 def read_from_http(uri: str, cache_folder: Path):
     """Read a QGIS project stored into on a remote web server accessible through HTTP.
 
