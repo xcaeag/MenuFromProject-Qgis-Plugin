@@ -20,5 +20,3 @@ Cette extension pour QGIS permet de construire automatiquement des menus déroul
 Tous les paramètrages des couches, le style, les étiquettes, les actions, les métadonnées.. sont conservés. La maintenance se résume à la gestion de quelques projets QGIS centralisés.
 
 :book: La documentation ici : <https://xcaeag.github.io/MenuFromProject-Qgis-Plugin/#en-francais>
-
-![](https://raw.githubusercontent.com/xcaeag/MenuFromProject-Qgis-Plugin/master/menu_from_project/doc/menu-tuto-en.gif)
