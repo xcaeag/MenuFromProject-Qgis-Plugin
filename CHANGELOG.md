@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2.0.0-beta1
+
+- Allow pointing to http/https online qgs-qgz project file
+
 ## 1.1.0
 
 - It is now possible to merge two projects (#27).
