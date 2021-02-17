@@ -170,7 +170,7 @@ class MenuFromProject:
 
     @staticmethod
     def tr(message):
-        return QCoreApplication.translate("menu_from_project", message)
+        return QCoreApplication.translate("MenuFromProject", message)
 
     @staticmethod
     def log(message, application=__title__, log_level=1):
