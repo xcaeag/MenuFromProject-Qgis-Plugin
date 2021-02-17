@@ -167,10 +167,10 @@ def read_from_http(uri: str, cache_folder: Path):
     # download it
     loop = QEventLoop()
     project_download = QgsFileDownloader(
-        url=QUrl(uri), outputFileName=str(cached_filepath.resolve()), delayStart=True
+        url=QUrl(uri), outputFileName=str(cached_filepath), delayStart=True
     )
     project_download.downloadExited.connect(loop.quit)
     project_download.startDownload()
     loop.exec_()
 
-    return read_from_file(str(cached_filepath.resolve()))
+    return read_from_file(str(cached_filepath))
