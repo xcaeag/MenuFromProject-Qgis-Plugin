@@ -556,7 +556,7 @@ class MenuFromProject:
         else:
             self.log(f"Unrecognized project type: {uri}")
 
-        # store doc intothe plugin registry
+        # store doc into the plugin registry
         self.docs[project_path] = doc
 
         return doc, project_path
@@ -673,6 +673,87 @@ class MenuFromProject:
         if result != 0:
             self.initMenus()
 
+    def addLayer(self, fileName, layerId, group=None, visible=None, expanded=None):
+        theLayer = None
+
+        # read QGIS project
+        doc, _ = self.getQgsDoc(fileName)
+
+        # is project in relative path ?
+        absolute = is_absolute(doc)
+        trusted = project_trusted(doc)
+
+        node = getFirstChildByTagNameValue(
+            doc.documentElement(), "maplayer", "id", layerId
+        )
+        node = node.cloneNode()
+        if node:
+            idNode = node.namedItem("id")
+            layerType = node.toElement().attribute("type", "vector")
+            # give it a new id (for multiple import)
+            newLayerId = "L%s" % re.sub(
+                "[{}-]", "", QUuid.createUuid().toString()
+            )
+            try:
+                idNode.firstChild().toText().setData(newLayerId)
+            except Exception:
+                pass
+
+            # if relative path, adapt datasource
+            if not absolute:
+                try:
+                    datasourceNode = node.namedItem("datasource")
+                    ds = datasourceNode.firstChild().toText().data()
+                    providerNode = node.namedItem("provider")
+                    provider = providerNode.firstChild().toText().data()
+
+                    if provider in ["ogr", "gdal"] and (ds.find(".") == 0):
+                        projectpath = QFileInfo(uri).path()
+                        newlayerpath = projectpath + "/" + ds
+                        datasourceNode.firstChild().toText().setData(
+                            newlayerpath
+                        )
+                except Exception:
+                    pass
+
+            # read modified layer node
+            if self.optionCreateGroup and group is not None:
+                if layerType == "raster":
+                    theLayer = QgsRasterLayer()
+                else:
+                    theLayer = QgsVectorLayer()
+                    theLayer.setReadExtentFromXml(trusted)
+
+                theLayer.readLayerXml(node.toElement(), QgsReadWriteContext())
+
+                # Special process if the plugin "DB Style Manager" is installed
+                flag = "use_db_style_manager_in_custom_menu" in os.environ
+                if flag and "db-style-manager" in plugins:
+                    try:
+                        plugins["db-style-manager"].load_style_from_database(
+                            theLayer
+                        )
+                    except Exception:
+                        self.log("DB-Style-Manager failed to load the style.")
+
+                # needed
+                QgsProject.instance().addMapLayer(theLayer, False)
+
+                # add to group
+                treeNode = group.addLayer(theLayer)
+                treeNode.setExpanded(expanded)
+                treeNode.setItemVisibilityChecked(visible)
+            else:
+                # create layer
+                theLayer = QgsProject.instance().readLayer(node)
+
+            return QgsProject.instance().mapLayer(newLayerId)
+
+        else:
+            self.log("{} not found".format(layerId))
+
+        return None
+
     def loadLayer(self, uri, fileName, layerId, menu=None, visible=None, expanded=None):
         """Load the chosen layer(s)
 
@@ -707,90 +788,20 @@ class MenuFromProject:
                     ):
                         action.trigger()
             else:
-                # read QGIS project
-                doc, _ = self.getQgsDoc(fileName)
+                layer = self.addLayer(fileName, layerId, group, visible, expanded)
 
-                # is project in relative path ?
-                absolute = is_absolute(doc)
-                trusted = project_trusted(doc)
-
-                node = getFirstChildByTagNameValue(
-                    doc.documentElement(), "maplayer", "id", layerId
-                )
-                node = node.cloneNode()
-                if node:
-                    idNode = node.namedItem("id")
-                    layerType = node.toElement().attribute("type", "vector")
-                    # give it a new id (for multiple import)
-                    newLayerId = "L%s" % re.sub(
-                        "[{}-]", "", QUuid.createUuid().toString()
-                    )
-                    try:
-                        idNode.firstChild().toText().setData(newLayerId)
-                    except Exception:
-                        pass
-
-                    # if relative path, adapt datasource
-                    if not absolute:
+                # is joined layers exists ?
+                if layer:
+                    for j in layer.vectorJoins():
                         try:
-                            datasourceNode = node.namedItem("datasource")
-                            ds = datasourceNode.firstChild().toText().data()
-                            providerNode = node.namedItem("provider")
-                            provider = providerNode.firstChild().toText().data()
-
-                            if provider in ["ogr", "gdal"] and (ds.find(".") == 0):
-                                projectpath = QFileInfo(uri).path()
-                                newlayerpath = projectpath + "/" + ds
-                                datasourceNode.firstChild().toText().setData(
-                                    newlayerpath
-                                )
-                        except Exception:
+                            joinLayer = self.addLayer(fileName, j.joinLayerId())
+                            if joinLayer:
+                                j.setJoinLayerId(joinLayer.id())
+                                j.setJoinLayer(joinLayer)
+                                layer.addJoin(j)
+                        except Exception as e:
+                            self.log("Joined layer {} not added.".format(j.joinLayerId()))
                             pass
-
-                    # read modified layer node
-                    if self.optionCreateGroup and group is not None:
-                        """# sol 1 bug : layer incomplete
-                        # because of API strange behaviour, we clone the layer...
-                        theLayer = QgsProject.instance().mapLayer(newLayerId)
-                        cloneLayer = theLayer.clone()
-                        # removing the first
-                        QgsProject.instance().removeMapLayer(newLayerId)
-                        # adding the clone...
-                        treeNode = group.addLayer(cloneLayer)
-                        treeNode.setExpanded(expanded)
-                        treeNode.setItemVisibilityChecked(visible)"""
-
-                        # solution 2, ok !
-                        if layerType == "raster":
-                            theLayer = QgsRasterLayer()
-                        else:
-                            theLayer = QgsVectorLayer()
-                            theLayer.setReadExtentFromXml(trusted)
-
-                        theLayer.readLayerXml(node.toElement(), QgsReadWriteContext())
-
-                        # Special process if the plugin "DB Style Manager" is installed
-                        flag = "use_db_style_manager_in_custom_menu" in os.environ
-                        if flag and "db-style-manager" in plugins:
-                            try:
-                                plugins["db-style-manager"].load_style_from_database(
-                                    theLayer
-                                )
-                            except Exception:
-                                self.log("DB-Style-Manager failed to load the style.")
-
-                        # needed
-                        QgsProject.instance().addMapLayer(theLayer, False)
-                        # add to group
-                        treeNode = group.addLayer(theLayer)
-                        treeNode.setExpanded(expanded)
-                        treeNode.setItemVisibilityChecked(visible)
-                    else:
-                        # create layer
-                        QgsProject.instance().readLayer(node)
-
-                else:
-                    self.log("{} not found".format(layerId))
 
         except Exception as e:
             # fixme fileName is not defined
