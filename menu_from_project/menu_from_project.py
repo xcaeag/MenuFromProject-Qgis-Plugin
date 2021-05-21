@@ -673,7 +673,7 @@ class MenuFromProject:
         if result != 0:
             self.initMenus()
 
-    def addLayer(self, fileName, layerId, group=None, visible=None, expanded=None):
+    def addLayer(self, uri, fileName, layerId, group=None, visible=None, expanded=None):
         theLayer = None
 
         # read QGIS project
@@ -788,13 +788,13 @@ class MenuFromProject:
                     ):
                         action.trigger()
             else:
-                layer = self.addLayer(fileName, layerId, group, visible, expanded)
+                layer = self.addLayer(uri, fileName, layerId, group, visible, expanded)
 
                 # is joined layers exists ?
                 if layer:
                     for j in layer.vectorJoins():
                         try:
-                            joinLayer = self.addLayer(fileName, j.joinLayerId())
+                            joinLayer = self.addLayer(uri, fileName, j.joinLayerId())
                             if joinLayer:
                                 j.setJoinLayerId(joinLayer.id())
                                 j.setJoinLayer(joinLayer)
