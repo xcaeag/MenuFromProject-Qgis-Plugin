@@ -10,6 +10,7 @@ from functools import partial
 
 # PyQGIS
 from qgis.core import QgsApplication
+from qgis.gui import QgsProviderGuiRegistry
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import QRect, Qt
 from qgis.PyQt.QtGui import QIcon, QPixmap
@@ -128,11 +129,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
 
         for idx, project in enumerate(self.plugin.projects):
             # edit project
-            edit_button = self.mk_prj_edit_button()
-            self.tableWidget.setCellWidget(idx, self.cols.edit, edit_button)
-            edit_button.clicked.connect(
-                lambda checked, idx=idx: self.onFileSearchPressed(idx)
-            )
+            self.addEditButton(idx, guess_type_from_uri(project.get("file")))
 
             # project name
             itemName = QTableWidgetItem(project.get("name"))
@@ -194,6 +191,27 @@ class MenuConfDialog(QDialog, FORM_CLASS):
 
         self.tableTunning()
 
+    def addEditButton(self, row, guess_type):
+        """Add edit button, adapted to the type of resource 
+
+        :param row: row index.
+        :type guess_type: resource type (database, file)
+        
+        """
+        if guess_type == 'file':
+            edit_button = self.mk_prj_edit_button()
+            self.tableWidget.setCellWidget(row, self.cols.edit, edit_button)
+            edit_button.clicked.connect(
+                lambda checked, idx=row: self.onFileSearchPressed(row)
+            )
+
+        if guess_type == 'database':
+            edit_button = self.mk_prj_edit_button()
+            self.tableWidget.setCellWidget(row, self.cols.edit, edit_button)
+            edit_button.clicked.connect(
+                lambda checked, idx=row: self.onDbSearchPressed(row)
+            )
+
     def onFileSearchPressed(self, row: int):
         """Open file browser to allow user pick a QGIS project file. \
         Trigered when edit button is pressed for a project with type_storage == file.
@@ -233,6 +251,39 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             except Exception:
                 pass
 
+    def onDbSearchPressed(self, row: int):
+        """Open database browser to allow user pick a QGIS project file. \
+        Trigered when edit button is pressed for a project with type_storage == database.
+
+        :param row: row indice
+        :type row: int
+        """
+        item = self.tableWidget.item(row, 1)
+
+        pgr = QgsProviderGuiRegistry(QgsApplication.pluginPath())
+        pl = pgr.providerList() 
+        if 'postgres' in pgr.providerList():
+            psgp = pgr.projectStorageGuiProviders('postgres')
+            if len(psgp) > 0:
+                uri = psgp[0].showLoadGui()
+                try:
+                    file_widget = self.tableWidget.cellWidget(row, self.cols.uri)
+                    file_widget.setText(uri)
+
+                    name_widget = self.tableWidget.cellWidget(row, self.cols.name)
+                    name = name_widget.text()
+                    if not name:
+                        try:
+                            name = uri.split("project=")[-1]
+                            name = name.split(".")[0]
+                        except Exception:
+                            name = ""
+
+                        name_widget.setText(name)
+
+                except Exception:
+                    pass
+
     def onAccepted(self):
         self.plugin.projects = []
         # self.plugin.log("count : {}".format(self.tableWidget.rowCount()))
@@ -271,11 +322,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.tableWidget.setRowCount(row + 1)
 
         # edit button
-        edit_button = self.mk_prj_edit_button()
-        self.tableWidget.setCellWidget(row, self.cols.edit, edit_button)
-        edit_button.clicked.connect(
-            lambda checked, idx=row: self.onFileSearchPressed(row)
-        )
+        self.addEditButton(row, qgs_type_storage)
 
         # project name
         itemName = QTableWidgetItem()
