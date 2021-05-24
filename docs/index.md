@@ -30,7 +30,7 @@ On QGIS Plugins repository <https://plugins.qgis.org/plugins/menu_from_project/>
 
 ## English version
 
-That plugin provides a convenient way to add prestyled and preconfigured frequently used layers using dropdown menus built by simply reading existing QGIS projects (qgs, qgz, postgres)
+That plugin provides a convenient way to add prestyled and preconfigured frequently used layers using dropdown menus built by simply reading existing QGIS projects (qgs, qgz, postgres, http)
 
 Styling, actions, labeling, metadata - every layer options in fact except joins - are reused as defined in source projects
 
@@ -44,7 +44,7 @@ When the plugin is configured (choice of a project via the plugin menu), a new m
 
 Save a project somewhere with some styling, labeling, and so on.
 
-The project might be stored in a PostgreSQL database [(see feature-saving-and-loading-projects-in-postgresql-database)](https://qgis.org/en/site/forusers/visualchangelog32/index.html#feature-saving-and-loading-projects-in-postgresql-database). You need to copy/paste the project URI (Project properties -> General) into the field.
+The project might be stored in a PostgreSQL database, or on a web server, which makes it accessible via http. [(see feature-saving-and-loading-projects-in-postgresql-database)](https://qgis.org/en/site/forusers/visualchangelog32/index.html#feature-saving-and-loading-projects-in-postgresql-database). You need to copy/paste the project URI (Project properties -> General) into the field.
 
 ...and QGZ [(see feature-new-zipped-project-file-format-qgz)](https://qgis.org/en/site/forusers/visualchangelog30/index.html#feature-new-zipped-project-file-format-qgz).
 
@@ -68,7 +68,7 @@ If you want users to access that project, save it to a shared network place, bet
 
 ![configuration window](static/config_window_en.png)
 
-- Press "+" button to add a .qgs, .qgz project to the list (or paste a pg URI).
+- Press "+" button to add a .qgs, .qgz project to the list (or paste a pg URI, a http URL).
   You can change the alias that will be the menu name in QGIS
 
 The name will become the title of the menu.
@@ -93,7 +93,7 @@ You can hide the administration dialog of the plugin by adding a `menu_from_proj
 
 ## En Français
 
-Cette extension pour QGIS permet de construire automatiquement des menus déroulants permettant d'ajouter des couches pré-stylées définies dans des projets QGIS externes "modèles" (qgs, qgz, postgres).
+Cette extension pour QGIS permet de construire automatiquement des menus déroulants permettant d'ajouter des couches pré-stylées définies dans des projets QGIS externes "modèles" (qgs, qgz, postgres, web).
 
 Tous les paramètrages des couches, le style, les étiquettes, les actions, les métadonnées.. sont conservées. La maintenance se résume à la gestion de quelques projets QGIS centralisés.
 
@@ -105,16 +105,16 @@ Lorsque le plugin est configuré (choix des projets et attribution d'un nom asso
 
 #### 1. Construire de beaux projets
 
-Sauver les projets sur un espace partagé avec ses styles, étiquetages... une arborescence de groupes à l'image du futur menu.
+Sauver les projets sur un espace partagé (réseau, web, postgres) avec ses styles, étiquetages... une arborescence de groupes à l'image du futur menu.
 
 ```{tip}
 Créer un groupe vide nommé "-" pour placer un séparateur à cet endroit dans le futur menu.
 ```
 
-Le projet peut être sauvé au format qgz, ou dans une base PostgreSQL. [(cf. feature-saving-and-loading-projects-in-postgresql-database)](https://qgis.org/en/site/forusers/visualchangelog32/index.html#feature-saving-and-loading-projects-in-postgresql-database).
+Le projet peut être sauvé au format qgz, dans une base PostgreSQL ou déposée en tant que ressource web. [(cf. feature-saving-and-loading-projects-in-postgresql-database)](https://qgis.org/en/site/forusers/visualchangelog32/index.html#feature-saving-and-loading-projects-in-postgresql-database).
 
 ```{note}
-Le projet placé dans un espace partagé du réseau permettra à différents utilisateurs d'exploiter les mêmes ressources.
+Le projet placé dans un espace partagé du réseau, sous postgres ou un serveur web permettra à différents utilisateurs d'exploiter les mêmes ressources (à condition bien sûr que celles-ci soit accessible).
 ```
 
 ![dropdown menu en](static/mapping.png)
@@ -127,7 +127,7 @@ Le projet placé dans un espace partagé du réseau permettra à différents uti
 
 ![configuration window](static/config_window_fr.png)
 
-- Bouton "+", puis "..." pour ajouter un projet .qgs, .qgz à la liste (ou coller l'URI d'un projet PostgreSQL).
+- Bouton ajouter un projet ("+"), puis "éditer" pour ajouter un projet .qgs, .qgz à la liste, ou coller l'URI d'un projet PostgreSQL, coller l'URL d'un projet distant. ex : http://adour-garonne.eaufrance.fr/upload/DATA/SIG/aeag-web.qgz
 
 Le nom (modifiable), deviendra le titre du menu.
 
