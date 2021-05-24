@@ -7,16 +7,16 @@
 
 ## English :gb:
 
-This plugin provides a convenient way to add prestyled and configured frequently used layers using dropdown menus built by simply reading existing QGIS projects (qgs, qgz, postgres)
+This plugin provides a convenient way to add prestyled and configured frequently used layers using dropdown menus built by simply reading existing QGIS projects (qgs, qgz, postgres, Web resource)
 
-Styling, actions, labeling, metadata - every layer options in fact except joins - are reused as defined in source qgs projects
+Styling, actions, labeling, metadata, joined layers are reused as defined in source qgs projects
 
 :book: Whole documentation is available just here: <https://xcaeag.github.io/MenuFromProject-Qgis-Plugin/#english-version>
 
 ## Français :fr:
 
-Cette extension pour QGIS permet de construire automatiquement des menus déroulants permettant d'ajouter des couches préstylées définies dans des projets qgis externes "modèles" (qgs, qgz, postgres).
+Cette extension pour QGIS permet de construire automatiquement des menus déroulants permettant d'ajouter des couches préstylées définies dans des projets qgis externes "modèles" (qgs, qgz, postgres, ressource web).
 
-Tous les paramètrages des couches, le style, les étiquettes, les actions, les métadonnées.. sont conservés. La maintenance se résume à la gestion de quelques projets QGIS centralisés.
+Tous les paramètrages des couches, le style, les étiquettes, les actions, les métadonnées, les jointures sont conservés. La maintenance se résume à la gestion de quelques projets QGIS centralisés.
 
 :book: La documentation ici : <https://xcaeag.github.io/MenuFromProject-Qgis-Plugin/#en-francais>
