@@ -63,7 +63,7 @@ repository=https://github.com/xcaeag/MenuFromProject-Qgis-Plugin
 icon=resources/menu_from_project.png
 
 # experimental flag
-experimental=True
+experimental=False
 
 # deprecated flag (applies to the whole plugin, not just a single version
 deprecated=False
