@@ -1,8 +1,9 @@
 # CHANGELOG
 
-## 2.0.0-beta1
+## 2.0.0
 
-- Allow pointing to http/https online qgs-qgz project file
+- Allow pointing to http/https online qgs-qgz project file,
+- Support of Joined layers
 
 ## 1.1.0
 
