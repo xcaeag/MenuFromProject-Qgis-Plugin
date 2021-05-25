@@ -32,7 +32,7 @@ On QGIS Plugins repository <https://plugins.qgis.org/plugins/menu_from_project/>
 
 That plugin provides a convenient way to add prestyled and preconfigured frequently used layers using dropdown menus built by simply reading existing QGIS projects (qgs, qgz, postgres, http)
 
-Styling, actions, labeling, metadata - every layer options in fact except joins - are reused as defined in source projects
+Styling, actions, labeling, metadata, joined layers are reused as defined in source projects
 
 ![dropdown menu en](static/drop_down_menu_en.png)
 
@@ -95,7 +95,7 @@ You can hide the administration dialog of the plugin by adding a `menu_from_proj
 
 Cette extension pour QGIS permet de construire automatiquement des menus déroulants permettant d'ajouter des couches pré-stylées définies dans des projets QGIS externes "modèles" (qgs, qgz, postgres, web).
 
-Tous les paramètrages des couches, le style, les étiquettes, les actions, les métadonnées.. sont conservées. La maintenance se résume à la gestion de quelques projets QGIS centralisés.
+Tous les paramètrages des couches, le style, les étiquettes, les actions, les métadonnées, les jointures sont conservées. La maintenance se résume à la gestion de quelques projets QGIS centralisés.
 
 ![dropdown menu en](static/drop_down_menu_fr.png)
 
@@ -105,13 +105,13 @@ Lorsque le plugin est configuré (choix des projets et attribution d'un nom asso
 
 #### 1. Construire de beaux projets
 
-Sauver les projets sur un espace partagé (réseau, web, postgres) avec ses styles, étiquetages... une arborescence de groupes à l'image du futur menu.
+Sauver vos projets sur un espace partagé (réseau, web, postgres) avec leurs styles, leurs étiquettes... une arborescence de groupes à l'image du futur menu.
 
 ```{tip}
 Créer un groupe vide nommé "-" pour placer un séparateur à cet endroit dans le futur menu.
 ```
 
-Le projet peut être sauvé au format qgz, dans une base PostgreSQL ou déposée en tant que ressource web. [(cf. feature-saving-and-loading-projects-in-postgresql-database)](https://qgis.org/en/site/forusers/visualchangelog32/index.html#feature-saving-and-loading-projects-in-postgresql-database).
+Les projets peuvent être sauvés au format qgz, dans une base PostgreSQL [(cf. feature-saving-and-loading-projects-in-postgresql-database)](https://qgis.org/en/site/forusers/visualchangelog32/index.html#feature-saving-and-loading-projects-in-postgresql-database) ou déposée en tant que ressource web.
 
 ```{note}
 Le projet placé dans un espace partagé du réseau, sous postgres ou un serveur web permettra à différents utilisateurs d'exploiter les mêmes ressources (à condition bien sûr que celles-ci soit accessible).
