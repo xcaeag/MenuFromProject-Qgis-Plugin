@@ -33,8 +33,18 @@ jobs:
         python -m pip install -U pip setuptools wheel
         python -m pip install -U 'qgis-plugin-ci>=1.8,<1.9'
 
-    - name : Get current changelog for ${VERSION}
-      run: qgis-plugin-ci changelog ${GITHUB_REF/refs\/tags\//} >> release.md
+    - id: get-myversion
+      run: |
+        myversion=$(echo ${{ github.ref }} | cut -dv -f2)
+        echo "::set-output name=myversion::$myversion"
+    - run: echo "${{steps.get-myversion.outputs.myversion}}"
+
+    - name: Package the version
+      run: |
+        qgis-plugin-ci package ${{steps.get-myversion.outputs.myversion}}
+
+    - name : Get current changelog for ${{ github.ref }}
+      run: qgis-plugin-ci changelog ${{steps.get-myversion.outputs.myversion}} >> release.md
 
     - name: Create Release
       id: create_release
@@ -45,6 +55,16 @@ jobs:
         tag_name: ${{ github.ref }}
         release_name: ${{ github.ref }}
         body_path: release.md
+
+    - name: upload plugin artifact
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ env.PROJECT_FOLDER }}.${{steps.get-myversion.outputs.myversion}}.zip
+        asset_name: ${{ env.PROJECT_FOLDER }}-${{steps.get-myversion.outputs.myversion}}.zip
+        asset_content_type: application/zip
 
     # - name: Deploy plugin
     #   run: >-
