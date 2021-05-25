@@ -794,7 +794,7 @@ class MenuFromProject:
                 if layer:
                     for j in layer.vectorJoins():
                         try:
-                            joinLayer = self.addLayer(uri, fileName, j.joinLayerId())
+                            joinLayer = self.addLayer(uri, fileName, j.joinLayerId(), group)
                             if joinLayer:
                                 j.setJoinLayerId(joinLayer.id())
                                 j.setJoinLayer(joinLayer)
