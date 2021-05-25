@@ -68,5 +68,5 @@ experimental=True
 deprecated=False
 
 # Author contact information
-author=Agence de l'eau Adour Garonne, Julien M. (Oslandia)
+author=Xavier Culos (Agence de l'eau Adour Garonne), Etienne Trimaille, Julien M. (Oslandia)
 email=xavier.culos@eau-adour-garonne.fr
