@@ -673,7 +673,7 @@ class MenuFromProject:
         if result != 0:
             self.initMenus()
 
-    def addLayer(self, uri, fileName, layerId, group=None, visible=None, expanded=None):
+    def addLayer(self, uri, fileName, layerId, group=None, visible=False, expanded=False):
         theLayer = None
 
         # read QGIS project
