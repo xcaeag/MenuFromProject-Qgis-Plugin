@@ -13,6 +13,8 @@ venv
 .idea/
 .vscode/
 *.log
+*.cfg
+*.sh
 
 # tests
 junit/
