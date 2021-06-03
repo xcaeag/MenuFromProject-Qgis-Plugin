@@ -93,17 +93,17 @@
         <translation>Options</translation>
     </message>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="71"/>
+        <location filename="../ui/menu_conf_dlg.py" line="72"/>
         <source>New menu</source>
         <translation>Nouveau menu</translation>
     </message>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="75"/>
+        <location filename="../ui/menu_conf_dlg.py" line="76"/>
         <source>Add layer menu</source>
         <translation>Ajouter une couche</translation>
     </message>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="79"/>
+        <location filename="../ui/menu_conf_dlg.py" line="80"/>
         <source>Merge with previous</source>
         <translation>Intégrer dans le précédent</translation>
     </message>
@@ -111,45 +111,50 @@
 <context>
     <name>MenuConfDialog</name>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="106"/>
+        <location filename="../ui/menu_conf_dlg.py" line="107"/>
         <source>Add from file</source>
         <translation>Fichier QGS/QGZ</translation>
     </message>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="111"/>
+        <location filename="../ui/menu_conf_dlg.py" line="112"/>
         <source>Add from PostgreSQL database</source>
         <translation>Base de données PostgreSQL</translation>
     </message>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="116"/>
+        <location filename="../ui/menu_conf_dlg.py" line="117"/>
         <source>Add from URL</source>
         <translation>Serveur HTTP</translation>
     </message>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="285"/>
+        <location filename="../ui/menu_conf_dlg.py" line="352"/>
         <source>Use project title</source>
         <translation>Utiliser le titre du projet</translation>
     </message>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="495"/>
+        <location filename="../ui/menu_conf_dlg.py" line="571"/>
         <source>Edit this project</source>
         <translation>Modifier la source</translation>
+    </message>
+    <message>
+        <location filename="../ui/menu_conf_dlg.py" line="269"/>
+        <source>No HTTP Browser, simply paste your URL into the &apos;project&apos; column.</source>
+        <translation>Copiez simplement l&apos;url du projet dans la cellule &apos;projet QGis&apos;</translation>
     </message>
 </context>
 <context>
     <name>MenuFromProject</name>
     <message>
-        <location filename="../menu_from_project.py" line="704"/>
+        <location filename="../menu_from_project.py" line="786"/>
         <source>Load all</source>
         <translation>Tout ajouter</translation>
     </message>
     <message>
-        <location filename="../menu_from_project.py" line="617"/>
+        <location filename="../menu_from_project.py" line="618"/>
         <source>Projects configuration</source>
         <translation>Configurer les projets</translation>
     </message>
     <message>
-        <location filename="../menu_from_project.py" line="632"/>
+        <location filename="../menu_from_project.py" line="633"/>
         <source>Help</source>
         <translation>Aide</translation>
     </message>
@@ -157,12 +162,12 @@
 <context>
     <name>menu_from_project</name>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="206"/>
+        <location filename="../ui/menu_conf_dlg.py" line="233"/>
         <source>Projects configuration</source>
         <translation>Configurer les projets</translation>
     </message>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="206"/>
+        <location filename="../ui/menu_conf_dlg.py" line="233"/>
         <source>QGIS projects (*.qgs *.qgz)</source>
         <translation>Projets QGIS (*.qgs *.qgz)</translation>
     </message>

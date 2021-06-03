@@ -9,7 +9,7 @@ import logging
 from functools import partial
 
 # PyQGIS
-from qgis.core import QgsApplication
+from qgis.core import QgsApplication, Qgis
 from qgis.gui import QgsProviderGuiRegistry
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import QRect, Qt
@@ -163,8 +163,9 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 idx, self.cols.type_menu_location, location_combo
             )
 
-            # project path
+            # project path (guess type stored into data)
             itemFile = QTableWidgetItem(project.get("file"))
+            itemFile.setData(Qt.UserRole, guess_type_from_uri(project.get("file")))
             itemFile.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
             self.tableWidget.setItem(idx, self.cols.uri, itemFile)
             le = QLineEdit()
@@ -212,6 +213,13 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 lambda checked, idx=row: self.onDbSearchPressed(row)
             )
 
+        if guess_type == 'http':
+            edit_button = self.mk_prj_edit_button()
+            self.tableWidget.setCellWidget(row, self.cols.edit, edit_button)
+            edit_button.clicked.connect(
+                lambda checked, idx=row: self.onHttpSearchPressed(row)
+            )
+
     def onFileSearchPressed(self, row: int):
         """Open file browser to allow user pick a QGIS project file. \
         Trigered when edit button is pressed for a project with type_storage == file.
@@ -219,6 +227,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         :param row: row indice
         :type row: int
         """
+        file_widget = self.tableWidget.cellWidget(row, self.cols.uri)
         item = self.tableWidget.item(row, 1)
 
         filePath = QFileDialog.getOpenFileName(
@@ -226,15 +235,14 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             QgsApplication.translate(
                 "menu_from_project", "Projects configuration", None
             ),
-            item.text(),
+            file_widget.text(),
             QgsApplication.translate(
                 "menu_from_project", "QGIS projects (*.qgs *.qgz)", None
             ),
         )
 
-        if filePath:
-            try:
-                file_widget = self.tableWidget.cellWidget(row, self.cols.uri)
+        try:
+            if filePath[0]:
                 file_widget.setText(filePath[0])
 
                 name_widget = self.tableWidget.cellWidget(row, self.cols.name)
@@ -248,8 +256,16 @@ class MenuConfDialog(QDialog, FORM_CLASS):
 
                     name_widget.setText(name)
 
-            except Exception:
-                pass
+        except Exception:
+            pass
+
+    def onHttpSearchPressed(self, row: int):
+        """no HTTP browser, only help message.
+
+        :param row: row indice
+        :type row: int
+        """
+        self.plugin.iface.messageBar().pushMessage("Message", self.tr("No HTTP Browser, simply paste your URL into the 'project' column."), level=Qgis.Info)
 
     def onDbSearchPressed(self, row: int):
         """Open database browser to allow user pick a QGIS project file. \
@@ -267,19 +283,20 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             if len(psgp) > 0:
                 uri = psgp[0].showLoadGui()
                 try:
-                    file_widget = self.tableWidget.cellWidget(row, self.cols.uri)
-                    file_widget.setText(uri)
+                    if uri:
+                        file_widget = self.tableWidget.cellWidget(row, self.cols.uri)
+                        file_widget.setText(uri)
 
-                    name_widget = self.tableWidget.cellWidget(row, self.cols.name)
-                    name = name_widget.text()
-                    if not name:
-                        try:
-                            name = uri.split("project=")[-1]
-                            name = name.split(".")[0]
-                        except Exception:
-                            name = ""
+                        name_widget = self.tableWidget.cellWidget(row, self.cols.name)
+                        name = name_widget.text()
+                        if not name:
+                            try:
+                                name = uri.split("project=")[-1]
+                                name = name.split(".")[0]
+                            except Exception:
+                                name = ""
 
-                        name_widget.setText(name)
+                            name_widget.setText(name)
 
                 except Exception:
                     pass
@@ -350,6 +367,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
 
         # project file path
         itemFile = QTableWidgetItem()
+        itemFile.setData(Qt.UserRole, qgs_type_storage)
         itemFile.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
         self.tableWidget.setItem(row, self.cols.uri, itemFile)
         filepath_lineedit = QLineEdit()
@@ -373,17 +391,16 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         try:
             r = sr[0].topRow()
             if r > 0:
-                # edit button
-                edit_btnA = self.tableWidget.cellWidget(r - 1, self.cols.edit).text()
-                edit_btnB = self.tableWidget.cellWidget(r, self.cols.edit).text()
-                self.tableWidget.cellWidget(r - 1, self.cols.edit).setText(edit_btnB)
-                self.tableWidget.cellWidget(r, self.cols.edit).setText(edit_btnA)
+                typeA = self.tableWidget.item(r - 1, self.cols.uri).data(Qt.UserRole)                
+                typeB = self.tableWidget.item(r, self.cols.uri).data(Qt.UserRole)
 
                 # project path
                 fileA = self.tableWidget.cellWidget(r - 1, self.cols.uri).text()
                 fileB = self.tableWidget.cellWidget(r, self.cols.uri).text()
                 self.tableWidget.cellWidget(r - 1, self.cols.uri).setText(fileB)
                 self.tableWidget.cellWidget(r, self.cols.uri).setText(fileA)
+                self.tableWidget.item(r - 1, self.cols.uri).setData(Qt.UserRole, typeB)
+                self.tableWidget.item(r, self.cols.uri).setData(Qt.UserRole, typeA)
 
                 # project name
                 nameA = self.tableWidget.cellWidget(r - 1, self.cols.name).text()
@@ -411,13 +428,18 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 self.tableWidget.setCellWidget(
                     r,
                     self.cols.type_storage,
-                    self.mk_prj_storage_icon(guess_type_from_uri(fileA)),
+                    self.mk_prj_storage_icon(typeA),
                 )
                 self.tableWidget.setCellWidget(
                     r - 1,
                     self.cols.type_storage,
-                    self.mk_prj_storage_icon(guess_type_from_uri(fileB)),
+                    self.mk_prj_storage_icon(typeB),
                 )
+
+                self.tableWidget.removeCellWidget(r, self.cols.edit)
+                self.tableWidget.removeCellWidget(r - 1, self.cols.edit)
+                self.addEditButton(r, typeA)
+                self.addEditButton(r-1, typeB)
 
                 # selected row
                 self.tableWidget.setCurrentCell(r - 1, 1)
@@ -430,17 +452,16 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         try:
             r = sr[0].topRow()
             if r < nbRows - 1:
-                # edit button
-                edit_btnA = self.tableWidget.cellWidget(r, self.cols.edit).text()
-                edit_btnB = self.tableWidget.cellWidget(r + 1, self.cols.edit).text()
-                self.tableWidget.cellWidget(r, self.cols.edit).setText(edit_btnB)
-                self.tableWidget.cellWidget(r + 1, self.cols.edit).setText(edit_btnA)
+                typeA = self.tableWidget.item(r, self.cols.uri).data(Qt.UserRole)
+                typeB = self.tableWidget.item(r + 1, self.cols.uri).data(Qt.UserRole)
 
                 # project path
                 fileA = self.tableWidget.cellWidget(r, self.cols.uri).text()
                 fileB = self.tableWidget.cellWidget(r + 1, self.cols.uri).text()
                 self.tableWidget.cellWidget(r, self.cols.uri).setText(fileB)
                 self.tableWidget.cellWidget(r + 1, self.cols.uri).setText(fileA)
+                self.tableWidget.item(r, self.cols.uri).setData(Qt.UserRole, typeB)
+                self.tableWidget.item(r+1, self.cols.uri).setData(Qt.UserRole, typeA)
 
                 # project name
                 nameA = self.tableWidget.cellWidget(r, self.cols.name).text()
@@ -468,13 +489,18 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 self.tableWidget.setCellWidget(
                     r,
                     self.cols.type_storage,
-                    self.mk_prj_storage_icon(guess_type_from_uri(fileB)),
+                    self.mk_prj_storage_icon(typeB),
                 )
                 self.tableWidget.setCellWidget(
                     r + 1,
                     self.cols.type_storage,
-                    self.mk_prj_storage_icon(guess_type_from_uri(fileA)),
+                    self.mk_prj_storage_icon(typeA),
                 )
+
+                self.tableWidget.removeCellWidget(r, self.cols.edit)
+                self.tableWidget.removeCellWidget(r + 1, self.cols.edit)
+                self.addEditButton(r, typeB)
+                self.addEditButton(r+1, typeA)
 
                 # selected row
                 self.tableWidget.setCurrentCell(r + 1, 1)
