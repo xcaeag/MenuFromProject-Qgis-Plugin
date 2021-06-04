@@ -111,34 +111,49 @@
 <context>
     <name>MenuConfDialog</name>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="107"/>
+        <location filename="../ui/menu_conf_dlg.py" line="108"/>
         <source>Add from file</source>
         <translation>Fichier QGS/QGZ</translation>
     </message>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="112"/>
+        <location filename="../ui/menu_conf_dlg.py" line="113"/>
         <source>Add from PostgreSQL database</source>
         <translation>Base de données PostgreSQL</translation>
     </message>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="117"/>
+        <location filename="../ui/menu_conf_dlg.py" line="118"/>
         <source>Add from URL</source>
         <translation>Serveur HTTP</translation>
     </message>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="352"/>
+        <location filename="../ui/menu_conf_dlg.py" line="353"/>
         <source>Use project title</source>
         <translation>Utiliser le titre du projet</translation>
     </message>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="571"/>
+        <location filename="../ui/menu_conf_dlg.py" line="572"/>
         <source>Edit this project</source>
         <translation>Modifier la source</translation>
     </message>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="269"/>
+        <location filename="../ui/menu_conf_dlg.py" line="270"/>
         <source>No HTTP Browser, simply paste your URL into the &apos;project&apos; column.</source>
         <translation>Copiez simplement l&apos;url du projet dans la cellule &apos;projet QGis&apos;</translation>
+    </message>
+    <message>
+        <location filename="../ui/menu_conf_dlg.py"/>
+        <source>file</source>
+        <translation>Fichier</translation>
+    </message>
+    <message>
+        <location filename="../ui/menu_conf_dlg.py"/>
+        <source>database</source>
+        <translation>Projet en base de données</translation>
+    </message>
+    <message>
+        <location filename="../ui/menu_conf_dlg.py"/>
+        <source>http</source>
+        <translation>Ressource web</translation>
     </message>
 </context>
 <context>
@@ -162,12 +177,12 @@
 <context>
     <name>menu_from_project</name>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="233"/>
+        <location filename="../ui/menu_conf_dlg.py" line="234"/>
         <source>Projects configuration</source>
         <translation>Configurer les projets</translation>
     </message>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="233"/>
+        <location filename="../ui/menu_conf_dlg.py" line="234"/>
         <source>QGIS projects (*.qgs *.qgz)</source>
         <translation>Projets QGIS (*.qgs *.qgz)</translation>
     </message>

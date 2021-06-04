@@ -87,6 +87,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.tableWidget.horizontalHeader().setSectionResizeMode(
             QHeaderView.ResizeToContents
         )
+        self.tableWidget.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
         self.tableWidget.setRowCount(len(self.plugin.projects))
         self.buttonBox.accepted.connect(self.onAccepted)
         self.btnDelete.clicked.connect(self.onDelete)
@@ -214,7 +215,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
             )
 
         if guess_type == 'http':
-            edit_button = self.mk_prj_edit_button()
+            edit_button = self.mk_prj_edit_button("help")
             self.tableWidget.setCellWidget(row, self.cols.edit, edit_button)
             edit_button.clicked.connect(
                 lambda checked, idx=row: self.onHttpSearchPressed(row)
@@ -556,7 +557,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.tableWidget.resizeColumnToContents(self.cols.uri)
 
     # -- Widgets factory ---------------------------------------------------------------
-    def mk_prj_edit_button(self) -> QToolButton:
+    def mk_prj_edit_button(self, fileName="edit") -> QToolButton:
         """Returns a tool button for the project edition.
 
         :return: button
@@ -564,7 +565,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         """
         edit_button = QToolButton(self.tableWidget)
         edit_button.setGeometry(QRect(0, 0, 20, 20))
-        edit_button.setIcon(QIcon(str(DIR_PLUGIN_ROOT / "resources/edit.svg")))
+        edit_button.setIcon(QIcon(str(DIR_PLUGIN_ROOT / "resources/{}.svg".format(fileName))))
         edit_button.setToolTip(self.tr("Edit this project"))
 
         return edit_button
@@ -583,6 +584,6 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         lbl_location_type.setMaximumSize(20, 20)
         lbl_location_type.setAlignment(Qt.AlignCenter)
         lbl_location_type.setTextInteractionFlags(Qt.NoTextInteraction)
-        lbl_location_type.setToolTip(qgs_type_storage)
+        lbl_location_type.setToolTip(self.tr(qgs_type_storage))
 
         return lbl_location_type
