@@ -781,7 +781,7 @@ class MenuFromProject:
 
             # load all layers
             if fileName is None and layerId is None and self.optionLoadAll:
-                for action in menu.actions():
+                for action in menu.actions()[::-1]:
                     if (
                         action.text() != self.tr("Load all")
                         and action.text() != "Load all"
