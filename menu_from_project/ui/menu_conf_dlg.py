@@ -191,6 +191,9 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.cbxShowTooltip.setCheckState(self.plugin.optionTooltip)
         self.cbxShowTooltip.setTristate(False)
 
+        self.mdSourceOGC.setChecked(self.plugin.optionSourceMD == self.plugin.SOURCE_MD_OGC)
+        self.mdSourceLayer.setChecked(self.plugin.optionSourceMD == self.plugin.SOURCE_MD_LAYER)
+
         self.tableTunning()
 
     def addEditButton(self, row, guess_type):
@@ -327,6 +330,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.plugin.optionTooltip = self.cbxShowTooltip.isChecked()
         self.plugin.optionLoadAll = self.cbxLoadAll.isChecked()
         self.plugin.optionCreateGroup = self.cbxCreateGroup.isChecked()
+        self.plugin.optionSourceMD = self.plugin.SOURCE_MD_OGC if self.mdSourceOGC.isChecked() else self.plugin.SOURCE_MD_LAYER
 
         self.plugin.store()
 

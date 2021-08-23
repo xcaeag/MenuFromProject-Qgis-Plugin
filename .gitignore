@@ -28,6 +28,7 @@ docs/_build/
 
 # qt stuff
 *_rc.py
+.qt_for_python/
 
 # project
 *~

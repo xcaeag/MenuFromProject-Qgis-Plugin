@@ -123,6 +123,9 @@ def project_trusted(doc):
 
 
 class MenuFromProject:
+    SOURCE_MD_OGC = 'ogc'
+    SOURCE_MD_LAYER = 'layer'
+
     def on_initializationCompleted(self):
         # build menu
         self.initMenus()
@@ -142,6 +145,7 @@ class MenuFromProject:
         self.optionTooltip = False
         self.optionCreateGroup = False
         self.optionLoadAll = False
+        self.optionSourceMD = MenuFromProject.SOURCE_MD_OGC
         self.read()
         settings = QgsSettings()
 
@@ -185,6 +189,7 @@ class MenuFromProject:
             s.setValue("optionTooltip", self.optionTooltip)
             s.setValue("optionCreateGroup", self.optionCreateGroup)
             s.setValue("optionLoadAll", self.optionLoadAll)
+            s.setValue("optionSourceMD", self.optionSourceMD)
 
             s.beginWriteArray("projects", len(self.projects))
             try:
@@ -213,6 +218,7 @@ class MenuFromProject:
                 self.optionTooltip = s.value("optionTooltip", True, type=bool)
                 self.optionCreateGroup = s.value("optionCreateGroup", False, type=bool)
                 self.optionLoadAll = s.value("optionLoadAll", False, type=bool)
+                self.optionSourceMD = s.value("optionSourceMD", MenuFromProject.SOURCE_MD_OGC, type=str)
 
                 size = s.beginReadArray("projects")
                 try:
@@ -251,11 +257,21 @@ class MenuFromProject:
         :param action: The action.
         :type action: QAction
         """
-
         if ml is not None:
             try:
-                title = ml.namedItem("title").firstChild().toText().data()
-                abstract = ml.namedItem("abstract").firstChild().toText().data()
+                abstract, title = '', ''
+                md = ml.namedItem("resourceMetadata")
+                mdLayerTitle = md.namedItem("title").firstChild().toText().data()
+                mdLayerAbstract = md.namedItem("abstract").firstChild().toText().data()
+                ogcTitle = ml.namedItem("title").firstChild().toText().data()
+                ogcAbstract = ml.namedItem("abstract").firstChild().toText().data()
+
+                if self.optionSourceMD == MenuFromProject.SOURCE_MD_OGC:
+                    abstract = ogcAbstract or mdLayerAbstract
+                    title = ogcTitle or mdLayerTitle
+                else:
+                    abstract = mdLayerAbstract or ogcAbstract
+                    title = mdLayerTitle or ogcTitle
 
                 if (abstract != "") and (title == ""):
                     action.setToolTip(
@@ -270,7 +286,10 @@ class MenuFromProject:
                         )
                     else:
                         action.setToolTip("")
-            except Exception:
+
+            except Exception as e:
+                for m in e.args:
+                    self.log(m)
                 pass
 
     def addMenuItem(self, uri, filename, node, menu, absolute, mapLayersDict):
@@ -646,10 +665,15 @@ class MenuFromProject:
         menuBar = self.iface.editMenu().parentWidget()
         for action in self.menubarActions:
             menuBar.removeAction(action)
+            del(action)
 
         menuBar = self.iface.addLayerMenu()
         for action in self.layerMenubarActions:
             menuBar.removeAction(action)
+            del(action)
+
+        self.menubarActions = []       
+        self.layerMenubarActions = []
 
         if self.is_setup_visible:
             self.iface.removePluginMenu(
@@ -659,6 +683,8 @@ class MenuFromProject:
             self.action_project_configuration.triggered.disconnect(
                 self.open_projects_config
             )
+
+        self.iface.initializationCompleted.disconnect(self.on_initializationCompleted)
 
         self.store()
 

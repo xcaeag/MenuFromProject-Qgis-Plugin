@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>605</width>
+    <width>638</width>
     <height>310</height>
    </rect>
   </property>
@@ -313,7 +313,7 @@
        </property>
       </spacer>
      </item>
-     <item row="2" column="0">
+     <item row="3" column="0">
       <widget class="QCheckBox" name="cbxCreateGroup">
        <property name="text">
         <string>Create group</string>
@@ -326,7 +326,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
+     <item row="3" column="1">
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -339,10 +339,14 @@
        </property>
       </spacer>
      </item>
-     <item row="3" column="0">
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
       <widget class="QCheckBox" name="cbxShowTooltip">
        <property name="text">
-        <string>Show title &amp;&amp; abstract in tooltip</string>
+        <string>Show title &amp;&amp; abstract in tooltip. Source :</string>
        </property>
        <property name="checked">
         <bool>true</bool>
@@ -352,13 +356,39 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item>
+      <widget class="QRadioButton" name="mdSourceOGC">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>OGC QGis Server metadata</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="mdSourceLayer">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Layer metadata</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer_4">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Maximum</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -383,11 +413,16 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>tableWidget</tabstop>
   <tabstop>btnAdd</tabstop>
   <tabstop>btnDelete</tabstop>
   <tabstop>btnUp</tabstop>
   <tabstop>btnDown</tabstop>
   <tabstop>cbxLoadAll</tabstop>
+  <tabstop>cbxCreateGroup</tabstop>
+  <tabstop>cbxShowTooltip</tabstop>
+  <tabstop>mdSourceOGC</tabstop>
+  <tabstop>mdSourceLayer</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -398,8 +433,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>236</x>
-     <y>214</y>
+     <x>245</x>
+     <y>300</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -414,8 +449,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>304</x>
-     <y>214</y>
+     <x>313</x>
+     <y>300</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>

@@ -15,7 +15,7 @@ qgisMaximumVersion=3.98
 description=Build layers shortcuts menus based on QGIS projects
 about=Allow easy opening of layers maintaining their style.
 
-version=2.0.1
+version=2.0.2
 
 # end of mandatory metadata
 
@@ -23,6 +23,7 @@ version=2.0.1
 
 # Uncomment the following line and add your changelog entries:
 changelog=
+    2.0.2 : fix #50 Alternatively use metadata as tooltip instead of OGC metadata
     2.0.1 : fix #48 (Load above in ToC), better configuration interface 
     2.0.1-beta1 : fix #48 (Load above in ToC), better configuration interface 
     2.0.0 : Allow pointing to http/https online qgs-qgz project file (#28)

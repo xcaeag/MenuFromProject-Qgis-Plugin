@@ -28,11 +28,6 @@
         <translation>Créer un groupe au chargement de la couche (sous-menus)</translation>
     </message>
     <message>
-        <location filename="../ui/conf_dialog.ui" line="345"/>
-        <source>Show title &amp;&amp; abstract in tooltip</source>
-        <translation>Afficher titre et résumé en info bulle</translation>
-    </message>
-    <message>
         <location filename="../ui/conf_dialog.ui" line="142"/>
         <source>Location</source>
         <translation>Emplacement</translation>
@@ -107,6 +102,21 @@
         <source>Merge with previous</source>
         <translation>Intégrer dans le précédent</translation>
     </message>
+    <message>
+        <location filename="../ui/conf_dialog.ui" line="349"/>
+        <source>Show title &amp;&amp; abstract in tooltip. Source :</source>
+        <translation>Afficher titre et résumé en info bulle. Source :</translation>
+    </message>
+    <message>
+        <location filename="../ui/conf_dialog.ui" line="368"/>
+        <source>OGC QGis Server metadata</source>
+        <translation>métadonnées OGC QGis server</translation>
+    </message>
+    <message>
+        <location filename="../ui/conf_dialog.ui" line="384"/>
+        <source>Layer metadata</source>
+        <translation>métadonnées de la couche</translation>
+    </message>
 </context>
 <context>
     <name>MenuConfDialog</name>
@@ -159,17 +169,17 @@
 <context>
     <name>MenuFromProject</name>
     <message>
-        <location filename="../menu_from_project.py" line="786"/>
+        <location filename="../menu_from_project.py" line="793"/>
         <source>Load all</source>
         <translation>Tout ajouter</translation>
     </message>
     <message>
-        <location filename="../menu_from_project.py" line="618"/>
+        <location filename="../menu_from_project.py" line="625"/>
         <source>Projects configuration</source>
         <translation>Configurer les projets</translation>
     </message>
     <message>
-        <location filename="../menu_from_project.py" line="633"/>
+        <location filename="../menu_from_project.py" line="640"/>
         <source>Help</source>
         <translation>Aide</translation>
     </message>
