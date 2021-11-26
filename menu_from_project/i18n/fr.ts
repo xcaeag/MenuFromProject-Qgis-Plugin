@@ -103,11 +103,6 @@
         <translation>Intégrer dans le précédent</translation>
     </message>
     <message>
-        <location filename="../ui/conf_dialog.ui" line="349"/>
-        <source>Show title &amp;&amp; abstract in tooltip. Source :</source>
-        <translation>Afficher titre et résumé en info bulle. Source :</translation>
-    </message>
-    <message>
         <location filename="../ui/conf_dialog.ui" line="368"/>
         <source>OGC QGis Server metadata</source>
         <translation>métadonnées OGC QGis server</translation>
@@ -116,6 +111,11 @@
         <location filename="../ui/conf_dialog.ui" line="384"/>
         <source>Layer metadata</source>
         <translation>métadonnées de la couche</translation>
+    </message>
+    <message>
+        <location filename="../ui/conf_dialog.ui" line="349"/>
+        <source>Show title &amp;&amp; abstract in tooltip. Priority to :</source>
+        <translation>Afficher titre et résumé en info bulle. En priorité :</translation>
     </message>
 </context>
 <context>
@@ -136,17 +136,17 @@
         <translation>Serveur HTTP</translation>
     </message>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="353"/>
+        <location filename="../ui/menu_conf_dlg.py" line="357"/>
         <source>Use project title</source>
         <translation>Utiliser le titre du projet</translation>
     </message>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="572"/>
+        <location filename="../ui/menu_conf_dlg.py" line="576"/>
         <source>Edit this project</source>
         <translation>Modifier la source</translation>
     </message>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="270"/>
+        <location filename="../ui/menu_conf_dlg.py" line="273"/>
         <source>No HTTP Browser, simply paste your URL into the &apos;project&apos; column.</source>
         <translation>Copiez simplement l&apos;url du projet dans la cellule &apos;projet QGis&apos;</translation>
     </message>
@@ -164,22 +164,21 @@
         <location filename="../ui/menu_conf_dlg.py"/>
         <source>http</source>
         <translation>Ressource web</translation>
-    </message>
-</context>
+    </message></context>
 <context>
     <name>MenuFromProject</name>
     <message>
-        <location filename="../menu_from_project.py" line="793"/>
+        <location filename="../menu_from_project.py" line="813"/>
         <source>Load all</source>
         <translation>Tout ajouter</translation>
     </message>
     <message>
-        <location filename="../menu_from_project.py" line="625"/>
+        <location filename="../menu_from_project.py" line="638"/>
         <source>Projects configuration</source>
         <translation>Configurer les projets</translation>
     </message>
     <message>
-        <location filename="../menu_from_project.py" line="640"/>
+        <location filename="../menu_from_project.py" line="653"/>
         <source>Help</source>
         <translation>Aide</translation>
     </message>
@@ -187,12 +186,12 @@
 <context>
     <name>menu_from_project</name>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="234"/>
+        <location filename="../ui/menu_conf_dlg.py" line="237"/>
         <source>Projects configuration</source>
         <translation>Configurer les projets</translation>
     </message>
     <message>
-        <location filename="../ui/menu_conf_dlg.py" line="234"/>
+        <location filename="../ui/menu_conf_dlg.py" line="237"/>
         <source>QGIS projects (*.qgs *.qgz)</source>
         <translation>Projets QGIS (*.qgs *.qgz)</translation>
     </message>
