@@ -346,7 +346,7 @@
      <item>
       <widget class="QCheckBox" name="cbxShowTooltip">
        <property name="text">
-        <string>Show title &amp;&amp; abstract in tooltip. Source :</string>
+        <string>Show title &amp;&amp; abstract in tooltip. Priority to :</string>
        </property>
        <property name="checked">
         <bool>true</bool>
