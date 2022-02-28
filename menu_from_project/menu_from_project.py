@@ -37,7 +37,7 @@ from qgis.core import (
 from qgis.PyQt.QtCore import QCoreApplication, QFileInfo, Qt, QTranslator, QUuid
 from qgis.PyQt.QtGui import QFont, QIcon
 from qgis.PyQt.QtWidgets import QAction, QMenu, QWidget
-from qgis.utils import plugins, showPluginHelp
+from qgis.utils import plugins
 
 # project
 from .__about__ import DIR_PLUGIN_ROOT, __title__, __title_clean__
@@ -63,6 +63,38 @@ cache_folder.mkdir(exist_ok=True, parents=True)
 # ########## Functions #############
 # ##################################
 
+from qgis.PyQt.QtCore import QLocale, QUrl, QDir
+from qgis.PyQt.QtGui import QDesktopServices
+"""
+    En attendant un correctif
+"""
+def showPluginHelp(packageName: str = None, filename: str = "index", section: str = ""):
+    try:
+        source = ""
+        if packageName is None:
+            import inspect
+            source = inspect.currentframe().f_back.f_code.co_filename
+        else:
+            import sys
+            source = sys.modules[packageName].__file__
+    except:
+        return
+    path = os.path.dirname(source)
+    locale = str(QLocale().name())
+    helpfile = os.path.join(path, filename + "-" + locale + ".html")
+    if not os.path.exists(helpfile):
+        helpfile = os.path.join(path, filename + "-" + locale.split("_")[0] + ".html")
+    if not os.path.exists(helpfile):
+        helpfile = os.path.join(path, filename + "-en.html")
+    if not os.path.exists(helpfile):
+        helpfile = os.path.join(path, filename + "-en_US.html")
+    if not os.path.exists(helpfile):
+        helpfile = os.path.join(path, filename + ".html")
+    if os.path.exists(helpfile):
+        url = "file://" + QDir.fromNativeSeparators(helpfile)
+        if section != "":
+            url = url + "#" + section
+        QDesktopServices.openUrl(QUrl(url, QUrl.TolerantMode))
 
 def getFirstChildByTagNameValue(elt, tagName, key, value):
     nodes = elt.elementsByTagName(tagName)
