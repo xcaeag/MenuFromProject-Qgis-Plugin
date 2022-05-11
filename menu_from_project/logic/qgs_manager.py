@@ -86,7 +86,7 @@ def read_from_file(uri: str) -> Tuple[QtXml.QDomDocument, str]:
     :return: a tuple with XML document and the filepath.
     :rtype: Tuple[QtXml.QDomDocument, str]
     """
-    doc = QtXml.QDomDocument()
+    doc, project_path = QtXml.QDomDocument(), None
     file = QFile(uri)
     if (
         file.exists()
