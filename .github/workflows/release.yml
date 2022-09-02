@@ -24,9 +24,9 @@ jobs:
       with:
         python-version: '${{ env.PYTHON_VERSION }}'
 
-    - name: Get tag name as version
-      id: get_version
-      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+    #- name: Get tag name as version
+    #  id: get_version
+    #  run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
 
     - name: Install project requirements
       run: |
@@ -37,6 +37,7 @@ jobs:
       run: |
         myversion=$(echo ${{ github.ref }} | cut -dv -f2)
         echo "::set-output name=myversion::$myversion"
+
     - run: echo "${{steps.get-myversion.outputs.myversion}}"
 
     - name: Package the version
@@ -59,7 +60,7 @@ jobs:
     - name: Deploy plugin to QGIS official repository and as release asset
       run: >-
         qgis-plugin-ci
-        release ${GITHUB_REF/refs\/tags\//}
+        release ${{steps.get-myversion.outputs.myversion}}
         --github-token ${{ secrets.GITHUB_TOKEN }}
         --osgeo-username ${{ secrets.OSGEO_USER }}
         --osgeo-password ${{ secrets.OSGEO_PASSWORD }}
