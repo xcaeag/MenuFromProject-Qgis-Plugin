@@ -26,7 +26,7 @@
     <message>
         <location filename="../ui/conf_dialog.ui" line="142"/>
         <source>Location</source>
-        <translation>座標</translation>
+        <translation>表示位置</translation>
     </message>
     <message>
         <location filename="../ui/conf_dialog.ui" line="147"/>
