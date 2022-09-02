@@ -2,7 +2,7 @@ name: Packager 📦
 
 env:
   PROJECT_FOLDER: "menu_from_project"
-  PYTHON_VERSION: 3.10
+  PYTHON_VERSION: 3.8
 
 on:
   push:
@@ -17,9 +17,9 @@ jobs:
         uses: actions/checkout@master
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v3
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: '${{ env.PYTHON_VERSION }}'
 
       - uses: actions/cache@v3.0.8
         with:
