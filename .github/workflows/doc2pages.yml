@@ -1,6 +1,5 @@
 name: Documentation publisher
 
-
 env:
   PROJECT_FOLDER: "menu_from_project"
   PYTHON_VERSION: 3.8
