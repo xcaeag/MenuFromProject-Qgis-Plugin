@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2.0.5
+
+- Japanese translation, thanks to Yamamoto Ryuzo (https://github.com/yamamoto-ryuzo), Tokimasasogo (https://github.com/Tokimasasogo)
+
 ## 2.0.0
 
 - Allow pointing to http/https online qgs-qgz project file,
