@@ -14,7 +14,7 @@ from typing import Tuple
 from urllib.parse import urlparse
 
 # PyQGIS
-from qgis.core import QgsFileDownloader, QgsReadWriteContext
+from qgis.core import QgsFileDownloader, QgsReadWriteContext, QgsMessageLog
 from qgis.PyQt import QtXml
 from qgis.PyQt.QtCore import (
     QDir,
@@ -144,6 +144,10 @@ def read_from_database(uri: str, project_registry) -> Tuple[QtXml.QDomDocument, 
     return doc, project_path
 
 
+def downloadError(errorMessages):
+    for err in errorMessages:
+        QgsMessageLog.logMessage("Download error. "+str(err), 'Layers menu from project', notifyUser=True)
+
 @lru_cache()
 def read_from_http(uri: str, cache_folder: Path):
     """Read a QGIS project stored into on a remote web server accessible through HTTP.
@@ -170,6 +174,7 @@ def read_from_http(uri: str, cache_folder: Path):
         url=QUrl(uri), outputFileName=str(cached_filepath), delayStart=True
     )
     project_download.downloadExited.connect(loop.quit)
+    project_download.downloadError.connect(downloadError)
     project_download.startDownload()
     loop.exec_()
 
