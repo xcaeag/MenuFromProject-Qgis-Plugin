@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2.0.6
+
+- Added some icons (https://github.com/nicogodet)
+
 ## 2.0.5 - 2022/09/02
 
 - Japanese translation, thanks to Yamamoto Ryuzo (https://github.com/yamamoto-ryuzo), Tokimasasogo (https://github.com/Tokimasasogo)
