@@ -60,7 +60,7 @@ jobs:
     - name: Deploy plugin to QGIS official repository and as release asset
       run: >-
         qgis-plugin-ci
-        release v${{steps.get-myversion.outputs.myversion}}
+        release ${{steps.get-myversion.outputs.myversion}}
         --github-token ${{ secrets.GITHUB_TOKEN }}
         --osgeo-username ${{ secrets.OSGEO_USER }}
         --osgeo-password ${{ secrets.OSGEO_PASSWORD }}
