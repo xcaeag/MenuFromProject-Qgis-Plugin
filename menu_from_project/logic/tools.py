@@ -76,6 +76,10 @@ def icon_per_geometry_type(geometry_type: str):
         return QgsLayerItem.iconRaster()
     elif geometry_type == "mesh":
         return QgsLayerItem.iconMesh()
+    elif geometry_type == "vector-tile":
+        return QgsLayerItem.iconVectorTile()
+    elif geometry_type == "point-cloud":
+        return QgsLayerItem.iconPointCloud()
     elif geometry_type == "point":
         return QgsLayerItem.iconPoint()
     elif geometry_type == "line":
