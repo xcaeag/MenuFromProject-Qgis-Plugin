@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2.0.7 - 2023/04/26
+
+- fix #77
+
 ## 2.0.6
 
 - Added some icons (https://github.com/nicogodet)
