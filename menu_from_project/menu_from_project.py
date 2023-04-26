@@ -33,6 +33,7 @@ from qgis.core import (
     QgsReadWriteContext,
     QgsSettings,
     QgsVectorLayer,
+    QgsVectorTileLayer,
 )
 from qgis.PyQt.QtCore import QCoreApplication, QFileInfo, Qt, QTranslator, QUuid
 from qgis.PyQt.QtGui import QFont, QIcon
@@ -778,6 +779,8 @@ class MenuFromProject:
             if self.optionCreateGroup and group is not None:
                 if layerType == "raster":
                     theLayer = QgsRasterLayer()
+                elif layerType == "vector-tile":
+                    theLayer = QgsVectorTileLayer()
                 else:
                     theLayer = QgsVectorLayer()
                     theLayer.setReadExtentFromXml(trusted)
@@ -849,7 +852,7 @@ class MenuFromProject:
                 layer = self.addLayer(uri, fileName, layerId, group, visible, expanded)
 
                 # is joined layers exists ?
-                if layer:
+                if layer and type(layer) == QgsVectorLayer:
                     for j in layer.vectorJoins():
                         try:
                             joinLayer = self.addLayer(uri, fileName, j.joinLayerId(), group)

@@ -15,7 +15,7 @@ qgisMaximumVersion=3.98
 description=Build layers shortcuts menus based on QGIS projects
 about=Allow easy opening of layers maintaining their style.
 
-version=2.0.6
+version=2.0.7
 
 # end of mandatory metadata
 
@@ -23,6 +23,7 @@ version=2.0.6
 
 # Uncomment the following line and add your changelog entries:
 changelog=
+    2.0.7 : fix #77
     2.0.6 : fix #72 (https://github.com/nicogodet)
     2.0.5 : fix #67
     2.0.4 : Japanese translation is available (https://github.com/Tokimasasogo)
