@@ -57,10 +57,20 @@ jobs:
         release_name: ${{ github.ref }}
         body_path: release.md
 
+    - name: upload plugin artifact
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ env.PROJECT_FOLDER }}.${{steps.get-myversion.outputs.myversion}}.zip
+        asset_name: ${{ env.PROJECT_FOLDER }}-${{steps.get-myversion.outputs.myversion}}.zip
+        asset_content_type: application/zip
+
     - name: Deploy plugin to QGIS official repository and as release asset
       run: >-
         qgis-plugin-ci
-        release ${{steps.get-myversion.outputs.myversion}}
+        release v${{steps.get-myversion.outputs.myversion}}
         --github-token ${{ secrets.GITHUB_TOKEN }}
         --osgeo-username ${{ secrets.OSGEO_USER }}
         --osgeo-password ${{ secrets.OSGEO_PASSWORD }}
