@@ -66,17 +66,22 @@ cache_folder.mkdir(exist_ok=True, parents=True)
 
 from qgis.PyQt.QtCore import QLocale, QUrl, QDir
 from qgis.PyQt.QtGui import QDesktopServices
+
 """
     En attendant un correctif
 """
+
+
 def showPluginHelp(packageName: str = None, filename: str = "index", section: str = ""):
     try:
         source = ""
         if packageName is None:
             import inspect
+
             source = inspect.currentframe().f_back.f_code.co_filename
         else:
             import sys
+
             source = sys.modules[packageName].__file__
     except:
         return
@@ -96,6 +101,7 @@ def showPluginHelp(packageName: str = None, filename: str = "index", section: st
         if section != "":
             url = url + "#" + section
         QDesktopServices.openUrl(QUrl(url, QUrl.TolerantMode))
+
 
 def getFirstChildByTagNameValue(elt, tagName, key, value):
     nodes = elt.elementsByTagName(tagName)
@@ -156,8 +162,8 @@ def project_trusted(doc):
 
 
 class MenuFromProject:
-    SOURCE_MD_OGC = 'ogc'
-    SOURCE_MD_LAYER = 'layer'
+    SOURCE_MD_OGC = "ogc"
+    SOURCE_MD_LAYER = "layer"
 
     def on_initializationCompleted(self):
         # build menu
@@ -251,7 +257,9 @@ class MenuFromProject:
                 self.optionTooltip = s.value("optionTooltip", True, type=bool)
                 self.optionCreateGroup = s.value("optionCreateGroup", False, type=bool)
                 self.optionLoadAll = s.value("optionLoadAll", False, type=bool)
-                self.optionSourceMD = s.value("optionSourceMD", MenuFromProject.SOURCE_MD_OGC, type=str)
+                self.optionSourceMD = s.value(
+                    "optionSourceMD", MenuFromProject.SOURCE_MD_OGC, type=str
+                )
 
                 size = s.beginReadArray("projects")
                 try:
@@ -292,7 +300,7 @@ class MenuFromProject:
         """
         if ml is not None:
             try:
-                abstract, title = '', ''
+                abstract, title = "", ""
                 md = ml.namedItem("resourceMetadata")
                 mdLayerTitle = md.namedItem("title").firstChild().toText().data()
                 mdLayerAbstract = md.namedItem("abstract").firstChild().toText().data()
@@ -474,7 +482,6 @@ class MenuFromProject:
 
             # group is not embedded
             else:
-
                 if name == "-":
                     menu.addSeparator()
 
@@ -698,14 +705,14 @@ class MenuFromProject:
         menuBar = self.iface.editMenu().parentWidget()
         for action in self.menubarActions:
             menuBar.removeAction(action)
-            del(action)
+            del action
 
         menuBar = self.iface.addLayerMenu()
         for action in self.layerMenubarActions:
             menuBar.removeAction(action)
-            del(action)
+            del action
 
-        self.menubarActions = []       
+        self.menubarActions = []
         self.layerMenubarActions = []
 
         if self.is_setup_visible:
@@ -732,7 +739,9 @@ class MenuFromProject:
         if result != 0:
             self.initMenus()
 
-    def addLayer(self, uri, fileName, layerId, group=None, visible=False, expanded=False):
+    def addLayer(
+        self, uri, fileName, layerId, group=None, visible=False, expanded=False
+    ):
         theLayer = None
 
         # read QGIS project
@@ -750,9 +759,7 @@ class MenuFromProject:
             idNode = node.namedItem("id")
             layerType = node.toElement().attribute("type", "vector")
             # give it a new id (for multiple import)
-            newLayerId = "L%s" % re.sub(
-                "[{}-]", "", QUuid.createUuid().toString()
-            )
+            newLayerId = "L%s" % re.sub("[{}-]", "", QUuid.createUuid().toString())
             try:
                 idNode.firstChild().toText().setData(newLayerId)
             except Exception:
@@ -769,9 +776,7 @@ class MenuFromProject:
                     if provider in ["ogr", "gdal"] and (ds.find(".") == 0):
                         projectpath = QFileInfo(uri).path()
                         newlayerpath = projectpath + "/" + ds
-                        datasourceNode.firstChild().toText().setData(
-                            newlayerpath
-                        )
+                        datasourceNode.firstChild().toText().setData(newlayerpath)
                 except Exception:
                     pass
 
@@ -791,9 +796,7 @@ class MenuFromProject:
                 flag = "use_db_style_manager_in_custom_menu" in os.environ
                 if flag and "db-style-manager" in plugins:
                     try:
-                        plugins["db-style-manager"].load_style_from_database(
-                            theLayer
-                        )
+                        plugins["db-style-manager"].load_style_from_database(theLayer)
                     except Exception:
                         self.log("DB-Style-Manager failed to load the style.")
 
@@ -838,7 +841,9 @@ class MenuFromProject:
                 groupName = menu.title().replace("&", "")
                 group = QgsProject.instance().layerTreeRoot().findGroup(groupName)
                 if group is None:
-                    group = QgsProject.instance().layerTreeRoot().insertGroup(0, groupName)
+                    group = (
+                        QgsProject.instance().layerTreeRoot().insertGroup(0, groupName)
+                    )
 
             # load all layers
             if fileName is None and layerId is None and self.optionLoadAll:
@@ -855,13 +860,17 @@ class MenuFromProject:
                 if layer and type(layer) == QgsVectorLayer:
                     for j in layer.vectorJoins():
                         try:
-                            joinLayer = self.addLayer(uri, fileName, j.joinLayerId(), group)
+                            joinLayer = self.addLayer(
+                                uri, fileName, j.joinLayerId(), group
+                            )
                             if joinLayer:
                                 j.setJoinLayerId(joinLayer.id())
                                 j.setJoinLayer(joinLayer)
                                 layer.addJoin(j)
                         except Exception as e:
-                            self.log("Joined layer {} not added.".format(j.joinLayerId()))
+                            self.log(
+                                "Joined layer {} not added.".format(j.joinLayerId())
+                            )
                             pass
 
         except Exception as e:
