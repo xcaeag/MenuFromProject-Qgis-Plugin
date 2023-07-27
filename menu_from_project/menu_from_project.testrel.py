@@ -16,6 +16,8 @@ email                : xavier.culos@eau-adour-garonne.fr
 *                                                                         *
 ***************************************************************************/
 
+@TODO : fix formulaires non complets (relations) QgsAttributeEditorRelation
+
 """
 
 # Standard library
@@ -858,6 +860,13 @@ class MenuFromProject:
                 <fieldRef referencedField="insee_region" referencingField="insee_region"/>
             </relation>
         </relations>
+
+        Pbs :
+            - recursivité
+            - les couches chargées changent d'id
+            - la couche parente doit être créée avant les filles (le formulaire d'attribut n'est pas créé sinon) ??
+            -
+
         """
         relations = []
         nodes = doc.elementsByTagName("relations")
@@ -990,6 +999,21 @@ class MenuFromProject:
 
         return targetRelations + relationsToBuild
 
+        """if len(relsSource) > 0:
+            for relDict in relsSource:
+                sourceLayer = self.addLayer(
+                    uri,
+                    doc,
+                    relDict["referencedLayer"],
+                    group,
+                    False,
+                    False,
+                )
+
+                relDict["referencedLayer"] = sourceLayer.id()
+                relDict["referencingLayer"] = newLayerId
+                self.buildProjectRelation(relDict)"""
+
     def loadLayer(self, uri, fileName, layerId, menu=None, visible=None, expanded=None):
         """Load the chosen layer(s)
 
@@ -1036,6 +1060,7 @@ class MenuFromProject:
                     self.buildProjectRelation(relDict)
 
                 # ici ajuster le formulaire ?
+                # QgsAttributeEditorElement * QgsEditFormConfig::attributeEditorElementFromDomElement	(	QDomElement, QgsAttributeEditorElement, layerId, QgsReadWriteContex)
 
                 # is joined layers exists ?
                 if layer and type(layer) == QgsVectorLayer:
@@ -1061,6 +1086,7 @@ class MenuFromProject:
             # fixme fileName is not defined
             # self.log(
             #     'Menu from layer: Invalid ' + (fileName if fileName is not None else ""))
+            raise e
             for m in e.args:
                 self.log(m)
 
