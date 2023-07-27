@@ -186,6 +186,7 @@ class MenuFromProject:
         self.optionCreateGroup = False
         self.optionLoadAll = False
         self.optionSourceMD = MenuFromProject.SOURCE_MD_OGC
+        self.mapLayerIds = {}
         self.read()
         settings = QgsSettings()
 
@@ -770,6 +771,8 @@ class MenuFromProject:
             layerType = node.toElement().attribute("type", "vector")
             # give it a new id (for multiple import)
             newLayerId = "L%s" % re.sub("[{}-]", "", QUuid.createUuid().toString())
+            self.mapLayerIds[newLayerId] = layerId
+
             try:
                 idNode.firstChild().toText().setData(newLayerId)
             except Exception:
@@ -903,7 +906,43 @@ class MenuFromProject:
 
         return r
 
-    def buildProjectRelation(self, relDict):
+    def fixForm(self, doc, newLayerId: str, oldRelationId, newRelationId):
+        """rebuilds the form when relations are defined in it
+
+        Principle: reading the source XML document, updating identifiers, updating editFormConfig
+        """
+        theLayer = QgsProject.instance().mapLayer(newLayerId)
+        oldLayerId = self.mapLayerIds[newLayerId]
+
+        layerNode = getFirstChildByTagNameValue(
+            doc.documentElement(), "maplayer", "id", oldLayerId
+        )
+
+        nodes = layerNode.toElement().elementsByTagName("attributeEditorForm")
+        if nodes.count() == 0:
+            return
+        aefNode = nodes.at(0)
+
+        nodes = aefNode.toElement().elementsByTagName("attributeEditorRelation")
+        for nodeIdx in range(nodes.length()):
+            aerNode = nodes.at(nodeIdx)
+            rid = aerNode.toElement().attribute("relation")
+            self.log(f"relation a tester : {rid}")
+            if rid == oldRelationId:
+                aerNode.toElement().setAttribute("relation", newRelationId)
+
+                nodes = aefNode.toElement().elementsByTagName("widgets")
+                widgets = nodes.at(0)
+                widgets.toElement().setAttribute("name", newRelationId)
+
+                editFormConfig = theLayer.editFormConfig()
+                rootContainer = editFormConfig.invisibleRootContainer()
+                rootContainer.clear()
+                editFormConfig.clearTabs()
+                editFormConfig.readXml(layerNode, QgsReadWriteContext())
+                theLayer.setEditFormConfig(editFormConfig)
+
+    def buildProjectRelation(self, doc, relDict):
         """builds one relation, add it to the project"""
 
         self.log(f"{relDict}")
@@ -916,14 +955,9 @@ class MenuFromProject:
 
         rel = QgsRelation()
         rel.addFieldPair(relDict["referencedField"], relDict["referencingField"])
-        rel.setId(
-            "{}_{}_{}_{}".format(
-                relDict["referencedLayer"],
-                relDict["referencedField"],
-                relDict["referencingLayer"],
-                relDict["referencingField"],
-            )
-        )
+        oldRelationId = relDict["id"]
+        newRelationId = "R%s" % re.sub("[{}-]", "", QUuid.createUuid().toString())
+        rel.setId(newRelationId)
         rel.setName(relDict["name"])
         rel.setReferencedLayer(relDict["referencedLayer"])
         rel.setReferencingLayer(relDict["referencingLayer"])
@@ -932,6 +966,17 @@ class MenuFromProject:
 
         if rel.isValid():
             relMan.addRelation(rel)
+
+            # Adapter le formulaire de la couche referencedLayer
+            try:
+                self.fixForm(
+                    doc, relDict["referencedLayer"], oldRelationId, newRelationId
+                )
+            except Exception:
+                self.log(
+                    "Form not fixed for layer {}".format(relDict["referencedLayer"])
+                )
+
         else:
             self.log("Invalid relation {}".format(rel.id()))
 
@@ -1004,6 +1049,7 @@ class MenuFromProject:
         self.canvas.setRenderFlag(False)
         group = None
         QgsApplication.setOverrideCursor(Qt.WaitCursor)
+        self.mapLayerIds = {}
 
         try:
             if (
@@ -1033,9 +1079,7 @@ class MenuFromProject:
                     uri, doc, layerId, group, visible, expanded, {}, 0
                 )
                 for relDict in relationsToBuild:
-                    self.buildProjectRelation(relDict)
-
-                # ici ajuster le formulaire ?
+                    self.buildProjectRelation(doc, relDict)
 
                 # is joined layers exists ?
                 if layer and type(layer) == QgsVectorLayer:
@@ -1045,7 +1089,7 @@ class MenuFromProject:
                                 uri, doc, j.joinLayerId(), group
                             )
                             for relDict in joinRelations:
-                                self.buildProjectRelation(relDict)
+                                self.buildProjectRelation(doc, relDict)
 
                             if joinLayer:
                                 j.setJoinLayerId(joinLayer.id())
