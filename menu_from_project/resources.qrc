@@ -1,0 +1,4 @@
+<RCC>
+    <qresource prefix="/plugins/menu_from_project" >
+    </qresource>
+</RCC>
