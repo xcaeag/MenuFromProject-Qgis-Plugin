@@ -336,7 +336,6 @@ class MenuFromProject:
             except Exception as e:
                 for m in e.args:
                     self.log(m)
-                pass
 
     def addMenuItem(self, uri, filename, node, menu, absolute, mapLayersDict):
         """Add menu to an item."""
@@ -742,6 +741,10 @@ class MenuFromProject:
         del dlg
 
         if result != 0:
+            # clear web projects cache
+            read_from_http.cache_clear()
+            read_from_file.cache_clear()
+            # build menus
             self.initMenus()
 
     def addLayer(
@@ -755,7 +758,6 @@ class MenuFromProject:
         parentsLoop: dict = {},
         loop=0,
     ):
-        self.log(f"addLayer {loop} {layerId}", indent=loop)
         theLayer = None
 
         # is project in relative path ?
@@ -797,7 +799,6 @@ class MenuFromProject:
             relationsToBuild = self.buildRelations(
                 uri, doc, layerId, newLayerId, group, parentsLoop, loop
             )
-            self.log(f"relationsToBuild = {relationsToBuild}", indent=loop)
 
             # read modified layer node
             newLayer = None
@@ -835,16 +836,6 @@ class MenuFromProject:
                 if ok:
                     newLayer = QgsProject.instance().mapLayer(newLayerId)
 
-            if newLayer is not None:
-                self.log(
-                    f"layer added : {newLayer.name()} {newLayer.id()}", indent=loop
-                )
-            else:
-                self.log(
-                    f"layer NOT added :-( : {newLayer.name()} {newLayer.id()}",
-                    indent=loop,
-                )
-
             return newLayer, relationsToBuild
 
         else:
@@ -863,33 +854,37 @@ class MenuFromProject:
         </relations>
         """
         relations = []
-        nodes = doc.elementsByTagName("relations")
-        relsNode = nodes.at(0)
+        try:
+            nodes = doc.elementsByTagName("relations")
+            relsNode = nodes.at(0)
 
-        relNodes = relsNode.toElement().elementsByTagName("relation")
-        for relNode in (relNodes.at(i) for i in range(relNodes.size())):
-            fieldNodes = relNode.toElement().elementsByTagName("fieldRef")
-            fieldNode = fieldNodes.at(0)
+            relNodes = relsNode.toElement().elementsByTagName("relation")
+            for relNode in (relNodes.at(i) for i in range(relNodes.size())):
+                fieldNodes = relNode.toElement().elementsByTagName("fieldRef")
+                fieldNode = fieldNodes.at(0)
 
-            if fieldNode:
-                relation = {}
-                for attr in [
-                    "strength",
-                    "referencedLayer",
-                    "id",
-                    "name",
-                    "referencingLayer",
-                ]:
-                    relation[attr] = relNode.toElement().attribute(attr)
+                if fieldNode:
+                    relation = {}
+                    for attr in [
+                        "strength",
+                        "referencedLayer",
+                        "id",
+                        "name",
+                        "referencingLayer",
+                    ]:
+                        relation[attr] = relNode.toElement().attribute(attr)
 
-                for attr in [
-                    "referencedField",
-                    "referencingField",
-                ]:
-                    relation[attr] = fieldNode.toElement().attribute(attr)
+                    for attr in [
+                        "referencedField",
+                        "referencingField",
+                    ]:
+                        relation[attr] = fieldNode.toElement().attribute(attr)
 
-                if relation["referencedLayer"] != "":
-                    relations.append(relation)
+                    if relation["referencedLayer"] != "":
+                        relations.append(relation)
+        except Exception as e:
+            for m in e.args:
+                self.log(m)
 
         return relations
 
@@ -897,12 +892,16 @@ class MenuFromProject:
         """Retourne le dico de la relation selon si 'source'=referencedLayer ou 'target'=referencingLayer"""
 
         r = []
-        for relation in relations:
-            if source is not None and source == relation["referencedLayer"]:
-                r.append(relation)
+        try:
+            for relation in relations:
+                if source is not None and source == relation["referencedLayer"]:
+                    r.append(relation)
 
-            if target is not None and target == relation["referencingLayer"]:
-                r.append(relation)
+                if target is not None and target == relation["referencingLayer"]:
+                    r.append(relation)
+        except Exception as e:
+            for m in e.args:
+                self.log(m)
 
         return r
 
@@ -927,7 +926,6 @@ class MenuFromProject:
         for nodeIdx in range(nodes.length()):
             aerNode = nodes.at(nodeIdx)
             rid = aerNode.toElement().attribute("relation")
-            self.log(f"relation a tester : {rid}")
             if rid == oldRelationId:
                 aerNode.toElement().setAttribute("relation", newRelationId)
 
@@ -943,42 +941,43 @@ class MenuFromProject:
                 theLayer.setEditFormConfig(editFormConfig)
 
     def buildProjectRelation(self, doc, relDict):
-        """builds one relation, add it to the project"""
+        try:
+            """builds one relation, add it to the project"""
+            REL_STRENGTH = {
+                "Association": QgsRelation.Association,
+                "Composition": QgsRelation.Composition,
+            }
+            relMan = QgsProject.instance().relationManager()
 
-        self.log(f"{relDict}")
+            rel = QgsRelation()
+            rel.addFieldPair(relDict["referencedField"], relDict["referencingField"])
+            oldRelationId = relDict["id"]
+            newRelationId = "R%s" % re.sub("[{}-]", "", QUuid.createUuid().toString())
+            rel.setId(newRelationId)
+            rel.setName(relDict["name"])
+            rel.setReferencedLayer(relDict["referencedLayer"])
+            rel.setReferencingLayer(relDict["referencingLayer"])
+            rel.setStrength(REL_STRENGTH[relDict["strength"]])
+            rel.updateRelationStatus()
 
-        REL_STRENGTH = {
-            "Association": QgsRelation.Association,
-            "Composition": QgsRelation.Composition,
-        }
-        relMan = QgsProject.instance().relationManager()
+            if rel.isValid():
+                relMan.addRelation(rel)
 
-        rel = QgsRelation()
-        rel.addFieldPair(relDict["referencedField"], relDict["referencingField"])
-        oldRelationId = relDict["id"]
-        newRelationId = "R%s" % re.sub("[{}-]", "", QUuid.createUuid().toString())
-        rel.setId(newRelationId)
-        rel.setName(relDict["name"])
-        rel.setReferencedLayer(relDict["referencedLayer"])
-        rel.setReferencingLayer(relDict["referencingLayer"])
-        rel.setStrength(REL_STRENGTH[relDict["strength"]])
-        rel.updateRelationStatus()
+                # Adapter le formulaire de la couche referencedLayer
+                try:
+                    self.fixForm(
+                        doc, relDict["referencedLayer"], oldRelationId, newRelationId
+                    )
+                except Exception:
+                    self.log(
+                        "Form not fixed for layer {}".format(relDict["referencedLayer"])
+                    )
 
-        if rel.isValid():
-            relMan.addRelation(rel)
-
-            # Adapter le formulaire de la couche referencedLayer
-            try:
-                self.fixForm(
-                    doc, relDict["referencedLayer"], oldRelationId, newRelationId
-                )
-            except Exception:
-                self.log(
-                    "Form not fixed for layer {}".format(relDict["referencedLayer"])
-                )
-
-        else:
-            self.log("Invalid relation {}".format(rel.id()))
+            else:
+                self.log("Invalid relation {}".format(rel.id()))
+        except Exception as e:
+            for m in e.args:
+                self.log(m)
 
     def buildRelations(
         self, uri, doc, oldLayerId, newLayerId, group, parentsLoop, loop
@@ -987,11 +986,6 @@ class MenuFromProject:
 
         Based on those of the source project, adapted to the new identifiers of the layers
         """
-
-        self.log(
-            f"buildRelations {oldLayerId}, parentsLoop = {parentsLoop}", indent=loop
-        )
-
         relationsToBuild, targetRelations = [], []
 
         relations = self.getRelations(doc)
@@ -1017,7 +1011,6 @@ class MenuFromProject:
                     # la couche cible n'a pas été ajoutée
                     parentsLoop.update({oldLayerId: newLayerId})
 
-                    self.log(f"appel récursif !", indent=loop)
                     targetLayer, targetRelations = self.addLayer(
                         uri,
                         doc,

@@ -77,6 +77,7 @@ def get_project_title(doc: QtXml.QDomDocument) -> str:
     return None
 
 
+@lru_cache()
 def read_from_file(uri: str) -> Tuple[QtXml.QDomDocument, str]:
     """Read a QGIS project (.qgs and .qgz) from a file path and returns d
 
@@ -146,7 +147,10 @@ def read_from_database(uri: str, project_registry) -> Tuple[QtXml.QDomDocument, 
 
 def downloadError(errorMessages):
     for err in errorMessages:
-        QgsMessageLog.logMessage("Download error. "+str(err), 'Layers menu from project', notifyUser=True)
+        QgsMessageLog.logMessage(
+            "Download error. " + str(err), "Layers menu from project", notifyUser=True
+        )
+
 
 @lru_cache()
 def read_from_http(uri: str, cache_folder: Path):
