@@ -954,7 +954,7 @@ class MenuFromProject:
             relMan = QgsProject.instance().relationManager()
 
             rel = QgsRelation()
-            rel.addFieldPair(relDict["referencedField"], relDict["referencingField"])
+            rel.addFieldPair(relDict["referencingField"], relDict["referencedField"])
             oldRelationId = relDict["id"]
             newRelationId = "R%s" % re.sub("[{}-]", "", QUuid.createUuid().toString())
             rel.setId(newRelationId)
@@ -978,7 +978,9 @@ class MenuFromProject:
                     )
 
             else:
-                self.log("Invalid relation {}".format(rel.id()))
+                self.log(
+                    "Invalid relation {} : {}".format(rel.id(), rel.validationError())
+                )
         except Exception as e:
             for m in e.args:
                 self.log(m)
