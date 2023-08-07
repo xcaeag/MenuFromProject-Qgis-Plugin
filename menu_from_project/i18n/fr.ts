@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="fr_FR" sourcelanguage="en_EN">
+<!DOCTYPE TS>
+<TS version="2.1" language="fr_FR" sourcelanguage="en">
 <context>
     <name>ConfDialog</name>
     <message>
@@ -120,12 +121,12 @@
     <message>
         <location filename="../ui/conf_dialog.ui" line="345"/>
         <source>Opens with layer, layers linked by &apos;relations&apos; or joins.</source>
-        <translation>Ouvre les couches liées par relations ou jointures</translation>
+        <translation>Ouvre les couches liées par relations ou jointures.</translation>
     </message>
     <message>
         <location filename="../ui/conf_dialog.ui" line="348"/>
         <source>Also load linked layers.</source>
-        <translation>Ouvrir aussi les couches liées</translation>
+        <translation>Ouvrir aussi les couches liées.</translation>
     </message>
 </context>
 <context>
@@ -158,7 +159,7 @@
     <message>
         <location filename="../ui/menu_conf_dlg.py" line="279"/>
         <source>No HTTP Browser, simply paste your URL into the &apos;project&apos; column.</source>
-        <translation>Copiez simplement l&apos;url du projet dans la cellule &apos;projet QGis&apos;</translation>
+        <translation>Copiez simplement l&apos;url du projet dans la cellule &apos;projet QGis&apos;.</translation>
     </message>
 </context>
 <context>
