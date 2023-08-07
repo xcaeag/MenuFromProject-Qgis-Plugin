@@ -32,7 +32,7 @@ On QGIS Plugins repository <https://plugins.qgis.org/plugins/menu_from_project/>
 
 That plugin provides a convenient way to add prestyled and preconfigured frequently used layers using dropdown menus built by simply reading existing QGIS projects (qgs, qgz, postgres, http)
 
-Styling, actions, labeling, metadata, joined layers are reused as defined in source projects
+Styling, actions, labeling, metadata, joined layers and relations are reused as defined in source projects
 
 ![dropdown menu en](static/drop_down_menu_en.png)
 
@@ -87,6 +87,8 @@ Following options are available:
 
 - _Create Group_ : Layer will be added inside a group, taking the name of the menu node.
 
+- _Also load linked layers._ : if relations or joins are defined, the opening of a layer will be accompanied by the opening of the associated child layers.
+
 You can hide the administration dialog of the plugin by adding a `menu_from_project/is_setup_visible` to `false` in the QGIS INI file. This is useful when you deploy QGIS within an organization.
 
 ---
@@ -95,7 +97,7 @@ You can hide the administration dialog of the plugin by adding a `menu_from_proj
 
 Cette extension pour QGIS permet de construire automatiquement des menus déroulants permettant d'ajouter des couches pré-stylées définies dans des projets QGIS externes "modèles" (qgs, qgz, postgres, web).
 
-Tous les paramètrages des couches, le style, les étiquettes, les actions, les métadonnées, les jointures sont conservées. La maintenance se résume à la gestion de quelques projets QGIS centralisés.
+Tous les paramètrages des couches, le style, les étiquettes, les actions, les métadonnées, les jointures et relations sont conservées. La maintenance se résume à la gestion de quelques projets QGIS centralisés.
 
 ![dropdown menu en](static/drop_down_menu_fr.png)
 
@@ -135,14 +137,16 @@ Le menu pourra être placé soit dans la barre de menu principale, soit dans le 
 
 Quelques options :
 
-- L'option du plugin "option de menu 'tout ajouter'", si elle est cochée permet de charger l'ensemble des couches d'un même niveau de sous-menu
+- L'option du plugin _option de menu 'tout ajouter'_, si elle est cochée permet de charger l'ensemble des couches d'un même niveau de sous-menu
 
 ![](static/add_all_option_fr.png)
 
 ![](static/add_group_option_fr.png)
 
-- L'option "Créer un groupe au chargement de la couche" place la nouvelle couche sous un groupe portant le nom du menu
+- L'option _Créer un groupe au chargement de la couche_ place la nouvelle couche sous un groupe portant le nom du menu
 
-- Afficher titre et résumé... assez parlant.
+- _Ouvrir aussi les couches liées_ : si des relations ou jointures sont définies, l'ouverture d'une couche s'accompagnera de l'ouverture des couches filles associées.
+
+- _Afficher titre et résumé_... assez parlant.
 
 Vous pouvez cacher la fenêtre d'administration du plugin en ajoutant une variable `menu_from_project/is_setup_visible` à `false` dans le fichier INI de QGIS. Ceci est utile quand QGIS est déployé au sein d'une organisation.

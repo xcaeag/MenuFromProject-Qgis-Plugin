@@ -234,7 +234,7 @@ class MenuFromProject:
             s.setValue("optionTooltip", self.optionTooltip)
             s.setValue("optionCreateGroup", self.optionCreateGroup)
             s.setValue("optionLoadAll", self.optionLoadAll)
-            s.setValue("optionOpenLinks", self.OpenLinks)
+            s.setValue("optionOpenLinks", self.optionOpenLinks)
             s.setValue("optionSourceMD", self.optionSourceMD)
 
             s.beginWriteArray("projects", len(self.projects))
