@@ -36,3 +36,4 @@ docs/_build/
 *.qgs
 *.qgz
 *.zip
+test/
