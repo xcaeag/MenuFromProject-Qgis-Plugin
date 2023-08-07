@@ -191,33 +191,40 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.cbxShowTooltip.setCheckState(self.plugin.optionTooltip)
         self.cbxShowTooltip.setTristate(False)
 
-        self.mdSourceOGC.setChecked(self.plugin.optionSourceMD == self.plugin.SOURCE_MD_OGC)
-        self.mdSourceLayer.setChecked(self.plugin.optionSourceMD == self.plugin.SOURCE_MD_LAYER)
+        self.cbxOpenLinks.setCheckState(self.plugin.optionOpenLinks)
+        self.cbxOpenLinks.setTristate(False)
+
+        self.mdSourceOGC.setChecked(
+            self.plugin.optionSourceMD == self.plugin.SOURCE_MD_OGC
+        )
+        self.mdSourceLayer.setChecked(
+            self.plugin.optionSourceMD == self.plugin.SOURCE_MD_LAYER
+        )
 
         self.tableTunning()
 
     def addEditButton(self, row, guess_type):
-        """Add edit button, adapted to the type of resource 
+        """Add edit button, adapted to the type of resource
 
         :param row: row index.
         :type guess_type: resource type (database, file)
-        
+
         """
-        if guess_type == 'file':
+        if guess_type == "file":
             edit_button = self.mk_prj_edit_button()
             self.tableWidget.setCellWidget(row, self.cols.edit, edit_button)
             edit_button.clicked.connect(
                 lambda checked, idx=row: self.onFileSearchPressed(row)
             )
 
-        if guess_type == 'database':
+        if guess_type == "database":
             edit_button = self.mk_prj_edit_button()
             self.tableWidget.setCellWidget(row, self.cols.edit, edit_button)
             edit_button.clicked.connect(
                 lambda checked, idx=row: self.onDbSearchPressed(row)
             )
 
-        if guess_type == 'http':
+        if guess_type == "http":
             edit_button = self.mk_prj_edit_button("help")
             self.tableWidget.setCellWidget(row, self.cols.edit, edit_button)
             edit_button.clicked.connect(
@@ -269,7 +276,13 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         :param row: row indice
         :type row: int
         """
-        self.plugin.iface.messageBar().pushMessage("Message", self.tr("No HTTP Browser, simply paste your URL into the 'project' column."), level=Qgis.Info)
+        self.plugin.iface.messageBar().pushMessage(
+            "Message",
+            self.tr(
+                "No HTTP Browser, simply paste your URL into the 'project' column."
+            ),
+            level=Qgis.Info,
+        )
 
     def onDbSearchPressed(self, row: int):
         """Open database browser to allow user pick a QGIS project file. \
@@ -281,9 +294,9 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         item = self.tableWidget.item(row, 1)
 
         pgr = QgsProviderGuiRegistry(QgsApplication.pluginPath())
-        pl = pgr.providerList() 
-        if 'postgres' in pgr.providerList():
-            psgp = pgr.projectStorageGuiProviders('postgres')
+        pl = pgr.providerList()
+        if "postgres" in pgr.providerList():
+            psgp = pgr.projectStorageGuiProviders("postgres")
             if len(psgp) > 0:
                 uri = psgp[0].showLoadGui()
                 try:
@@ -330,7 +343,12 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.plugin.optionTooltip = self.cbxShowTooltip.isChecked()
         self.plugin.optionLoadAll = self.cbxLoadAll.isChecked()
         self.plugin.optionCreateGroup = self.cbxCreateGroup.isChecked()
-        self.plugin.optionSourceMD = self.plugin.SOURCE_MD_OGC if self.mdSourceOGC.isChecked() else self.plugin.SOURCE_MD_LAYER
+        self.plugin.optionOpenLinks = self.cbxOpenLinks.isChecked()
+        self.plugin.optionSourceMD = (
+            self.plugin.SOURCE_MD_OGC
+            if self.mdSourceOGC.isChecked()
+            else self.plugin.SOURCE_MD_LAYER
+        )
 
         self.plugin.store()
 
@@ -396,7 +414,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         try:
             r = sr[0].topRow()
             if r > 0:
-                typeA = self.tableWidget.item(r - 1, self.cols.uri).data(Qt.UserRole)                
+                typeA = self.tableWidget.item(r - 1, self.cols.uri).data(Qt.UserRole)
                 typeB = self.tableWidget.item(r, self.cols.uri).data(Qt.UserRole)
 
                 # project path
@@ -444,7 +462,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 self.tableWidget.removeCellWidget(r, self.cols.edit)
                 self.tableWidget.removeCellWidget(r - 1, self.cols.edit)
                 self.addEditButton(r, typeA)
-                self.addEditButton(r-1, typeB)
+                self.addEditButton(r - 1, typeB)
 
                 # selected row
                 self.tableWidget.setCurrentCell(r - 1, 1)
@@ -466,7 +484,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 self.tableWidget.cellWidget(r, self.cols.uri).setText(fileB)
                 self.tableWidget.cellWidget(r + 1, self.cols.uri).setText(fileA)
                 self.tableWidget.item(r, self.cols.uri).setData(Qt.UserRole, typeB)
-                self.tableWidget.item(r+1, self.cols.uri).setData(Qt.UserRole, typeA)
+                self.tableWidget.item(r + 1, self.cols.uri).setData(Qt.UserRole, typeA)
 
                 # project name
                 nameA = self.tableWidget.cellWidget(r, self.cols.name).text()
@@ -505,7 +523,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 self.tableWidget.removeCellWidget(r, self.cols.edit)
                 self.tableWidget.removeCellWidget(r + 1, self.cols.edit)
                 self.addEditButton(r, typeB)
-                self.addEditButton(r+1, typeA)
+                self.addEditButton(r + 1, typeA)
 
                 # selected row
                 self.tableWidget.setCurrentCell(r + 1, 1)
@@ -569,7 +587,9 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         """
         edit_button = QToolButton(self.tableWidget)
         edit_button.setGeometry(QRect(0, 0, 20, 20))
-        edit_button.setIcon(QIcon(str(DIR_PLUGIN_ROOT / "resources/{}.svg".format(fileName))))
+        edit_button.setIcon(
+            QIcon(str(DIR_PLUGIN_ROOT / "resources/{}.svg".format(fileName)))
+        )
         edit_button.setToolTip(self.tr("Edit this project"))
 
         return edit_button

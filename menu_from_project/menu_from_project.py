@@ -185,6 +185,7 @@ class MenuFromProject:
         self.optionTooltip = False
         self.optionCreateGroup = False
         self.optionLoadAll = False
+        self.optionOpenLinks = False
         self.optionSourceMD = MenuFromProject.SOURCE_MD_OGC
         self.mapLayerIds = {}
         self.read()
@@ -233,6 +234,7 @@ class MenuFromProject:
             s.setValue("optionTooltip", self.optionTooltip)
             s.setValue("optionCreateGroup", self.optionCreateGroup)
             s.setValue("optionLoadAll", self.optionLoadAll)
+            s.setValue("optionOpenLinks", self.OpenLinks)
             s.setValue("optionSourceMD", self.optionSourceMD)
 
             s.beginWriteArray("projects", len(self.projects))
@@ -262,6 +264,7 @@ class MenuFromProject:
                 self.optionTooltip = s.value("optionTooltip", True, type=bool)
                 self.optionCreateGroup = s.value("optionCreateGroup", False, type=bool)
                 self.optionLoadAll = s.value("optionLoadAll", False, type=bool)
+                self.optionOpenLinks = s.value("optionOpenLinks", True, type=bool)
                 self.optionSourceMD = s.value(
                     "optionSourceMD", MenuFromProject.SOURCE_MD_OGC, type=str
                 )
@@ -800,9 +803,11 @@ class MenuFromProject:
                     pass
 
             # is relations exists ?
-            relationsToBuild = self.buildRelations(
-                uri, doc, layerId, newLayerId, group, parentsLoop, loop
-            )
+            relationsToBuild = []
+            if self.optionOpenLinks:
+                relationsToBuild = self.buildRelations(
+                    uri, doc, layerId, newLayerId, group, parentsLoop, loop
+                )
 
             # read modified layer node
             newLayer = None
@@ -1081,7 +1086,7 @@ class MenuFromProject:
                     self.buildProjectRelation(doc, relDict)
 
                 # is joined layers exists ?
-                if layer and type(layer) == QgsVectorLayer:
+                if self.optionOpenLinks and layer and type(layer) == QgsVectorLayer:
                     for j in layer.vectorJoins():
                         try:
                             joinLayer, joinRelations = self.addLayer(
