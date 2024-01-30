@@ -24,10 +24,6 @@ jobs:
       with:
         python-version: '${{ env.PYTHON_VERSION }}'
 
-    #- name: Get tag name as version
-    #  id: get_version
-    #  run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
-
     - name: Install project requirements
       run: |
         python -m pip install -U pip setuptools wheel
@@ -35,18 +31,19 @@ jobs:
 
     - id: get-myversion
       run: |
-        myversion=$(echo ${{ github.ref }} | cut -dv -f2)
+        echo "myversion=$(echo ${{ github.ref }} | cut -dv -f2)" >> "$GITHUB_ENV"
         # echo "::set-output name=myversion::$myversion"
-        echo "name=myversion::$myversion" >> $GITHUB_OUTPUT
+        # echo "name=myversion::$myversion" >> $GITHUB_OUTPUT
 
-    - run: echo "${{steps.get-myversion.outputs.myversion}}"
+    # - run: echo "${{steps.get-myversion.outputs.myversion}}"
+    - run: echo "$myversion"
 
     - name: Package the version
       run: |
-        qgis-plugin-ci package ${{steps.get-myversion.outputs.myversion}}
+        qgis-plugin-ci package $myversion
 
     - name : Get current changelog for ${{ github.ref }}
-      run: qgis-plugin-ci changelog ${{steps.get-myversion.outputs.myversion}} >> release.md
+      run: qgis-plugin-ci changelog $myversion >> release.md
 
     - name: Create Release
       id: create_release
@@ -64,15 +61,14 @@ jobs:
         GITHUB_TOKEN: ${{ github.token }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ env.PROJECT_FOLDER }}.${{steps.get-myversion.outputs.myversion}}.zip
-        asset_name: ${{ env.PROJECT_FOLDER }}-${{steps.get-myversion.outputs.myversion}}.zip
+        asset_path: ${{ env.PROJECT_FOLDER }}.$myversion.zip
+        asset_name: ${{ env.PROJECT_FOLDER }}-$myversion.zip
         asset_content_type: application/zip
 
-    # plante au 01/2024
-    #- name: Deploy plugin to QGIS official repository and as release asset
-    #  run: >-
-    #    qgis-plugin-ci
-    #    release v${{steps.get-myversion.outputs.myversion}}
-    #    --github-token ${{ secrets.GITHUB_TOKEN }}
-    #    --osgeo-username ${{ secrets.OSGEO_USER }}
-    #    --osgeo-password ${{ secrets.OSGEO_PASSWORD }}
+    - name: Deploy plugin to QGIS official repository and as release asset
+      run: >-
+        qgis-plugin-ci
+        release v$myversion
+        --github-token ${{ secrets.GITHUB_TOKEN }}
+        --osgeo-username ${{ secrets.OSGEO_USER }}
+        --osgeo-password ${{ secrets.OSGEO_PASSWORD }}
