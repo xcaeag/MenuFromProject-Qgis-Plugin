@@ -36,14 +36,14 @@ jobs:
         # echo "name=myversion::$myversion" >> $GITHUB_OUTPUT
 
     # - run: echo "${{steps.get-myversion.outputs.myversion}}"
-    - run: echo "$myversion"
+    - run: echo ${{ env.myversion }}
 
     - name: Package the version
       run: |
-        qgis-plugin-ci package $myversion
+        qgis-plugin-ci package ${{ env.myversion }}
 
     - name : Get current changelog for ${{ github.ref }}
-      run: qgis-plugin-ci changelog $myversion >> release.md
+      run: qgis-plugin-ci changelog ${{ env.myversion }} >> release.md
 
     - name: Create Release
       id: create_release
@@ -61,14 +61,14 @@ jobs:
         GITHUB_TOKEN: ${{ github.token }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ env.PROJECT_FOLDER }}."$myversion".zip
-        asset_name: ${{ env.PROJECT_FOLDER }}-"$myversion".zip
+        asset_path: ${{ env.PROJECT_FOLDER }}.${{ env.myversion }}.zip
+        asset_name: ${{ env.PROJECT_FOLDER }}-${{ env.myversion }}.zip
         asset_content_type: application/zip
 
     - name: Deploy plugin to QGIS official repository and as release asset
       run: >-
         qgis-plugin-ci
-        release v"$myversion"
+        release v${{ env.myversion }}
         --github-token ${{ secrets.GITHUB_TOKEN }}
         --osgeo-username ${{ secrets.OSGEO_USER }}
         --osgeo-password ${{ secrets.OSGEO_PASSWORD }}
