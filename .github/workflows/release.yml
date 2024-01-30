@@ -65,10 +65,11 @@ jobs:
         asset_name: ${{ env.PROJECT_FOLDER }}-${{ env.myversion }}.zip
         asset_content_type: application/zip
 
-    - name: Deploy plugin to QGIS official repository and as release asset
-      run: >-
-        qgis-plugin-ci
-        release v${{ env.myversion }}
-        --github-token ${{ secrets.GITHUB_TOKEN }}
-        --osgeo-username ${{ secrets.OSGEO_USER }}
-        --osgeo-password ${{ secrets.OSGEO_PASSWORD }}
+    # plante.. pb de version de qgis-plugin-ci ?
+    #- name: Deploy plugin to QGIS official repository and as release asset
+    #  run: >-
+    #    qgis-plugin-ci
+    #    release v${{ env.myversion }}
+    #    --github-token ${{ secrets.GITHUB_TOKEN }}
+    #    --osgeo-username ${{ secrets.OSGEO_USER }}
+    #    --osgeo-password ${{ secrets.OSGEO_PASSWORD }}
