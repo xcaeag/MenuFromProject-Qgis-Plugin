@@ -5,9 +5,10 @@ qgisMaximumVersion=3.98
 description=Build layers shortcuts menus based on QGIS projects
 about=Allow easy opening of layers maintaining their style.
 
-version=2.1.0-beta1
+version=2.1.0
 
 changelog=
+    2.1.0 : fix #20 - Layer doesn't appear when sourced from "Integrate layers and group"
     2.1.0-beta1 : #51 Support relations
     2.0.8 : Minimum Version is 3.14
     2.0.7 : fix #77
@@ -58,7 +59,7 @@ repository=https://github.com/xcaeag/MenuFromProject-Qgis-Plugin
 icon=resources/menu_from_project.png
 
 # experimental flag
-experimental=True
+experimental=False
 
 # deprecated flag (applies to the whole plugin, not just a single version
 deprecated=False
