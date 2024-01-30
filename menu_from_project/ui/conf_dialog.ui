@@ -339,6 +339,19 @@
        </property>
       </spacer>
      </item>
+     <item row="4" column="0">
+      <widget class="QCheckBox" name="cbxOpenLinks">
+       <property name="toolTip">
+        <string>Opens with layer, layers linked by 'relations' or joins.</string>
+       </property>
+       <property name="text">
+        <string>Also load linked layers.</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -420,6 +433,7 @@
   <tabstop>btnDown</tabstop>
   <tabstop>cbxLoadAll</tabstop>
   <tabstop>cbxCreateGroup</tabstop>
+  <tabstop>cbxOpenLinks</tabstop>
   <tabstop>cbxShowTooltip</tabstop>
   <tabstop>mdSourceOGC</tabstop>
   <tabstop>mdSourceLayer</tabstop>
