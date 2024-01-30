@@ -36,7 +36,8 @@ jobs:
     - id: get-myversion
       run: |
         myversion=$(echo ${{ github.ref }} | cut -dv -f2)
-        echo "::set-output name=myversion::$myversion"
+        # echo "::set-output name=myversion::$myversion"
+        echo "name=myversion::$myversion" >> $GITHUB_OUTPUT
 
     - run: echo "${{steps.get-myversion.outputs.myversion}}"
 
@@ -67,10 +68,11 @@ jobs:
         asset_name: ${{ env.PROJECT_FOLDER }}-${{steps.get-myversion.outputs.myversion}}.zip
         asset_content_type: application/zip
 
-    - name: Deploy plugin to QGIS official repository and as release asset
-      run: >-
-        qgis-plugin-ci
-        release v${{steps.get-myversion.outputs.myversion}}
-        --github-token ${{ secrets.GITHUB_TOKEN }}
-        --osgeo-username ${{ secrets.OSGEO_USER }}
-        --osgeo-password ${{ secrets.OSGEO_PASSWORD }}
+    # plante au 01/2024
+    #- name: Deploy plugin to QGIS official repository and as release asset
+    #  run: >-
+    #    qgis-plugin-ci
+    #    release v${{steps.get-myversion.outputs.myversion}}
+    #    --github-token ${{ secrets.GITHUB_TOKEN }}
+    #    --osgeo-username ${{ secrets.OSGEO_USER }}
+    #    --osgeo-password ${{ secrets.OSGEO_PASSWORD }}
