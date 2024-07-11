@@ -7,4 +7,4 @@ SOURCES         = menu_from_project.py \
 FORMS           = ui/conf_dialog.ui
 
 TRANSLATIONS    = i18n/fr.ts \
-                  i18n/ja.ts   
+                  i18n/ja.ts

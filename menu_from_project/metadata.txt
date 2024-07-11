@@ -17,8 +17,8 @@ changelog=
     2.0.4 : Japanese translation is available (https://github.com/Tokimasasogo)
     2.0.3 : fix #53 Help not showing Extensions
     2.0.2 : fix #50 Alternatively use metadata as tooltip instead of OGC metadata
-    2.0.1 : fix #48 (Load above in ToC), better configuration interface 
-    2.0.1-beta1 : fix #48 (Load above in ToC), better configuration interface 
+    2.0.1 : fix #48 (Load above in ToC), better configuration interface
+    2.0.1-beta1 : fix #48 (Load above in ToC), better configuration interface
     2.0.0 : Allow pointing to http/https online qgs-qgz project file (#28)
       thanks to Julien Moura (https://github.com/Guts)
       Support of Joined layers

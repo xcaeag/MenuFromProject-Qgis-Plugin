@@ -121,7 +121,10 @@ def getFirstChildByAttrValue(elt, tagName, key, value):
         elt = elt.toElement()
     nodes = elt.elementsByTagName(tagName)
     for node in (nodes.at(i) for i in range(nodes.size())):
-        if node.toElement().hasAttribute(key) and node.toElement().attribute(key) == value:
+        if (
+            node.toElement().hasAttribute(key)
+            and node.toElement().attribute(key) == value
+        ):
             # layer founds
             return node
 
@@ -196,7 +199,9 @@ class MenuFromProject:
             settings.setValue("menu_from_project/is_setup_visible", True)
 
         # If we want to hide the dialog setup to users.
-        self.is_setup_visible = settings.value("menu_from_project/is_setup_visible", True, bool)
+        self.is_setup_visible = settings.value(
+            "menu_from_project/is_setup_visible", True, bool
+        )
 
         self.action_project_configuration = None
         self.action_menu_help = None
@@ -219,7 +224,9 @@ class MenuFromProject:
     @staticmethod
     def log(message, application=__title__, indent=0):
         indent_chars = " .. " * indent
-        QgsMessageLog.logMessage(f"{indent_chars}{message}", application, notifyUser=True)
+        QgsMessageLog.logMessage(
+            f"{indent_chars}{message}", application, notifyUser=True
+        )
 
     def store(self):
         """Store the configuration in the QSettings."""
@@ -242,7 +249,9 @@ class MenuFromProject:
                     s.setValue("location", project["location"])
                     s.setValue(
                         "type_storage",
-                        project.get("type_storage", guess_type_from_uri(project.get("file"))),
+                        project.get(
+                            "type_storage", guess_type_from_uri(project.get("file"))
+                        ),
                     )
             finally:
                 s.endArray()
@@ -259,7 +268,9 @@ class MenuFromProject:
                 self.optionCreateGroup = s.value("optionCreateGroup", False, type=bool)
                 self.optionLoadAll = s.value("optionLoadAll", False, type=bool)
                 self.optionOpenLinks = s.value("optionOpenLinks", True, type=bool)
-                self.optionSourceMD = s.value("optionSourceMD", MenuFromProject.SOURCE_MD_OGC, type=str)
+                self.optionSourceMD = s.value(
+                    "optionSourceMD", MenuFromProject.SOURCE_MD_OGC, type=str
+                )
 
                 size = s.beginReadArray("projects")
                 try:
@@ -268,7 +279,9 @@ class MenuFromProject:
                         file = s.value("file", "")
                         name = s.value("name", "")
                         location = s.value("location", "new")
-                        type_storage = s.value("type_storage", guess_type_from_uri(file))
+                        type_storage = s.value(
+                            "type_storage", guess_type_from_uri(file)
+                        )
                         if file != "":
                             self.projects.append(
                                 {
@@ -313,10 +326,16 @@ class MenuFromProject:
                     title = mdLayerTitle or ogcTitle
 
                 if (abstract != "") and (title == ""):
-                    action.setToolTip("<p>{}</p>".format("<br/>".join(abstract.split("\n"))))
+                    action.setToolTip(
+                        "<p>{}</p>".format("<br/>".join(abstract.split("\n")))
+                    )
                 else:
                     if abstract != "" or title != "":
-                        action.setToolTip("<b>{}</b><br/>{}".format(title, "<br/>".join(abstract.split("\n"))))
+                        action.setToolTip(
+                            "<b>{}</b><br/>{}".format(
+                                title, "<br/>".join(abstract.split("\n"))
+                            )
+                        )
                     else:
                         action.setToolTip("")
 
@@ -340,9 +359,9 @@ class MenuFromProject:
                 visible = element.attribute("checked", "") == "Qt::Checked"
                 expanded = element.attribute("expanded", "0") == "1"
                 action = QAction(name, self.iface.mainWindow())
-                embedNd = getFirstChildByAttrValue(element, "property", "key", "embedded") or getFirstChildByAttrValue(
-                    element, "Option", "name", "embedded"
-                )
+                embedNd = getFirstChildByAttrValue(
+                    element, "property", "key", "embedded"
+                ) or getFirstChildByAttrValue(element, "Option", "name", "embedded")
 
                 # is layer embedded ?
                 if embedNd and embedNd.toElement().attribute("value") == "1":
@@ -350,7 +369,9 @@ class MenuFromProject:
                     efilename = None
                     eFileNd = getFirstChildByAttrValue(
                         element, "property", "key", "embedded_project"
-                    ) or getFirstChildByAttrValue(element, "Option", "name", "embedded_project")
+                    ) or getFirstChildByAttrValue(
+                        element, "Option", "name", "embedded_project"
+                    )
 
                     if eFileNd:
                         # get project file name
@@ -374,11 +395,17 @@ class MenuFromProject:
 
                             if self.optionTooltip:
                                 # search embeded maplayer (for title, abstract)
-                                mapLayer = self.getMapLayerDomFromQgs(efilename, layerId)
+                                mapLayer = self.getMapLayerDomFromQgs(
+                                    efilename, layerId
+                                )
                                 if mapLayer is not None:
                                     self.addToolTip(mapLayer, action)
                     else:
-                        self.log("Menu from layer: Embeded project not found for {}".format(layerId))
+                        self.log(
+                            "Menu from layer: Embeded project not found for {}".format(
+                                layerId
+                            )
+                        )
 
                 # layer is not embedded
                 else:
@@ -398,7 +425,9 @@ class MenuFromProject:
 
                 # Add geometry type icon
                 try:
-                    map_layer = self.getMapLayerDomFromQgs(efilename, layerId).toElement()
+                    map_layer = self.getMapLayerDomFromQgs(
+                        efilename, layerId
+                    ).toElement()
                     geometry_type = map_layer.attribute("geometry")
                     if geometry_type == "":
                         # A TMS has not a geometry attribute.
@@ -429,7 +458,9 @@ class MenuFromProject:
                 efilename = None
                 eFileNd = getFirstChildByAttrValue(
                     element, "property", "key", "embedded_project"
-                ) or getFirstChildByAttrValue(element, "Option", "name", "embedded_project")
+                ) or getFirstChildByAttrValue(
+                    element, "Option", "name", "embedded_project"
+                )
 
                 if eFileNd:
                     # get project file name
@@ -444,7 +475,9 @@ class MenuFromProject:
                         # add menu group
                         doc, _ = self.getQgsDoc(efilename)
 
-                        groupNode = getFirstChildByAttrValue(doc.documentElement(), "layer-tree-group", "name", name)
+                        groupNode = getFirstChildByAttrValue(
+                            doc.documentElement(), "layer-tree-group", "name", name
+                        )
 
                         # and do recursion
                         r = self.addMenuItem(
@@ -459,7 +492,11 @@ class MenuFromProject:
                         yaLayer = yaLayer or r
 
                 else:
-                    self.log("Menu from layer: Embeded project not found for {}".format(layerId))
+                    self.log(
+                        "Menu from layer: Embeded project not found for {}".format(
+                            layerId
+                        )
+                    )
 
             # group is not embedded
             else:
@@ -482,7 +519,9 @@ class MenuFromProject:
                     childNode = node.firstChild()
 
                     #  ! recursion
-                    r = self.addMenuItem(uri, filename, childNode, sousmenu, absolute, mapLayersDict)
+                    r = self.addMenuItem(
+                        uri, filename, childNode, sousmenu, absolute, mapLayersDict
+                    )
 
                     if r and self.optionLoadAll and (len(sousmenu.actions()) > 1):
                         action = QAction(self.tr("Load all"), self.iface.mainWindow())
@@ -491,7 +530,9 @@ class MenuFromProject:
                         action.setFont(font)
                         sousmenu.addAction(action)
                         action.triggered.connect(
-                            lambda checked, f=None, w=None, m=sousmenu: self.loadLayer(uri, f, w, m)
+                            lambda checked, f=None, w=None, m=sousmenu: self.loadLayer(
+                                uri, f, w, m
+                            )
                         )
 
         # / if element.tagName() == "legendgroup":
@@ -559,7 +600,9 @@ class MenuFromProject:
             node = legends.item(0)
             if node:
                 node = node.firstChild()
-                self.addMenuItem(uri, filepath, node, projectMenu, is_absolute(domdoc), mapLayersDict)
+                self.addMenuItem(
+                    uri, filepath, node, projectMenu, is_absolute(domdoc), mapLayersDict
+                )
 
         return projectMenu
 
@@ -608,7 +651,9 @@ class MenuFromProject:
         :rtype: QDomNode
         """
         doc, _ = self.getQgsDoc(fileName)
-        return getFirstChildByTagNameValue(doc.documentElement(), "maplayer", "id", layerId)
+        return getFirstChildByTagNameValue(
+            doc.documentElement(), "maplayer", "id", layerId
+        )
 
     def initMenus(self):
         menuBar = self.iface.editMenu().parentWidget()
@@ -632,7 +677,9 @@ class MenuFromProject:
                 project["valid"] = True
                 uri = project["file"]
                 doc, path = self.getQgsDoc(uri)
-                previous = self.addMenu(project["name"], uri, path, doc, project["location"], previous)
+                previous = self.addMenu(
+                    project["name"], uri, path, doc, project["location"], previous
+                )
             except Exception as e:
                 project["valid"] = False
                 self.log("Menu from layer: Invalid {}".format(uri))
@@ -650,9 +697,13 @@ class MenuFromProject:
                 self.iface.mainWindow(),
             )
 
-            self.iface.addPluginToMenu("&" + __title__, self.action_project_configuration)
+            self.iface.addPluginToMenu(
+                "&" + __title__, self.action_project_configuration
+            )
             # Add actions to the toolbar
-            self.action_project_configuration.triggered.connect(self.open_projects_config)
+            self.action_project_configuration.triggered.connect(
+                self.open_projects_config
+            )
 
             # menu item - Documentation
             self.action_menu_help = QAction(
@@ -662,7 +713,9 @@ class MenuFromProject:
             )
 
             self.iface.addPluginToMenu("&" + __title__, self.action_menu_help)
-            self.action_menu_help.triggered.connect(lambda: showPluginHelp(filename="doc/index"))
+            self.action_menu_help.triggered.connect(
+                lambda: showPluginHelp(filename="doc/index")
+            )
 
         self.iface.initializationCompleted.connect(self.on_initializationCompleted)
 
@@ -681,9 +734,13 @@ class MenuFromProject:
         self.layerMenubarActions = []
 
         if self.is_setup_visible:
-            self.iface.removePluginMenu("&" + __title__, self.action_project_configuration)
+            self.iface.removePluginMenu(
+                "&" + __title__, self.action_project_configuration
+            )
             self.iface.removePluginMenu("&" + __title__, self.action_menu_help)
-            self.action_project_configuration.triggered.disconnect(self.open_projects_config)
+            self.action_project_configuration.triggered.disconnect(
+                self.open_projects_config
+            )
 
         self.iface.initializationCompleted.disconnect(self.on_initializationCompleted)
 
@@ -725,7 +782,9 @@ class MenuFromProject:
         absolute = is_absolute(doc)
         trusted = project_trusted(doc)
 
-        node = getFirstChildByTagNameValue(doc.documentElement(), "maplayer", "id", layerId)
+        node = getFirstChildByTagNameValue(
+            doc.documentElement(), "maplayer", "id", layerId
+        )
         node = node.cloneNode()
         if node:
             idNode = node.namedItem("id")
@@ -757,7 +816,9 @@ class MenuFromProject:
             # is relations exists ?
             relationsToBuild = []
             if self.optionOpenLinks:
-                relationsToBuild = self.buildRelations(uri, doc, layerId, newLayerId, group, parentsLoop, loop)
+                relationsToBuild = self.buildRelations(
+                    uri, doc, layerId, newLayerId, group, parentsLoop, loop
+                )
 
             # read modified layer node
             newLayer = None
@@ -778,7 +839,9 @@ class MenuFromProject:
                     try:
                         plugins["db-style-manager"].load_style_from_database(theLayer)
                     except Exception:
-                        self.log("DB-Style-Manager failed to load the style.", indent=loop)
+                        self.log(
+                            "DB-Style-Manager failed to load the style.", indent=loop
+                        )
 
                 # needed
                 newLayer = QgsProject.instance().addMapLayer(theLayer, False)
@@ -870,7 +933,9 @@ class MenuFromProject:
         theLayer = QgsProject.instance().mapLayer(newLayerId)
         oldLayerId = self.mapLayerIds[newLayerId]
 
-        layerNode = getFirstChildByTagNameValue(doc.documentElement(), "maplayer", "id", oldLayerId)
+        layerNode = getFirstChildByTagNameValue(
+            doc.documentElement(), "maplayer", "id", oldLayerId
+        )
 
         nodes = layerNode.toElement().elementsByTagName("attributeEditorForm")
         if nodes.count() == 0:
@@ -920,17 +985,25 @@ class MenuFromProject:
 
                 # Adapter le formulaire de la couche referencedLayer
                 try:
-                    self.fixForm(doc, relDict["referencedLayer"], oldRelationId, newRelationId)
+                    self.fixForm(
+                        doc, relDict["referencedLayer"], oldRelationId, newRelationId
+                    )
                 except Exception:
-                    self.log("Form not fixed for layer {}".format(relDict["referencedLayer"]))
+                    self.log(
+                        "Form not fixed for layer {}".format(relDict["referencedLayer"])
+                    )
 
             else:
-                self.log("Invalid relation {} : {}".format(rel.id(), rel.validationError()))
+                self.log(
+                    "Invalid relation {} : {}".format(rel.id(), rel.validationError())
+                )
         except Exception as e:
             for m in e.args:
                 self.log(m)
 
-    def buildRelations(self, uri, doc, oldLayerId, newLayerId, group, parentsLoop, loop):
+    def buildRelations(
+        self, uri, doc, oldLayerId, newLayerId, group, parentsLoop, loop
+    ):
         """identify the relations to be created (later, after source layer creation)
 
         Based on those of the source project, adapted to the new identifiers of the layers
@@ -947,7 +1020,9 @@ class MenuFromProject:
                     # La couche cible a déjà été ajoutée (boucle infinie)
                     # on se contente de référencer celle-ci
                     relDict["referencedLayer"] = newLayerId
-                    relDict["referencingLayer"] = parentsLoop[relDict["referencingLayer"]]
+                    relDict["referencingLayer"] = parentsLoop[
+                        relDict["referencingLayer"]
+                    ]
                     relationsToBuild.append(relDict)
                 else:
                     # la couche cible n'a pas été ajoutée
@@ -987,22 +1062,32 @@ class MenuFromProject:
         self.mapLayerIds = {}
 
         try:
-            if isinstance(menu.parentWidget(), (QMenu, QWidget)) and self.optionCreateGroup:
+            if (
+                isinstance(menu.parentWidget(), (QMenu, QWidget))
+                and self.optionCreateGroup
+            ):
                 groupName = menu.title().replace("&", "")
                 group = QgsProject.instance().layerTreeRoot().findGroup(groupName)
                 if group is None:
-                    group = QgsProject.instance().layerTreeRoot().insertGroup(0, groupName)
+                    group = (
+                        QgsProject.instance().layerTreeRoot().insertGroup(0, groupName)
+                    )
 
             # load all layers
             if fileName is None and layerId is None and self.optionLoadAll:
                 for action in menu.actions()[::-1]:
-                    if action.text() != self.tr("Load all") and action.text() != "Load all":
+                    if (
+                        action.text() != self.tr("Load all")
+                        and action.text() != "Load all"
+                    ):
                         action.trigger()
             else:
                 doc, _ = self.getQgsDoc(fileName)
 
                 # Loading layer
-                layer, relationsToBuild = self.addLayer(uri, doc, layerId, group, visible, expanded, {}, 0)
+                layer, relationsToBuild = self.addLayer(
+                    uri, doc, layerId, group, visible, expanded, {}, 0
+                )
                 for relDict in relationsToBuild:
                     self.buildProjectRelation(doc, relDict)
 
@@ -1010,7 +1095,9 @@ class MenuFromProject:
                 if self.optionOpenLinks and layer and type(layer) == QgsVectorLayer:
                     for j in layer.vectorJoins():
                         try:
-                            joinLayer, joinRelations = self.addLayer(uri, doc, j.joinLayerId(), group)
+                            joinLayer, joinRelations = self.addLayer(
+                                uri, doc, j.joinLayerId(), group
+                            )
                             for relDict in joinRelations:
                                 self.buildProjectRelation(doc, relDict)
 
@@ -1019,7 +1106,9 @@ class MenuFromProject:
                                 j.setJoinLayer(joinLayer)
                                 layer.addJoin(j)
                         except Exception as e:
-                            self.log("Joined layer {} not added.".format(j.joinLayerId()))
+                            self.log(
+                                "Joined layer {} not added.".format(j.joinLayerId())
+                            )
                             pass
 
         except Exception as e:
