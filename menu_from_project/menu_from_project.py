@@ -168,6 +168,7 @@ def project_trusted(doc):
 class MenuFromProject:
     SOURCE_MD_OGC = "ogc"
     SOURCE_MD_LAYER = "layer"
+    SOURCE_MD_NOTE = "note"
 
     def on_initializationCompleted(self):
         # build menu
@@ -175,6 +176,19 @@ class MenuFromProject:
 
     def __init__(self, iface):
         self.path = QFileInfo(os.path.realpath(__file__)).path()
+
+        # default lang
+        settings = QgsSettings()
+        locale = settings.value("locale/userLocale")
+        self.myLocale = locale[0:2]
+        # dictionary
+        localePath = self.path + "/i18n/" + self.myLocale + ".qm"
+        # translator
+        if QFileInfo(localePath).exists():
+            self.translator = QTranslator()
+            self.translator.load(localePath)
+            QCoreApplication.installTranslator(self.translator)
+
         self.iface = iface
         self.toolBar = None
         self.project_registry = QgsApplication.projectStorageRegistry()
@@ -189,10 +203,14 @@ class MenuFromProject:
         self.optionCreateGroup = False
         self.optionLoadAll = False
         self.optionOpenLinks = False
-        self.optionSourceMD = MenuFromProject.SOURCE_MD_OGC
+        self.sourcesMdText = {
+            MenuFromProject.SOURCE_MD_OGC: self.tr("QGis Server metadata"),
+            MenuFromProject.SOURCE_MD_LAYER: self.tr("Layer Metadata"),
+            MenuFromProject.SOURCE_MD_NOTE: self.tr("Layer Notes"),
+        }
+        self.optionSourceMD = list(self.sourcesMdText.keys())
         self.mapLayerIds = {}
         self.read()
-        settings = QgsSettings()
 
         if settings.value("menu_from_project/is_setup_visible") is None:
             # This setting does not exist. We add it by default.
@@ -206,17 +224,6 @@ class MenuFromProject:
         self.action_project_configuration = None
         self.action_menu_help = None
 
-        # default lang
-        locale = settings.value("locale/userLocale")
-        self.myLocale = locale[0:2]
-        # dictionary
-        localePath = self.path + "/i18n/" + self.myLocale + ".qm"
-        # translator
-        if QFileInfo(localePath).exists():
-            self.translator = QTranslator()
-            self.translator.load(localePath)
-            QCoreApplication.installTranslator(self.translator)
-
     @staticmethod
     def tr(message):
         return QCoreApplication.translate("MenuFromProject", message)
@@ -224,9 +231,7 @@ class MenuFromProject:
     @staticmethod
     def log(message, application=__title__, indent=0):
         indent_chars = " .. " * indent
-        QgsMessageLog.logMessage(
-            f"{indent_chars}{message}", application, notifyUser=True
-        )
+        QgsMessageLog.logMessage(f"{indent_chars}{message}", application, notifyUser=True)
 
     def store(self):
         """Store the configuration in the QSettings."""
@@ -238,7 +243,7 @@ class MenuFromProject:
             s.setValue("optionCreateGroup", self.optionCreateGroup)
             s.setValue("optionLoadAll", self.optionLoadAll)
             s.setValue("optionOpenLinks", self.optionOpenLinks)
-            s.setValue("optionSourceMD", self.optionSourceMD)
+            s.setValue("optionSourceMD", ",".join(self.optionSourceMD))
 
             s.beginWriteArray("projects", len(self.projects))
             try:
@@ -250,7 +255,8 @@ class MenuFromProject:
                     s.setValue(
                         "type_storage",
                         project.get(
-                            "type_storage", guess_type_from_uri(project.get("file"))
+                            "type_storage",
+                            guess_type_from_uri(project.get("file")),
                         ),
                     )
             finally:
@@ -268,9 +274,45 @@ class MenuFromProject:
                 self.optionCreateGroup = s.value("optionCreateGroup", False, type=bool)
                 self.optionLoadAll = s.value("optionLoadAll", False, type=bool)
                 self.optionOpenLinks = s.value("optionOpenLinks", True, type=bool)
-                self.optionSourceMD = s.value(
-                    "optionSourceMD", MenuFromProject.SOURCE_MD_OGC, type=str
+                defaultOptionSourceMD = "{},{},{}".format(
+                    MenuFromProject.SOURCE_MD_OGC,
+                    MenuFromProject.SOURCE_MD_LAYER,
+                    MenuFromProject.SOURCE_MD_NOTE,
                 )
+                self.optionSourceMD = s.value(
+                    "optionSourceMD",
+                    defaultOptionSourceMD,
+                    type=str,
+                )
+                self.optionSourceMD = self.optionSourceMD.split(",")
+                # Retro comp
+                if (
+                    len(self.optionSourceMD) == 1
+                    and self.optionSourceMD[0] == MenuFromProject.SOURCE_MD_OGC
+                ):
+                    self.optionSourceMD = [
+                        MenuFromProject.SOURCE_MD_OGC,
+                        MenuFromProject.SOURCE_MD_LAYER,
+                        MenuFromProject.SOURCE_MD_NOTE,
+                    ]
+                if (
+                    len(self.optionSourceMD) == 1
+                    and self.optionSourceMD[0] == MenuFromProject.SOURCE_MD_LAYER
+                ):
+                    self.optionSourceMD = [
+                        MenuFromProject.SOURCE_MD_LAYER,
+                        MenuFromProject.SOURCE_MD_OGC,
+                        MenuFromProject.SOURCE_MD_NOTE,
+                    ]
+                if (
+                    len(self.optionSourceMD) == 1
+                    and self.optionSourceMD[0] == MenuFromProject.SOURCE_MD_NOTE
+                ):
+                    self.optionSourceMD = [
+                        MenuFromProject.SOURCE_MD_NOTE,
+                        MenuFromProject.SOURCE_MD_LAYER,
+                        MenuFromProject.SOURCE_MD_OGC,
+                    ]
 
                 size = s.beginReadArray("projects")
                 try:
@@ -279,9 +321,7 @@ class MenuFromProject:
                         file = s.value("file", "")
                         name = s.value("name", "")
                         location = s.value("location", "new")
-                        type_storage = s.value(
-                            "type_storage", guess_type_from_uri(file)
-                        )
+                        type_storage = s.value("type_storage", guess_type_from_uri(file))
                         if file != "":
                             self.projects.append(
                                 {
@@ -315,27 +355,36 @@ class MenuFromProject:
                 md = ml.namedItem("resourceMetadata")
                 mdLayerTitle = md.namedItem("title").firstChild().toText().data()
                 mdLayerAbstract = md.namedItem("abstract").firstChild().toText().data()
+                mdLayerAbstract = "<br/>".join(mdLayerAbstract.split("\n"))
+
                 ogcTitle = ml.namedItem("title").firstChild().toText().data()
                 ogcAbstract = ml.namedItem("abstract").firstChild().toText().data()
+                ogcAbstract = "<br/>".join(ogcAbstract.split("\n"))
 
-                if self.optionSourceMD == MenuFromProject.SOURCE_MD_OGC:
-                    abstract = ogcAbstract or mdLayerAbstract
-                    title = ogcTitle or mdLayerTitle
-                else:
-                    abstract = mdLayerAbstract or ogcAbstract
-                    title = mdLayerTitle or ogcTitle
+                userNotes = ""
+                eltNote = ml.namedItem("userNotes")
+                if eltNote.toElement().hasAttribute("value"):
+                    userNotes = eltNote.toElement().attribute("value")
+
+                abstract = ""
+                title = ""
+                for oSource in self.optionSourceMD:
+                    if oSource == MenuFromProject.SOURCE_MD_OGC:
+                        abstract = abstract or ogcAbstract
+                        title = title or ogcTitle
+
+                    if oSource == MenuFromProject.SOURCE_MD_LAYER:
+                        abstract = abstract or mdLayerAbstract
+                        title = title or mdLayerTitle
+
+                    if oSource == MenuFromProject.SOURCE_MD_NOTE:
+                        abstract = abstract or userNotes
 
                 if (abstract != "") and (title == ""):
-                    action.setToolTip(
-                        "<p>{}</p>".format("<br/>".join(abstract.split("\n")))
-                    )
+                    action.setToolTip("<p>{}</p>".format(abstract))
                 else:
                     if abstract != "" or title != "":
-                        action.setToolTip(
-                            "<b>{}</b><br/>{}".format(
-                                title, "<br/>".join(abstract.split("\n"))
-                            )
-                        )
+                        action.setToolTip("<b>{}</b><br/>{}".format(title, abstract))
                     else:
                         action.setToolTip("")
 
@@ -395,9 +444,7 @@ class MenuFromProject:
 
                             if self.optionTooltip:
                                 # search embeded maplayer (for title, abstract)
-                                mapLayer = self.getMapLayerDomFromQgs(
-                                    efilename, layerId
-                                )
+                                mapLayer = self.getMapLayerDomFromQgs(efilename, layerId)
                                 if mapLayer is not None:
                                     self.addToolTip(mapLayer, action)
                     else:
@@ -425,9 +472,7 @@ class MenuFromProject:
 
                 # Add geometry type icon
                 try:
-                    map_layer = self.getMapLayerDomFromQgs(
-                        efilename, layerId
-                    ).toElement()
+                    map_layer = self.getMapLayerDomFromQgs(efilename, layerId).toElement()
                     geometry_type = map_layer.attribute("geometry")
                     if geometry_type == "":
                         # A TMS has not a geometry attribute.
@@ -476,7 +521,10 @@ class MenuFromProject:
                         doc, _ = self.getQgsDoc(efilename)
 
                         groupNode = getFirstChildByAttrValue(
-                            doc.documentElement(), "layer-tree-group", "name", name
+                            doc.documentElement(),
+                            "layer-tree-group",
+                            "name",
+                            name,
                         )
 
                         # and do recursion
@@ -520,7 +568,12 @@ class MenuFromProject:
 
                     #  ! recursion
                     r = self.addMenuItem(
-                        uri, filename, childNode, sousmenu, absolute, mapLayersDict
+                        uri,
+                        filename,
+                        childNode,
+                        sousmenu,
+                        absolute,
+                        mapLayersDict,
                     )
 
                     if r and self.optionLoadAll and (len(sousmenu.actions()) > 1):
@@ -601,7 +654,12 @@ class MenuFromProject:
             if node:
                 node = node.firstChild()
                 self.addMenuItem(
-                    uri, filepath, node, projectMenu, is_absolute(domdoc), mapLayersDict
+                    uri,
+                    filepath,
+                    node,
+                    projectMenu,
+                    is_absolute(domdoc),
+                    mapLayersDict,
                 )
 
         return projectMenu
@@ -678,7 +736,12 @@ class MenuFromProject:
                 uri = project["file"]
                 doc, path = self.getQgsDoc(uri)
                 previous = self.addMenu(
-                    project["name"], uri, path, doc, project["location"], previous
+                    project["name"],
+                    uri,
+                    path,
+                    doc,
+                    project["location"],
+                    previous,
                 )
             except Exception as e:
                 project["valid"] = False
@@ -697,13 +760,9 @@ class MenuFromProject:
                 self.iface.mainWindow(),
             )
 
-            self.iface.addPluginToMenu(
-                "&" + __title__, self.action_project_configuration
-            )
+            self.iface.addPluginToMenu("&" + __title__, self.action_project_configuration)
             # Add actions to the toolbar
-            self.action_project_configuration.triggered.connect(
-                self.open_projects_config
-            )
+            self.action_project_configuration.triggered.connect(self.open_projects_config)
 
             # menu item - Documentation
             self.action_menu_help = QAction(
@@ -840,7 +899,8 @@ class MenuFromProject:
                         plugins["db-style-manager"].load_style_from_database(theLayer)
                     except Exception:
                         self.log(
-                            "DB-Style-Manager failed to load the style.", indent=loop
+                            "DB-Style-Manager failed to load the style.",
+                            indent=loop,
                         )
 
                 # needed
@@ -986,7 +1046,10 @@ class MenuFromProject:
                 # Adapter le formulaire de la couche referencedLayer
                 try:
                     self.fixForm(
-                        doc, relDict["referencedLayer"], oldRelationId, newRelationId
+                        doc,
+                        relDict["referencedLayer"],
+                        oldRelationId,
+                        newRelationId,
                     )
                 except Exception:
                     self.log(
@@ -1001,9 +1064,7 @@ class MenuFromProject:
             for m in e.args:
                 self.log(m)
 
-    def buildRelations(
-        self, uri, doc, oldLayerId, newLayerId, group, parentsLoop, loop
-    ):
+    def buildRelations(self, uri, doc, oldLayerId, newLayerId, group, parentsLoop, loop):
         """identify the relations to be created (later, after source layer creation)
 
         Based on those of the source project, adapted to the new identifiers of the layers
@@ -1020,9 +1081,7 @@ class MenuFromProject:
                     # La couche cible a déjà été ajoutée (boucle infinie)
                     # on se contente de référencer celle-ci
                     relDict["referencedLayer"] = newLayerId
-                    relDict["referencingLayer"] = parentsLoop[
-                        relDict["referencingLayer"]
-                    ]
+                    relDict["referencingLayer"] = parentsLoop[relDict["referencingLayer"]]
                     relationsToBuild.append(relDict)
                 else:
                     # la couche cible n'a pas été ajoutée
@@ -1106,9 +1165,7 @@ class MenuFromProject:
                                 j.setJoinLayer(joinLayer)
                                 layer.addJoin(j)
                         except Exception as e:
-                            self.log(
-                                "Joined layer {} not added.".format(j.joinLayerId())
-                            )
+                            self.log("Joined layer {} not added.".format(j.joinLayerId()))
                             pass
 
         except Exception as e:

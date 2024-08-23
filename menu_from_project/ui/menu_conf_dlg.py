@@ -30,7 +30,10 @@ from qgis.PyQt.QtWidgets import (
 # project
 from menu_from_project.__about__ import DIR_PLUGIN_ROOT, __title__, __version__
 from menu_from_project.logic.custom_datatypes import TABLE_COLUMNS_ORDER
-from menu_from_project.logic.tools import guess_type_from_uri, icon_per_storage_type
+from menu_from_project.logic.tools import (
+    guess_type_from_uri,
+    icon_per_storage_type,
+)
 
 # ############################################################################
 # ########## Globals ###############
@@ -194,14 +197,15 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.cbxOpenLinks.setCheckState(self.plugin.optionOpenLinks)
         self.cbxOpenLinks.setTristate(False)
 
-        self.mdSourceOGC.setChecked(
-            self.plugin.optionSourceMD == self.plugin.SOURCE_MD_OGC
-        )
-        self.mdSourceLayer.setChecked(
-            self.plugin.optionSourceMD == self.plugin.SOURCE_MD_LAYER
-        )
+        self.optionSourceMD = self.plugin.optionSourceMD
+        self.setSourceMdText()
 
         self.tableTunning()
+
+    def setSourceMdText(self):
+        self.mdSource1.setText(self.plugin.sourcesMdText[self.optionSourceMD[0]])
+        self.mdSource2.setText(self.plugin.sourcesMdText[self.optionSourceMD[1]])
+        self.mdSource3.setText(self.plugin.sourcesMdText[self.optionSourceMD[2]])
 
     def addEditButton(self, row, guess_type):
         """Add edit button, adapted to the type of resource
@@ -239,13 +243,10 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         :type row: int
         """
         file_widget = self.tableWidget.cellWidget(row, self.cols.uri)
-        item = self.tableWidget.item(row, 1)
 
         filePath = QFileDialog.getOpenFileName(
             self,
-            QgsApplication.translate(
-                "menu_from_project", "Projects configuration", None
-            ),
+            QgsApplication.translate("menu_from_project", "Projects configuration", None),
             file_widget.text(),
             QgsApplication.translate(
                 "menu_from_project", "QGIS projects (*.qgs *.qgz)", None
@@ -278,9 +279,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         """
         self.plugin.iface.messageBar().pushMessage(
             "Message",
-            self.tr(
-                "No HTTP Browser, simply paste your URL into the 'project' column."
-            ),
+            self.tr("No HTTP Browser, simply paste your URL into the 'project' column."),
             level=Qgis.Info,
         )
 
@@ -344,11 +343,8 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         self.plugin.optionLoadAll = self.cbxLoadAll.isChecked()
         self.plugin.optionCreateGroup = self.cbxCreateGroup.isChecked()
         self.plugin.optionOpenLinks = self.cbxOpenLinks.isChecked()
-        self.plugin.optionSourceMD = (
-            self.plugin.SOURCE_MD_OGC
-            if self.mdSourceOGC.isChecked()
-            else self.plugin.SOURCE_MD_LAYER
-        )
+
+        self.plugin.optionSourceMD = self.optionSourceMD
 
         self.plugin.store()
 
@@ -374,7 +370,9 @@ class MenuConfDialog(QDialog, FORM_CLASS):
 
         # project storage type
         self.tableWidget.setCellWidget(
-            row, self.cols.type_storage, self.mk_prj_storage_icon(qgs_type_storage)
+            row,
+            self.cols.type_storage,
+            self.mk_prj_storage_icon(qgs_type_storage),
         )
 
         # menu location
@@ -384,9 +382,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 location_combo.addItem(self.LOCATIONS[pk]["label"], pk)
 
         location_combo.setCurrentIndex(0)
-        self.tableWidget.setCellWidget(
-            row, self.cols.type_menu_location, location_combo
-        )
+        self.tableWidget.setCellWidget(row, self.cols.type_menu_location, location_combo)
 
         # project file path
         itemFile = QTableWidgetItem()
@@ -543,6 +539,16 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         except Exception as err:
             self.plugin.log("Error during project reading: {}".format(err))
             file_widget.setStyleSheet("color: {};".format("red"))
+
+    def on_mdSource2_released(self):
+        myorder = [1, 0, 2]
+        self.optionSourceMD = [self.optionSourceMD[i] for i in myorder]
+        self.setSourceMdText()
+
+    def on_mdSource3_released(self):
+        myorder = [2, 0, 1]
+        self.optionSourceMD = [self.optionSourceMD[i] for i in myorder]
+        self.setSourceMdText()
 
     def tableTunning(self):
         """Prettify table aspect"""

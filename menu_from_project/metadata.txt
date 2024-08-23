@@ -1,13 +1,14 @@
 [general]
 name=Layers menu from project
-qgisMinimumVersion=3.14
+qgisMinimumVersion=3.20
 qgisMaximumVersion=3.98
 description=Build layers shortcuts menus based on QGIS projects
 about=Allow easy opening of layers maintaining their style.
 
-version=2.1.0
+version=2.2.0-beta1
 
 changelog=
+    2.2.0-beta1 : Layer notes as tooltip. Minimum Version is 3.20
     2.1.0 : Support relations, fix #20
     2.1.0-beta1 : #51 Support relations
     2.0.8 : Minimum Version is 3.14

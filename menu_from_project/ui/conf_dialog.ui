@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>638</width>
+    <width>660</width>
     <height>310</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>550</width>
+    <width>660</width>
     <height>310</height>
    </size>
   </property>
@@ -116,7 +116,7 @@
         <bool>true</bool>
        </attribute>
        <attribute name="verticalHeaderDefaultSectionSize">
-        <number>21</number>
+        <number>23</number>
        </attribute>
        <attribute name="verticalHeaderStretchLastSection">
         <bool>false</bool>
@@ -358,8 +358,11 @@
     <layout class="QHBoxLayout" name="horizontalLayout_5">
      <item>
       <widget class="QCheckBox" name="cbxShowTooltip">
+       <property name="toolTip">
+        <string>Show title &amp;&amp; abstract in tooltip - click to move the item to the first position</string>
+       </property>
        <property name="text">
-        <string>Show title &amp;&amp; abstract in tooltip. Priority to :</string>
+        <string>Tooltip. Priority to :</string>
        </property>
        <property name="checked">
         <bool>true</bool>
@@ -370,31 +373,90 @@
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="mdSourceOGC">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+      <widget class="QLabel" name="label">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
        </property>
+       <property name="text">
+        <string>1 :</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="mdSource1">
        <property name="text">
         <string>OGC QGis Server metadata</string>
        </property>
-       <property name="checked">
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="autoDefault">
+        <bool>true</bool>
+       </property>
+       <property name="default">
+        <bool>false</bool>
+       </property>
+       <property name="flat">
         <bool>true</bool>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="mdSourceLayer">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+      <widget class="QLabel" name="label_2">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>2 :</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="mdSource2">
+       <property name="font">
+        <font>
+         <underline>true</underline>
+        </font>
        </property>
        <property name="text">
         <string>Layer metadata</string>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>3 :</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="mdSource3">
+       <property name="font">
+        <font>
+         <underline>true</underline>
+        </font>
+       </property>
+       <property name="text">
+        <string>Layer notes</string>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -435,8 +497,6 @@
   <tabstop>cbxCreateGroup</tabstop>
   <tabstop>cbxOpenLinks</tabstop>
   <tabstop>cbxShowTooltip</tabstop>
-  <tabstop>mdSourceOGC</tabstop>
-  <tabstop>mdSourceLayer</tabstop>
  </tabstops>
  <resources/>
  <connections>
