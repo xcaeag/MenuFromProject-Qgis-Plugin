@@ -37,3 +37,4 @@ docs/_build/
 *.qgz
 *.zip
 test/
+deploy.py
