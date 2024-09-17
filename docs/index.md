@@ -129,7 +129,7 @@ Le projet placé dans un espace partagé du réseau, sous postgres ou un serveur
 
 ![configuration window](static/config_window_fr.png)
 
-- Bouton ajouter un projet ("+"), puis "éditer" pour ajouter un projet .qgs, .qgz à la liste, ou coller l'URI d'un projet PostgreSQL, coller l'URL d'un projet distant. ex : http://adour-garonne.eaufrance.fr/upload/DATA/SIG/aeag-web.qgz
+- Bouton ajouter un projet ("+"), puis "éditer" pour ajouter un projet .qgs, .qgz à la liste, ou coller l'URI d'un projet PostgreSQL, coller l'URL d'un projet distant. ex : https://adour-garonne.eaufrance.fr/upload/DATA/SIG/aeag-web.qgz
 
 Le nom (modifiable), deviendra le titre du menu.
 
