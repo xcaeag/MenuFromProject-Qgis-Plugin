@@ -3,9 +3,11 @@
 # Standard library
 import logging
 from functools import lru_cache
+from typing import Optional
 
 # PyQGIS
-from qgis.core import QgsApplication, QgsLayerItem
+from qgis.core import QgsApplication, QgsLayerItem, QgsMapLayerType, QgsWkbTypes
+from qgis.PyQt.QtGui import QIcon
 
 # project
 from menu_from_project.__about__ import DIR_PLUGIN_ROOT
@@ -60,33 +62,38 @@ def icon_per_storage_type(type_storage: str) -> str:
 
 
 @lru_cache()
-def icon_per_geometry_type(geometry_type: str):
-    """Return the icon for a geometry type.
+def icon_per_layer_type(
+    is_spatial: bool,
+    layer_type: QgsMapLayerType,
+    geometry_type: Optional[QgsWkbTypes.GeometryType],
+) -> QIcon:
+    """Return a icon from a layer type
 
-    If not found, it will return the default icon.
-
-    :param geometry_type: The geometry as a string.
-    :type geometry_type: basestring
-
-    :return: The icon.
+    :param is_spatial: true if layer is spatial, false otherwise
+    :type is_spatial: bool
+    :param layer_type: layer type
+    :type layer_type: QgsMapLayerType
+    :param geometry_type: geometry type if layer is a QgsVectorLayer
+    :type geometry_type: Optional[QgsWkbTypes.GeometryType]
+    :return: icon for layer
     :rtype: QIcon
     """
-    geometry_type = geometry_type.lower()
-    if geometry_type == "raster":
-        return QgsLayerItem.iconRaster()
-    elif geometry_type == "mesh":
-        return QgsLayerItem.iconMesh()
-    elif geometry_type == "vector-tile":
-        return QgsLayerItem.iconVectorTile()
-    elif geometry_type == "point-cloud":
-        return QgsLayerItem.iconPointCloud()
-    elif geometry_type == "point":
-        return QgsLayerItem.iconPoint()
-    elif geometry_type == "line":
-        return QgsLayerItem.iconLine()
-    elif geometry_type == "polygon":
-        return QgsLayerItem.iconPolygon()
-    elif geometry_type == "no geometry":
+    if not is_spatial:
         return QgsLayerItem.iconTable()
-    else:
-        return QgsLayerItem.iconDefault()
+    if layer_type == QgsMapLayerType.RasterLayer:
+        return QgsLayerItem.iconRaster()
+    elif layer_type == QgsMapLayerType.MeshLayer:
+        return QgsLayerItem.iconMesh()
+    elif layer_type == QgsMapLayerType.VectorTileLayer:
+        return QgsLayerItem.iconVectorTile()
+    elif layer_type == QgsMapLayerType.PointCloudLayer:
+        return QgsLayerItem.iconPointCloud()
+    elif layer_type == QgsMapLayerType.VectorLayer:
+        if geometry_type == QgsWkbTypes.GeometryType.PointGeometry:
+            return QgsLayerItem.iconPoint()
+        elif geometry_type == QgsWkbTypes.GeometryType.LineGeometry:
+            return QgsLayerItem.iconLine()
+        elif geometry_type == QgsWkbTypes.GeometryType.PolygonGeometry:
+            return QgsLayerItem.iconPolygon()
+        return QgsLayerItem.iconPoint()
+    return QgsLayerItem.iconDefault()

@@ -59,24 +59,6 @@ def is_absolute(doc: QtXml.QDomDocument) -> bool:
     return absolute
 
 
-def get_project_title(doc: QtXml.QDomDocument) -> str:
-    """Return the project title defined in the XML document.
-
-    :param doc: The QGIS project as XML document. Default to None.
-    :type doc: QDomDocument
-
-    :return: The title or None.
-    :rtype: string
-    """
-    tags = doc.elementsByTagName("qgis")
-    if tags.count():
-        node = tags.at(0)
-        title_node = node.namedItem("title")
-        return title_node.firstChild().toText().data()
-
-    return None
-
-
 @lru_cache()
 def read_from_file(uri: str) -> Tuple[QtXml.QDomDocument, str]:
     """Read a QGIS project (.qgs and .qgz) from a file path and returns d
