@@ -753,7 +753,7 @@ class MenuFromProject:
         """
         # Get path to QgsProject file, local / downloaded / from postgres database
         uri = project["file"]
-        _, path = self.getQgsDoc(uri)
+        doc, path = self.getQgsDoc(uri)
 
         # Load QgsProject with specifics flags for faster parsing
         project_qgs = QgsProject()
@@ -766,7 +766,7 @@ class MenuFromProject:
         project_qgs.read(path, flags)
 
         # Create project menu configuration from QgsProject
-        project_config = get_project_menu_config(project_qgs, uri)
+        project_config = get_project_menu_config(project_qgs, uri, doc)
 
         # Define project name
         name = project["name"]
@@ -934,17 +934,25 @@ class MenuFromProject:
                 abstract = layer.metadata_abstract or layer.abstract
                 title = layer.metadata_title or layer.title
 
+            abstract = ""
+            title = ""
+            for oSource in self.optionSourceMD:
+                if oSource == MenuFromProject.SOURCE_MD_OGC:
+                    abstract = layer.metadata_abstract if abstract == "" else abstract
+                    title = title or layer.metadata_title
+
+                if oSource == MenuFromProject.SOURCE_MD_LAYER:
+                    abstract = layer.abstract if abstract == "" else abstract
+                    title = title or layer.title
+
+                if oSource == MenuFromProject.SOURCE_MD_NOTE:
+                    abstract = layer.layer_notes if abstract == "" else abstract
+
             if (abstract != "") and (title == ""):
-                action.setToolTip(
-                    "<p>{}</p>".format("<br/>".join(abstract.split("\n")))
-                )
+                action.setToolTip("<p>{}</p>".format(abstract))
             else:
                 if abstract != "" or title != "":
-                    action.setToolTip(
-                        "<b>{}</b><br/>{}".format(
-                            title, "<br/>".join(abstract.split("\n"))
-                        )
-                    )
+                    action.setToolTip("<b>{}</b><br/>{}".format(title, abstract))
                 else:
                     action.setToolTip("")
 

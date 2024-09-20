@@ -3,7 +3,19 @@ from dataclasses import dataclass
 from typing import Any, List, Optional, Tuple
 
 # PyQGIS
-from qgis.core import QgsLayerTreeNode, QgsMapLayerType, QgsProject, QgsWkbTypes
+from qgis.PyQt import QtXml
+from qgis.core import (
+    QgsLayerTreeNode,
+    QgsMapLayerType,
+    QgsProject,
+    QgsWkbTypes,
+    QgsLayerNotesUtils,
+    QgsReadWriteContext,
+    QgsMapLayer,
+)
+
+# project
+from menu_from_project.logic.xml_utils import getFirstChildByTagNameValue
 
 
 @dataclass
@@ -20,6 +32,7 @@ class MenuLayerConfig:
     layer_type: QgsMapLayerType
     metadata_abstract: str
     metadata_title: str
+    layer_notes: str
     abstract: str
     title: str
     geometry_type: Optional[QgsWkbTypes.GeometryType] = None
@@ -88,8 +101,34 @@ def read_embedded_properties(
     return embedded, filename
 
 
+def get_layer_user_notes(layer: QgsMapLayer, doc: QtXml.QDomDocument) -> str:
+    """Get layer user notes
+
+    :param layer: layer
+    :type layer: QgsMapLayer
+    :param doc: xml doc for project
+    :type doc: QtXml.QDomDocument
+    :return: layer user notes
+    :rtype: str
+    """
+    # HACK for layer not vector the layer notes are not available
+    # see issue https://github.com/qgis/QGIS/issues/58818
+    # To have the value available we read directly from xml doc
+    if layer.type() != QgsMapLayerType.VectorLayer:
+        node = getFirstChildByTagNameValue(
+            doc.documentElement(), "maplayer", "id", layer.id()
+        )
+        layer_notes = ""
+        elt_user_notes = node.namedItem("userNotes")
+        if elt_user_notes.toElement().hasAttribute("value"):
+            layer_notes = elt_user_notes.toElement().attribute("value")
+    else:
+        layer_notes = QgsLayerNotesUtils.layerNotes(layer)
+    return layer_notes
+
+
 def get_layer_menu_config(
-    layer_tree: QgsLayerTreeNode, project: QgsProject
+    layer_tree: QgsLayerTreeNode, project: QgsProject, doc: QtXml.QDomDocument
 ) -> MenuLayerConfig:
     """Get layer menu configuration from a QgsLayerTreeNode in a QgsProject
 
@@ -97,6 +136,8 @@ def get_layer_menu_config(
     :type layer_tree: QgsLayerTreeNode
     :param project: project where layer tree is used
     :type project: QgsProject
+    :param doc: xml doc extracted from qgis project
+    :type doc: QtXml.QDomDocument
     :return: Layer menu configuration
     :rtype: MenuLayerConfig
     """
@@ -107,6 +148,8 @@ def get_layer_menu_config(
 
     # Get project map layer
     layer = project.mapLayer(layer_tree.layerId())
+
+    layer_notes = get_layer_user_notes(layer, doc)
 
     return MenuLayerConfig(
         name=layer_tree.name(),
@@ -126,11 +169,12 @@ def get_layer_menu_config(
             if layer.type() == QgsMapLayerType.VectorLayer
             else None
         ),
+        layer_notes=layer_notes,
     )
 
 
 def get_group_menu_config(
-    layer_tree: QgsLayerTreeNode, project: QgsProject
+    layer_tree: QgsLayerTreeNode, project: QgsProject, doc: QtXml.QDomDocument
 ) -> MenuGroupConfig:
     """Get group menu configuration from a QgsLayerTreeNode in a QgsProject
 
@@ -138,6 +182,8 @@ def get_group_menu_config(
     :type layer_tree: QgsLayerTreeNode
     :param project: project where layer tree is used
     :type project: QgsProject
+    :param doc: xml doc extracted from qgis project
+    :type doc: QtXml.QDomDocument
     :return: Group menu configuration
     :rtype: MenuGroupConfig
     """
@@ -149,26 +195,30 @@ def get_group_menu_config(
 
     for child in layer_tree.children():
         if child.nodeType() == QgsLayerTreeNode.NodeGroup:
-            childs.append(get_group_menu_config(child, project))
+            childs.append(get_group_menu_config(child, project, doc))
         elif child.nodeType() == QgsLayerTreeNode.NodeLayer:
-            childs.append(get_layer_menu_config(child, project))
+            childs.append(get_layer_menu_config(child, project, doc))
     return MenuGroupConfig(
         name=layer_tree.name(), embedded=embedded, filename=filename, childs=childs
     )
 
 
-def get_project_menu_config(qgs_project: QgsProject, uri: str) -> MenuProjectConfig:
+def get_project_menu_config(
+    qgs_project: QgsProject, uri: str, doc: QtXml.QDomDocument
+) -> MenuProjectConfig:
     """Get project menu configuration from a QgsProject
 
     :param qgs_project: project
     :type qgs_project: QgsProject
     :param uri: initial uri of project (can be from local file / http / postgres)
     :type uri: str
+    :param doc: xml doc extracted from qgis project
+    :type doc: QtXml.QDomDocument
     :return: Project menu configuration
     :rtype: MenuProjectConfig
     """
     return MenuProjectConfig(
         filename=qgs_project.absoluteFilePath(),
         uri=uri,
-        root_group=get_group_menu_config(qgs_project.layerTreeRoot(), qgs_project),
+        root_group=get_group_menu_config(qgs_project.layerTreeRoot(), qgs_project, doc),
     )
