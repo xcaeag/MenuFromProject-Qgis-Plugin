@@ -38,7 +38,6 @@ from qgis.core import (
     QgsRelation,
 )
 from qgis.PyQt.QtCore import QCoreApplication, QFileInfo, Qt, QTranslator, QUuid
-from qgis.PyQt.QtXml import QDomNode
 from qgis.PyQt.QtGui import QFont, QIcon
 from qgis.PyQt.QtWidgets import QAction, QMenu, QWidget
 from qgis.utils import plugins
@@ -63,6 +62,10 @@ from menu_from_project.logic.project_read import (
     MenuLayerConfig,
     MenuProjectConfig,
     get_project_menu_config,
+)
+from menu_from_project.logic.xml_utils import (
+    getFirstChildByTagNameValue,
+    getFirstChildByAttrValue,
 )
 
 # ############################################################################
@@ -114,32 +117,6 @@ def showPluginHelp(packageName: str = None, filename: str = "index", section: st
         if section != "":
             url = url + "#" + section
         QDesktopServices.openUrl(QUrl(url, QUrl.TolerantMode))
-
-
-def getFirstChildByTagNameValue(elt, tagName, key, value):
-    nodes = elt.elementsByTagName(tagName)
-    for node in (nodes.at(i) for i in range(nodes.size())):
-        nd = node.namedItem(key)
-        if nd and value == nd.firstChild().toText().data():
-            # layer founds
-            return node
-
-    return None
-
-
-def getFirstChildByAttrValue(elt, tagName, key, value):
-    if isinstance(elt, QDomNode):
-        elt = elt.toElement()
-    nodes = elt.elementsByTagName(tagName)
-    for node in (nodes.at(i) for i in range(nodes.size())):
-        if (
-            node.toElement().hasAttribute(key)
-            and node.toElement().attribute(key) == value
-        ):
-            # layer founds
-            return node
-
-    return None
 
 
 def getMapLayersDict(domdoc):
@@ -242,7 +219,9 @@ class MenuFromProject:
     @staticmethod
     def log(message, application=__title__, indent=0):
         indent_chars = " .. " * indent
-        QgsMessageLog.logMessage(f"{indent_chars}{message}", application, notifyUser=True)
+        QgsMessageLog.logMessage(
+            f"{indent_chars}{message}", application, notifyUser=True
+        )
 
     def store(self):
         """Store the configuration in the QSettings."""
@@ -332,7 +311,9 @@ class MenuFromProject:
                         file = s.value("file", "")
                         name = s.value("name", "")
                         location = s.value("location", "new")
-                        type_storage = s.value("type_storage", guess_type_from_uri(file))
+                        type_storage = s.value(
+                            "type_storage", guess_type_from_uri(file)
+                        )
                         if file != "":
                             self.projects.append(
                                 {
@@ -455,7 +436,9 @@ class MenuFromProject:
 
                             if self.optionTooltip:
                                 # search embeded maplayer (for title, abstract)
-                                mapLayer = self.getMapLayerDomFromQgs(efilename, layerId)
+                                mapLayer = self.getMapLayerDomFromQgs(
+                                    efilename, layerId
+                                )
                                 if mapLayer is not None:
                                     self.addToolTip(mapLayer, action)
                     else:
@@ -483,7 +466,9 @@ class MenuFromProject:
 
                 # Add geometry type icon
                 try:
-                    map_layer = self.getMapLayerDomFromQgs(efilename, layerId).toElement()
+                    map_layer = self.getMapLayerDomFromQgs(
+                        efilename, layerId
+                    ).toElement()
                     geometry_type = map_layer.attribute("geometry")
                     if geometry_type == "":
                         # A TMS has not a geometry attribute.
@@ -974,9 +959,13 @@ class MenuFromProject:
                 self.iface.mainWindow(),
             )
 
-            self.iface.addPluginToMenu("&" + __title__, self.action_project_configuration)
+            self.iface.addPluginToMenu(
+                "&" + __title__, self.action_project_configuration
+            )
             # Add actions to the toolbar
-            self.action_project_configuration.triggered.connect(self.open_projects_config)
+            self.action_project_configuration.triggered.connect(
+                self.open_projects_config
+            )
 
             # menu item - Documentation
             self.action_menu_help = QAction(
@@ -1278,7 +1267,9 @@ class MenuFromProject:
             for m in e.args:
                 self.log(m)
 
-    def buildRelations(self, uri, doc, oldLayerId, newLayerId, group, parentsLoop, loop):
+    def buildRelations(
+        self, uri, doc, oldLayerId, newLayerId, group, parentsLoop, loop
+    ):
         """identify the relations to be created (later, after source layer creation)
 
         Based on those of the source project, adapted to the new identifiers of the layers
@@ -1295,7 +1286,9 @@ class MenuFromProject:
                     # La couche cible a déjà été ajoutée (boucle infinie)
                     # on se contente de référencer celle-ci
                     relDict["referencedLayer"] = newLayerId
-                    relDict["referencingLayer"] = parentsLoop[relDict["referencingLayer"]]
+                    relDict["referencingLayer"] = parentsLoop[
+                        relDict["referencingLayer"]
+                    ]
                     relationsToBuild.append(relDict)
                 else:
                     # la couche cible n'a pas été ajoutée
@@ -1379,7 +1372,9 @@ class MenuFromProject:
                                 j.setJoinLayer(joinLayer)
                                 layer.addJoin(j)
                         except Exception as e:
-                            self.log("Joined layer {} not added.".format(j.joinLayerId()))
+                            self.log(
+                                "Joined layer {} not added.".format(j.joinLayerId())
+                            )
                             pass
 
         except Exception as e:
