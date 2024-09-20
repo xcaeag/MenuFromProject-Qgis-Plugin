@@ -62,39 +62,6 @@ def icon_per_storage_type(type_storage: str) -> str:
 
 
 @lru_cache()
-def icon_per_geometry_type(geometry_type: str):
-    """Return the icon for a geometry type.
-
-    If not found, it will return the default icon.
-
-    :param geometry_type: The geometry as a string.
-    :type geometry_type: basestring
-
-    :return: The icon.
-    :rtype: QIcon
-    """
-    geometry_type = geometry_type.lower()
-    if geometry_type == "raster":
-        return QgsLayerItem.iconRaster()
-    elif geometry_type == "mesh":
-        return QgsLayerItem.iconMesh()
-    elif geometry_type == "vector-tile":
-        return QgsLayerItem.iconVectorTile()
-    elif geometry_type == "point-cloud":
-        return QgsLayerItem.iconPointCloud()
-    elif geometry_type == "point":
-        return QgsLayerItem.iconPoint()
-    elif geometry_type == "line":
-        return QgsLayerItem.iconLine()
-    elif geometry_type == "polygon":
-        return QgsLayerItem.iconPolygon()
-    elif geometry_type == "no geometry":
-        return QgsLayerItem.iconTable()
-    else:
-        return QgsLayerItem.iconDefault()
-
-
-@lru_cache()
 def icon_per_layer_type(
     is_spatial: bool,
     layer_type: QgsMapLayerType,
