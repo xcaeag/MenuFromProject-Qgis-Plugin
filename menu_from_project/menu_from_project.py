@@ -355,38 +355,17 @@ class MenuFromProject:
         :return: created menu
         :rtype: QMenu
         """
-        # Get path to QgsProject file, local / downloaded / from postgres database
-        uri = project["file"]
-        doc, path = self.getQgsDoc(uri)
-
-        # Load QgsProject with specifics flags for faster parsing
-        project_qgs = QgsProject()
-        flags = (
-            QgsProject.FlagDontResolveLayers
-            | QgsProject.FlagDontLoadLayouts
-            | QgsProject.FlagTrustLayerMetadata
-            | QgsProject.FlagDontStoreOriginalStyles
-        )
-        project_qgs.read(path, flags)
 
         # Create project menu configuration from QgsProject
-        project_config = get_project_menu_config(project_qgs, uri, doc)
-
-        # Define project name
-        name = project["name"]
-        if name == "":
-            name = project_qgs.title()
-        if name == "":
-            name = Path(path).stem
+        project_config = get_project_menu_config(project, self.qgs_dom_manager)
 
         # Add to QGIS instance
-        previous = self.add_project_config(name, project, project_config, previous)
+        previous = self.add_project_config(project, project_config, previous)
 
         return previous
 
     def add_project_config(
         self,
-        menu_name: str,
         project: Dict[str, str],
         project_config: MenuProjectConfig,
         previous: Optional[QMenu],
@@ -405,7 +384,7 @@ class MenuFromProject:
         :rtype: QMenu
         """
         project_menu = self.create_project_menu(
-            menu_name=menu_name, project=project, previous=previous
+            menu_name=project_config.project_name, project=project, previous=previous
         )
         self.add_group_childs(project_config.root_group, project_menu)
 
