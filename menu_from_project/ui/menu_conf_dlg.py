@@ -246,7 +246,9 @@ class MenuConfDialog(QDialog, FORM_CLASS):
 
         filePath = QFileDialog.getOpenFileName(
             self,
-            QgsApplication.translate("menu_from_project", "Projects configuration", None),
+            QgsApplication.translate(
+                "menu_from_project", "Projects configuration", None
+            ),
             file_widget.text(),
             QgsApplication.translate(
                 "menu_from_project", "QGIS projects (*.qgs *.qgz)", None
@@ -279,7 +281,9 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         """
         self.plugin.iface.messageBar().pushMessage(
             "Message",
-            self.tr("No HTTP Browser, simply paste your URL into the 'project' column."),
+            self.tr(
+                "No HTTP Browser, simply paste your URL into the 'project' column."
+            ),
             level=Qgis.Info,
         )
 
@@ -382,7 +386,9 @@ class MenuConfDialog(QDialog, FORM_CLASS):
                 location_combo.addItem(self.LOCATIONS[pk]["label"], pk)
 
         location_combo.setCurrentIndex(0)
-        self.tableWidget.setCellWidget(row, self.cols.type_menu_location, location_combo)
+        self.tableWidget.setCellWidget(
+            row, self.cols.type_menu_location, location_combo
+        )
 
         # project file path
         itemFile = QTableWidgetItem()
@@ -534,7 +540,7 @@ class MenuConfDialog(QDialog, FORM_CLASS):
         """
         file_widget = self.sender()
         try:
-            self.plugin.getQgsDoc(text)
+            self.plugin.qgs_dom_manager.getQgsDoc(text)
             file_widget.setStyleSheet("color: {};".format("black"))
         except Exception as err:
             self.plugin.log("Error during project reading: {}".format(err))
