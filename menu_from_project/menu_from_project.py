@@ -47,8 +47,8 @@ from qgis.utils import plugins
 # project
 from .__about__ import DIR_PLUGIN_ROOT, __title__, __title_clean__
 from .logic.qgs_manager import (
+    QgsDomManager,
     is_absolute,
-    read_from_database,
     read_from_file,
     read_from_http,
 )
@@ -70,8 +70,6 @@ from menu_from_project.logic.xml_utils import getFirstChildByTagNameValue
 # ##################################
 
 logger = logging.getLogger(__name__)
-cache_folder = Path.home() / f".cache/QGIS/{__title_clean__}"
-cache_folder.mkdir(exist_ok=True, parents=True)
 
 # ############################################################################
 # ########## Functions #############
@@ -163,11 +161,10 @@ class MenuFromProject:
 
         self.iface = iface
         self.toolBar = None
-        self.project_registry = QgsApplication.projectStorageRegistry()
 
         # new multi projects var
         self.projects = []
-        self.docs = dict()
+        self.qgs_dom_manager = QgsDomManager()
         self.menubarActions = []
         self.layerMenubarActions = []
         self.canvas = self.iface.mapCanvas()
@@ -316,55 +313,6 @@ class MenuFromProject:
         except Exception:
             pass
 
-    def getQgsDoc(self, uri):
-        """Return the XML document and the path from an URI.
-
-        The URI can be a filepath or stored in database.
-
-        :param uri: The URI to fetch.
-        :type uri: basestring
-
-        :return: Tuple with XML document and the filepath.
-        :rtype: (QDomDocument, basestring)
-        """
-        # determine storage type: file, database or http
-        qgs_storage_type = guess_type_from_uri(uri)
-
-        # check if docs is already here
-        if uri in self.docs:
-            return self.docs[uri], uri
-
-        if qgs_storage_type == "file":
-            doc, project_path = read_from_file(uri)
-        elif qgs_storage_type == "database":
-            doc, project_path = read_from_database(uri, self.project_registry)
-        elif qgs_storage_type == "http":
-            doc, project_path = read_from_http(uri, cache_folder)
-        else:
-            self.log(f"Unrecognized project type: {uri}")
-
-        # store doc into the plugin registry
-        self.docs[project_path] = doc
-
-        return doc, project_path
-
-    def getMapLayerDomFromQgs(self, fileName, layerId):
-        """Return the maplayer node in a project filepath given a maplayer ID.
-
-        :param fileName: The project filepath on the filesystem.
-        :type fileName: basestring
-
-        :param layerId: The layer ID to look for in the project.
-        :type layerId: basestring
-
-        :return: The XML node of the layer.
-        :rtype: QDomNode
-        """
-        doc, _ = self.getQgsDoc(fileName)
-        return getFirstChildByTagNameValue(
-            doc.documentElement(), "maplayer", "id", layerId
-        )
-
     def initMenus(self):
         menuBar = self.iface.editMenu().parentWidget()
         for action in self.menubarActions:
@@ -407,38 +355,17 @@ class MenuFromProject:
         :return: created menu
         :rtype: QMenu
         """
-        # Get path to QgsProject file, local / downloaded / from postgres database
-        uri = project["file"]
-        doc, path = self.getQgsDoc(uri)
-
-        # Load QgsProject with specifics flags for faster parsing
-        project_qgs = QgsProject()
-        flags = (
-            QgsProject.FlagDontResolveLayers
-            | QgsProject.FlagDontLoadLayouts
-            | QgsProject.FlagTrustLayerMetadata
-            | QgsProject.FlagDontStoreOriginalStyles
-        )
-        project_qgs.read(path, flags)
 
         # Create project menu configuration from QgsProject
-        project_config = get_project_menu_config(project_qgs, uri, doc)
-
-        # Define project name
-        name = project["name"]
-        if name == "":
-            name = project_qgs.title()
-        if name == "":
-            name = Path(path).stem
+        project_config = get_project_menu_config(project, self.qgs_dom_manager)
 
         # Add to QGIS instance
-        previous = self.add_project_config(name, project, project_config, previous)
+        previous = self.add_project_config(project, project_config, previous)
 
         return previous
 
     def add_project_config(
         self,
-        menu_name: str,
         project: Dict[str, str],
         project_config: MenuProjectConfig,
         previous: Optional[QMenu],
@@ -457,7 +384,7 @@ class MenuFromProject:
         :rtype: QMenu
         """
         project_menu = self.create_project_menu(
-            menu_name=menu_name, project=project, previous=previous
+            menu_name=project_config.project_name, project=project, previous=previous
         )
         self.add_group_childs(project_config.root_group, project_menu)
 
@@ -1012,7 +939,7 @@ class MenuFromProject:
                     ):
                         action.trigger()
             else:
-                doc, _ = self.getQgsDoc(fileName)
+                doc, _ = self.qgs_dom_manager.getQgsDoc(fileName)
 
                 # Loading layer
                 layer, relationsToBuild = self.addLayer(
