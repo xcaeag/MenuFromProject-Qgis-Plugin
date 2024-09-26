@@ -413,7 +413,9 @@ class MenuFromProject:
 
         # Load QgsProject with specifics flags for faster parsing
         project_qgs = QgsProject()
-        flags = (
+        flags = QgsProject.ReadFlags()
+
+        flags |= (
             QgsProject.FlagDontResolveLayers
             | QgsProject.FlagDontLoadLayouts
             | QgsProject.FlagTrustLayerMetadata
