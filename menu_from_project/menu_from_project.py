@@ -26,6 +26,12 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 # PyQGIS
+from menu_from_project.toolbelt.preferences import (
+    SOURCE_MD_LAYER,
+    SOURCE_MD_NOTE,
+    SOURCE_MD_OGC,
+    PlgOptionsManager,
+)
 from qgis.core import (
     QgsApplication,
     QgsMessageLog,
@@ -137,9 +143,6 @@ def project_trusted(doc):
 
 
 class MenuFromProject:
-    SOURCE_MD_OGC = "ogc"
-    SOURCE_MD_LAYER = "layer"
-    SOURCE_MD_NOTE = "note"
 
     def on_initializationCompleted(self):
         # build menu
@@ -164,33 +167,14 @@ class MenuFromProject:
         self.iface = iface
         self.toolBar = None
 
-        # new multi projects var
-        self.projects = []
         self.qgs_dom_manager = QgsDomManager()
         self.menubarActions = []
         self.layerMenubarActions = []
         self.canvas = self.iface.mapCanvas()
-        self.optionTooltip = False
-        self.optionCreateGroup = False
-        self.optionLoadAll = False
-        self.optionOpenLinks = False
-        self.sourcesMdText = {
-            MenuFromProject.SOURCE_MD_OGC: self.tr("QGis Server metadata"),
-            MenuFromProject.SOURCE_MD_LAYER: self.tr("Layer Metadata"),
-            MenuFromProject.SOURCE_MD_NOTE: self.tr("Layer Notes"),
-        }
-        self.optionSourceMD = list(self.sourcesMdText.keys())
+
         self.mapLayerIds = {}
-        self.read()
 
-        if settings.value("menu_from_project/is_setup_visible") is None:
-            # This setting does not exist. We add it by default.
-            settings.setValue("menu_from_project/is_setup_visible", True)
-
-        # If we want to hide the dialog setup to users.
-        self.is_setup_visible = settings.value(
-            "menu_from_project/is_setup_visible", True, bool
-        )
+        self.plg_settings = PlgOptionsManager()
 
         self.action_project_configuration = None
         self.action_menu_help = None
@@ -205,115 +189,6 @@ class MenuFromProject:
         QgsMessageLog.logMessage(
             f"{indent_chars}{message}", application, notifyUser=True
         )
-
-    def store(self):
-        """Store the configuration in the QSettings."""
-        s = QgsSettings()
-
-        s.beginGroup("menu_from_project")
-        try:
-            s.setValue("optionTooltip", self.optionTooltip)
-            s.setValue("optionCreateGroup", self.optionCreateGroup)
-            s.setValue("optionLoadAll", self.optionLoadAll)
-            s.setValue("optionOpenLinks", self.optionOpenLinks)
-            s.setValue("optionSourceMD", ",".join(self.optionSourceMD))
-
-            s.beginWriteArray("projects", len(self.projects))
-            try:
-                for i, project in enumerate(self.projects):
-                    s.setArrayIndex(i)
-                    s.setValue("file", project["file"])
-                    s.setValue("name", project["name"])
-                    s.setValue("location", project["location"])
-                    s.setValue(
-                        "type_storage",
-                        project.get(
-                            "type_storage",
-                            guess_type_from_uri(project.get("file")),
-                        ),
-                    )
-            finally:
-                s.endArray()
-        finally:
-            s.endGroup()
-
-    def read(self):
-        """Read the configuration from QSettings."""
-        s = QgsSettings()
-        try:
-            s.beginGroup("menu_from_project")
-            try:
-                self.optionTooltip = s.value("optionTooltip", True, type=bool)
-                self.optionCreateGroup = s.value("optionCreateGroup", False, type=bool)
-                self.optionLoadAll = s.value("optionLoadAll", False, type=bool)
-                self.optionOpenLinks = s.value("optionOpenLinks", True, type=bool)
-                defaultOptionSourceMD = "{},{},{}".format(
-                    MenuFromProject.SOURCE_MD_OGC,
-                    MenuFromProject.SOURCE_MD_LAYER,
-                    MenuFromProject.SOURCE_MD_NOTE,
-                )
-                self.optionSourceMD = s.value(
-                    "optionSourceMD",
-                    defaultOptionSourceMD,
-                    type=str,
-                )
-                self.optionSourceMD = self.optionSourceMD.split(",")
-                # Retro comp
-                if (
-                    len(self.optionSourceMD) == 1
-                    and self.optionSourceMD[0] == MenuFromProject.SOURCE_MD_OGC
-                ):
-                    self.optionSourceMD = [
-                        MenuFromProject.SOURCE_MD_OGC,
-                        MenuFromProject.SOURCE_MD_LAYER,
-                        MenuFromProject.SOURCE_MD_NOTE,
-                    ]
-                if (
-                    len(self.optionSourceMD) == 1
-                    and self.optionSourceMD[0] == MenuFromProject.SOURCE_MD_LAYER
-                ):
-                    self.optionSourceMD = [
-                        MenuFromProject.SOURCE_MD_LAYER,
-                        MenuFromProject.SOURCE_MD_OGC,
-                        MenuFromProject.SOURCE_MD_NOTE,
-                    ]
-                if (
-                    len(self.optionSourceMD) == 1
-                    and self.optionSourceMD[0] == MenuFromProject.SOURCE_MD_NOTE
-                ):
-                    self.optionSourceMD = [
-                        MenuFromProject.SOURCE_MD_NOTE,
-                        MenuFromProject.SOURCE_MD_LAYER,
-                        MenuFromProject.SOURCE_MD_OGC,
-                    ]
-
-                size = s.beginReadArray("projects")
-                try:
-                    for i in range(size):
-                        s.setArrayIndex(i)
-                        file = s.value("file", "")
-                        name = s.value("name", "")
-                        location = s.value("location", "new")
-                        type_storage = s.value(
-                            "type_storage", guess_type_from_uri(file)
-                        )
-                        if file != "":
-                            self.projects.append(
-                                {
-                                    "file": file,
-                                    "name": name,
-                                    "location": location,
-                                    "type_storage": type_storage,
-                                }
-                            )
-                finally:
-                    s.endArray()
-
-            finally:
-                s.endGroup()
-
-        except Exception:
-            pass
 
     def initMenus(self):
         menuBar = self.iface.editMenu().parentWidget()
@@ -349,8 +224,9 @@ class MenuFromProject:
         :rtype: List[Tuple[Any, MenuProjectConfig]]
         """
         result = []
-        nb_projects = len(self.projects)
-        for i, project in enumerate(self.projects):
+        settings = self.plg_settings.get_plg_settings()
+        nb_projects = len(settings.projects)
+        for i, project in enumerate(settings.projects):
             task.setProgress(i * 100.0 / nb_projects)
 
             # Create project menu configuration from QgsProject
@@ -428,7 +304,9 @@ class MenuFromProject:
                 menu_bar = self.iface.editMenu().parentWidget()
 
             project_menu = QMenu("&" + menu_name, menu_bar)
-            project_menu.setToolTipsVisible(self.optionTooltip)
+            project_menu.setToolTipsVisible(
+                self.plg_settings.get_plg_settings().optionTooltip
+            )
             project_action = menu_bar.addMenu(project_menu)
 
             if location == "layer":
@@ -471,6 +349,8 @@ class MenuFromProject:
 
         name = group.name
 
+        settings = self.plg_settings.get_plg_settings()
+
         # Special cases for separator and title
         # "-" => insert a separator
         if name == "-":
@@ -485,11 +365,11 @@ class MenuFromProject:
         # regular group
         else:
             grp_menu = menu.addMenu("&" + name)
-            grp_menu.setToolTipsVisible(self.optionTooltip)
+            grp_menu.setToolTipsVisible(settings.optionTooltip)
 
             layer_inserted = self.add_group_childs(group=group, grp_menu=grp_menu)
 
-            if layer_inserted and self.optionLoadAll:
+            if layer_inserted and settings.optionLoadAll:
                 action = QAction(self.tr("Load all"), self.iface.mainWindow())
                 font = QFont()
                 font.setBold(True)
@@ -511,6 +391,7 @@ class MenuFromProject:
         :param menu: input menu
         :type menu: QMenu
         """
+        settings = self.plg_settings.get_plg_settings()
         action = QAction(layer.name, self.iface.mainWindow())
 
         # add menu item
@@ -522,8 +403,8 @@ class MenuFromProject:
         action.setIcon(
             icon_per_layer_type(layer.is_spatial, layer.layer_type, layer.geometry_type)
         )
-        if self.optionTooltip:
-            if self.optionSourceMD == MenuFromProject.SOURCE_MD_OGC:
+        if settings.optionTooltip:
+            if settings.optionSourceMD == SOURCE_MD_OGC:
                 abstract = layer.abstract or layer.metadata_abstract
                 title = layer.title or layer.metadata_title
             else:
@@ -532,16 +413,16 @@ class MenuFromProject:
 
             abstract = ""
             title = ""
-            for oSource in self.optionSourceMD:
-                if oSource == MenuFromProject.SOURCE_MD_OGC:
+            for oSource in settings.optionSourceMD:
+                if oSource == SOURCE_MD_OGC:
                     abstract = layer.metadata_abstract if abstract == "" else abstract
                     title = title or layer.metadata_title
 
-                if oSource == MenuFromProject.SOURCE_MD_LAYER:
+                if oSource == SOURCE_MD_LAYER:
                     abstract = layer.abstract if abstract == "" else abstract
                     title = title or layer.title
 
-                if oSource == MenuFromProject.SOURCE_MD_NOTE:
+                if oSource == SOURCE_MD_NOTE:
                     abstract = layer.layer_notes if abstract == "" else abstract
 
             if (abstract != "") and (title == ""):
@@ -555,7 +436,8 @@ class MenuFromProject:
         menu.addAction(action)
 
     def initGui(self):
-        if self.is_setup_visible:
+        settings = self.plg_settings.get_plg_settings()
+        if settings.is_setup_visible:
             # menu item - Main
             self.action_project_configuration = QAction(
                 QIcon(str(DIR_PLUGIN_ROOT / "resources/menu_from_project.png")),
@@ -599,7 +481,8 @@ class MenuFromProject:
         self.menubarActions = []
         self.layerMenubarActions = []
 
-        if self.is_setup_visible:
+        settings = self.plg_settings.get_plg_settings()
+        if settings.is_setup_visible:
             self.iface.removePluginMenu(
                 "&" + __title__, self.action_project_configuration
             )
@@ -610,10 +493,8 @@ class MenuFromProject:
 
         self.iface.initializationCompleted.disconnect(self.on_initializationCompleted)
 
-        self.store()
-
     def open_projects_config(self):
-        dlg = MenuConfDialog(self.iface.mainWindow(), self)
+        dlg = MenuConfDialog(self.iface.mainWindow())
         dlg.setModal(True)
 
         dlg.show()
@@ -643,6 +524,7 @@ class MenuFromProject:
         loop=0,
     ):
         theLayer = None
+        settings = self.plg_settings.get_plg_settings()
 
         # is project in relative path ?
         absolute = is_absolute(doc)
@@ -681,14 +563,14 @@ class MenuFromProject:
 
             # is relations exists ?
             relationsToBuild = []
-            if self.optionOpenLinks:
+            if settings.optionOpenLinks:
                 relationsToBuild = self.buildRelations(
                     uri, doc, layerId, newLayerId, group, parentsLoop, loop
                 )
 
             # read modified layer node
             newLayer = None
-            if self.optionCreateGroup and group is not None:
+            if settings.optionCreateGroup and group is not None:
                 if layerType == "raster":
                     theLayer = QgsRasterLayer()
                 elif layerType == "vector-tile":
@@ -931,10 +813,12 @@ class MenuFromProject:
         QgsApplication.setOverrideCursor(Qt.WaitCursor)
         self.mapLayerIds = {}
 
+        settings = self.plg_settings.get_plg_settings()
+
         try:
             if (
                 isinstance(menu.parentWidget(), (QMenu, QWidget))
-                and self.optionCreateGroup
+                and settings.optionCreateGroup
             ):
                 groupName = menu.title().replace("&", "")
                 group = QgsProject.instance().layerTreeRoot().findGroup(groupName)
@@ -944,7 +828,7 @@ class MenuFromProject:
                     )
 
             # load all layers
-            if fileName is None and layerId is None and self.optionLoadAll:
+            if fileName is None and layerId is None and settings.optionLoadAll:
                 for action in menu.actions()[::-1]:
                     if (
                         action.text() != self.tr("Load all")
@@ -962,7 +846,7 @@ class MenuFromProject:
                     self.buildProjectRelation(doc, relDict)
 
                 # is joined layers exists ?
-                if self.optionOpenLinks and layer and type(layer) == QgsVectorLayer:
+                if settings.optionOpenLinks and layer and type(layer) == QgsVectorLayer:
                     for j in layer.vectorJoins():
                         try:
                             joinLayer, joinRelations = self.addLayer(
