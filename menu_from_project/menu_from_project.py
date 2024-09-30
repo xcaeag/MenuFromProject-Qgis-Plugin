@@ -23,7 +23,7 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 # PyQGIS
 from qgis.core import (
@@ -36,6 +36,7 @@ from qgis.core import (
     QgsVectorLayer,
     QgsVectorTileLayer,
     QgsRelation,
+    QgsTask,
 )
 from qgis.PyQt.QtCore import QCoreApplication, QFileInfo, Qt, QTranslator, QUuid
 from qgis.PyQt.QtGui import QFont, QIcon
@@ -145,6 +146,7 @@ class MenuFromProject:
         self.initMenus()
 
     def __init__(self, iface):
+        self.task = None
         self.path = QFileInfo(os.path.realpath(__file__)).path()
 
         # default lang
@@ -328,41 +330,52 @@ class MenuFromProject:
 
         self.layerMenubarActions = []
 
+        self.task = QgsTask.fromFunction(
+            self.tr("Load projects menu configuration"),
+            self.load_all_project_config,
+            on_finished=self.project_config_loaded,
+        )
+
+        QgsApplication.taskManager().addTask(self.task)
+
+    def load_all_project_config(
+        self, task: QgsTask
+    ) -> List[Tuple[Any, MenuProjectConfig]]:
+        """Load all project config in a task
+
+        :param task: task where the function is run
+        :type task: QgsTask
+        :return: list of tuple of project dict and project menu config
+        :rtype: List[Tuple[Any, MenuProjectConfig]]
+        """
+        result = []
+        nb_projects = len(self.projects)
+        for i, project in enumerate(self.projects):
+            task.setProgress(i * 100.0 / nb_projects)
+
+            # Create project menu configuration from QgsProject
+            project_config = get_project_menu_config(project, self.qgs_dom_manager)
+
+            result.append((project, project_config))
+        return result
+
+    def project_config_loaded(
+        self, exception: Any, project_configs: List[Tuple[Any, MenuProjectConfig]]
+    ) -> None:
+        """Add menu after project configuration load
+
+        :param exception: possible exception raised during load
+        :type exception: Any
+        :param project_configs: list of tuple of project dict and project menu config
+        :type project_configs: List[Tuple[Any, MenuProjectConfig]]
+        """
         QgsApplication.setOverrideCursor(Qt.WaitCursor)
         previous = None
-        for project in self.projects:
-            try:
-                project["valid"] = True
-                uri = project["file"]
-                previous = self.load_and_add_project_config(project, previous)
-            except Exception as e:
-                project["valid"] = False
-                self.log("Menu from layer: Invalid {}".format(uri))
-                for m in e.args:
-                    self.log(m)
+        for project, project_config in project_configs:
+            # Add to QGIS instance
+            previous = self.add_project_config(project, project_config, previous)
 
         QgsApplication.restoreOverrideCursor()
-
-    def load_and_add_project_config(
-        self, project: Dict[str, str], previous: Optional[QMenu]
-    ) -> QMenu:
-        """Load project menu configuration from project and add it to menus
-
-        :param project: dict of information about the project
-        :type project: Dict[str, str]
-        :param previous: previous created menu
-        :type previous: Optional[QMenu]
-        :return: created menu
-        :rtype: QMenu
-        """
-
-        # Create project menu configuration from QgsProject
-        project_config = get_project_menu_config(project, self.qgs_dom_manager)
-
-        # Add to QGIS instance
-        previous = self.add_project_config(project, project_config, previous)
-
-        return previous
 
     def add_project_config(
         self,
