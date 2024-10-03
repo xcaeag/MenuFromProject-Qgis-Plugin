@@ -1,6 +1,7 @@
 # Standard library
 import re
 import os
+from typing import Dict, List, Optional, Tuple
 
 
 # PyQGIS
@@ -14,8 +15,16 @@ from qgis.core import (
     QgsVectorLayer,
     QgsVectorTileLayer,
     QgsRelation,
+    QgsLayerTreeGroup,
+    QgsMapLayer,
 )
-from qgis.PyQt.QtCore import QCoreApplication, QFileInfo, Qt, QUuid
+from qgis.PyQt import QtXml
+from qgis.PyQt.QtCore import (
+    QCoreApplication,
+    QFileInfo,
+    Qt,
+    QUuid,
+)
 from qgis.utils import plugins, iface
 from qgis.PyQt.QtWidgets import QMenu, QWidget
 
@@ -50,15 +59,39 @@ class LayerLoad:
 
     def addLayer(
         self,
-        uri,
-        doc,
-        layerId,
-        group=None,
-        visible=False,
-        expanded=False,
-        parentsLoop: dict = {},
-        loop=0,
-    ):
+        uri: str,
+        doc: QtXml.QDomDocument,
+        layerId: str,
+        group: Optional[QgsLayerTreeGroup] = None,
+        visible: bool = False,
+        expanded: bool = False,
+        parentsLoop: Dict[str, str] = {},
+        loop: int = 0,
+    ) -> Tuple[Optional[QgsMapLayer], Optional[List[Dict[str, str]]]]:
+        """Add layer to current QgsProject.
+
+         Parse Qgis xml document to get layer information and add to QgsProject.
+         If layer has any relations and link layer option is enabled, a list of relation dict is defined
+
+        :param uri: path to QgsProject file. Needed for relative project path resolve
+        :type uri: str
+        :param doc: The QGIS project as XML document.
+        :type doc: QtXml.QDomDocument
+        :param layerId: id of layer (from XML document)
+        :type layerId: str
+        :param group: layer tree group where the layer must be added, defaults to None
+        :type group: Optional[QgsLayerTreeGroup], optional
+        :param visible: layer visibility in layer tree, defaults to False
+        :type visible: bool, optional
+        :param expanded: layer expanded state in layer tree, defaults to False
+        :type expanded: bool, optional
+        :param parentsLoop: dict of layer id for built relation, needed to avoid multiple creation of relations, defaults to {}
+        :type parentsLoop: Dict[str, str], optional
+        :param loop: integer to have indent when displaying log in case of relation build errors, defaults to 0
+        :type loop: int, optional
+        :return: created QgsMapLayer, list of relation dict
+        :rtype: Tuple[Optional[QgsMapLayer], Optional[List[Dict[str, str]]]]
+        """
         theLayer = None
 
         settings = self.plg_settings.get_plg_settings()
@@ -149,15 +182,20 @@ class LayerLoad:
 
         return None, None
 
-    def getRelations(self, doc):
-        """
-        Charger la définition des relations (niveau projet), pour les rétablir éventuellement après chargement des couches
+    def getRelations(self, doc: QtXml.QDomDocument) -> List[Dict[str, str]]:
+        """Load available relation from a QgsProject xml document.
+        These informations are used to create QgsRelation in project after layer load
 
         <relations>
             <relation strength="Association" referencedLayer="layerid" id="refid" name="fk_region" referencingLayer="layerid">
                 <fieldRef referencedField="insee_region" referencingField="insee_region"/>
             </relation>
         </relations>
+
+        :param doc: The QGIS project as XML document.
+        :type doc: QtXml.QDomDocument
+        :return: list of all available relation dict
+        :rtype: List[Dict[str, str]]
         """
         relations = []
         try:
@@ -194,8 +232,23 @@ class LayerLoad:
 
         return relations
 
-    def getRelationsForLayer(self, relations, source=None, target=None):
-        """Retourne le dico de la relation selon si 'source'=referencedLayer ou 'target'=referencingLayer"""
+    def getRelationsForLayer(
+        self,
+        relations: List[Dict[str, str]],
+        source: Optional[str] = None,
+        target: Optional[str] = None,
+    ) -> List[Dict[str, str]]:
+        """Return relations dict list filtered from referencedLayer and/or referencingLayer.
+
+        :param relations: input relations dict list
+        :type relations: List[Dict[str, str]]
+        :param source: layer id for referencedLayer, defaults to None
+        :type source: Optional[str], optional
+        :param target: layer id for referencingLayer, defaults to None
+        :type target: Optional[str], optional
+        :return: _description_
+        :rtype: List[Dict[str, str]]
+        """
 
         r = []
         try:
@@ -211,10 +264,25 @@ class LayerLoad:
 
         return r
 
-    def fixForm(self, doc, newLayerId: str, oldRelationId, newRelationId):
-        """rebuilds the form when relations are defined in it
+    def fixForm(
+        self,
+        doc: QtXml.QDomDocument,
+        newLayerId: str,
+        oldRelationId: str,
+        newRelationId: str,
+    ) -> None:
+        """Rebuilds the form when relations are defined in it
 
         Principle: reading the source XML document, updating identifiers, updating editFormConfig
+
+        :param doc: The QGIS project as XML document.
+        :type doc: QtXml.QDomDocument
+        :param newLayerId: id of created new layer
+        :type newLayerId: str
+        :param oldRelationId: id of old relation
+        :type oldRelationId: str
+        :param newRelationId: id of new relation
+        :type newRelationId: str
         """
         theLayer = QgsProject.instance().mapLayer(newLayerId)
         oldLayerId = self.mapLayerIds[newLayerId]
@@ -246,9 +314,18 @@ class LayerLoad:
                 editFormConfig.readXml(layerNode, QgsReadWriteContext())
                 theLayer.setEditFormConfig(editFormConfig)
 
-    def buildProjectRelation(self, doc, relDict):
+    def buildProjectRelation(
+        self, doc: QtXml.QDomDocument, relDict: Dict[str, str]
+    ) -> None:
+        """Build project relation and add it to QgsProject
+
+        :param doc: The QGIS project as XML document.
+        :type doc: QtXml.QDomDocument
+        :param relDict: relation dictionnary
+        :type relDict: Dict[str, str]
+        """
+
         try:
-            """builds one relation, add it to the project"""
             REL_STRENGTH = {
                 "Association": QgsRelation.Association,
                 "Composition": QgsRelation.Composition,
@@ -291,11 +368,35 @@ class LayerLoad:
                 self.log(m)
 
     def buildRelations(
-        self, uri, doc, oldLayerId, newLayerId, group, parentsLoop, loop
-    ):
-        """identify the relations to be created (later, after source layer creation)
+        self,
+        uri: str,
+        doc: QtXml.QDomDocument,
+        oldLayerId: str,
+        newLayerId: str,
+        group: Optional[QgsLayerTreeGroup],
+        parentsLoop: Dict[str, str],
+        loop: int,
+    ) -> List[Dict[str, str]]:
+        """Identify the relations to be created (later, after source layer creation)
 
         Based on those of the source project, adapted to the new identifiers of the layers
+
+        :param uri: path to QgsProject file. Needed for relative project path resolve
+        :type uri: str
+        :param doc:  The QGIS project as XML document.
+        :type doc: QtXml.QDomDocument
+        :param oldLayerId: id of layer from XML document
+        :type oldLayerId: str
+        :param newLayerId: id of created layer
+        :type newLayerId: str
+        :param group: layer tree group where the layer must be added
+        :type group: Optional[QgsLayerTreeGroup]
+        :param parentsLoop: dict of layer id for built relation, needed to avoid multiple creation of relations
+        :type parentsLoop: Dict[str, str]
+        :param loop: integer to have indent when displaying log in case of relation build errors
+        :type loop: int
+        :return: list of relation dict to create
+        :rtype: List[Dict[str, str]]
         """
         relationsToBuild, targetRelations = [], []
 
@@ -334,15 +435,29 @@ class LayerLoad:
 
         return targetRelations + relationsToBuild
 
-    def loadLayer(self, uri, fileName, layerId, menu=None, visible=None, expanded=None):
-        """Load the chosen layer(s)
+    def loadLayer(
+        self,
+        uri: Optional[str],
+        fileName: Optional[str],
+        layerId: Optional[str],
+        menu: Optional[QMenu] = None,
+        visible: Optional[bool] = None,
+        expanded: Optional[bool] = None,
+    ):
+        """Load layer to current QgsProject
 
         :param uri: The layer URI (file path or PG URI)
-        :type uri: basestring
-
-        :param layerId: The layer ID to look for in the project.
-        :type layerId: basestring
-
+        :type uri: Optional[str]
+        :param fileName: path to QgsProject file, None for Load all option
+        :type fileName: Optional[str]
+        :param layerId: id of layer to load (from QgsProject file), None for Load all option
+        :type layerId: Optional[str]
+        :param menu: QMenu where the action is located, defaults to None
+        :type menu: Optional[QMenu], optional
+        :param visible: define layer visibility in layer tree, defaults to None
+        :type visible: Optional[bool], optional
+        :param expanded: define if layer is expanded in layer tree, defaults to None
+        :type expanded: Optional[bool], optional
         """
         self.canvas.freeze(True)
         self.canvas.setRenderFlag(False)
@@ -354,7 +469,8 @@ class LayerLoad:
 
         try:
             if (
-                isinstance(menu.parentWidget(), (QMenu, QWidget))
+                menu
+                and isinstance(menu.parentWidget(), (QMenu, QWidget))
                 and settings.optionCreateGroup
             ):
                 groupName = menu.title().replace("&", "")
@@ -383,7 +499,11 @@ class LayerLoad:
                     self.buildProjectRelation(doc, relDict)
 
                 # is joined layers exists ?
-                if settings.optionOpenLinks and layer and type(layer) == QgsVectorLayer:
+                if (
+                    settings.optionOpenLinks
+                    and layer
+                    and isinstance(layer, QgsVectorLayer)
+                ):
                     for j in layer.vectorJoins():
                         try:
                             joinLayer, joinRelations = self.addLayer(
