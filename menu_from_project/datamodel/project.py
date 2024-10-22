@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 
@@ -19,4 +19,4 @@ class Project:
     file: str
     type_storage: str
     valid: bool = True
-    cache_config: ProjectCacheConfig = ProjectCacheConfig()
+    cache_config: ProjectCacheConfig = field(default_factory=lambda: ProjectCacheConfig())
