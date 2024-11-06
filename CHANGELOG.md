@@ -1,23 +1,67 @@
 # CHANGELOG
 
-## 2.0.7 - 2023/04/26
+The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
+
+<!--
+
+Unreleased
+
+## [{version_tag}](https://github.com/geotribu/qtribu/releases/tag/{version_tag}) - YYYY-DD-mm
+
+-->
+
+## 2.2.0-beta1 - 2024-11-20
+
+- Layer notes as tooltip
+- Minimum QGIS version is 3.20
+
+## 2.1.0 - 2024-01-30
+
+- Support relations, fix #20
+
+## 2.1.0-beta1 - 2023-08-07
+
+- #51 Support relations
+
+## 2.0.8 - 2023-04-28
+
+- Minimum Version is 3.14
+
+## 2.0.7 - 2023-04-26
 
 - fix #77
 
-## 2.0.6
+## 2.0.6 - 2022-11-08
 
-- Added some icons (https://github.com/nicogodet)
+- Added some icons (<https://github.com/nicogodet>) #72
 
-## 2.0.5 - 2022/09/02
+## 2.0.5 - 2022-09-02
 
-- Japanese translation, thanks to Yamamoto Ryuzo (https://github.com/yamamoto-ryuzo), Tokimasasogo (https://github.com/Tokimasasogo)
+- fix #67
 
-## 2.0.0
+## 2.0.4 - 2022-09-01
+
+- Japanese translation, thanks to Yamamoto Ryuzo (<https://github.com/yamamoto-ryuzo>), Tokimasasogo (<https://github.com/Tokimasasogo>)
+
+## 2.0.3 - 2022-02-28
+
+- fix #53 Help not showing Extensions
+
+## 2.0.2 - 2021-11-26
+
+- fix #50 Alternatively use metadata as tooltip instead of OGC metadata
+
+## 2.0.1 - 2021-05-21
+
+- fix #48 (Load above in ToC), better configuration interface
+
+## 2.0.0 - 2021-05-21
 
 - Allow pointing to http/https online qgs-qgz project file,
 - Support of Joined layers
+- Minor refactoring and tooling made by @Guts, funded by Oslandia and ANFSI
 
-## 1.1.0
+## 1.1.0 - 2020-09-04
 
 - It is now possible to merge two projects (#27).
 
@@ -55,7 +99,7 @@
 - Allow a project stored in database, thanks to Etienne Trimaille (<https://github.com/Gustry>)
 - Allow qgz projects
 
-## 0.8.3
+## 0.8.3 - 2018-06-11
 
 - When create group option is checked, the original layer visibility is preserved. Thanks to Eric LAZZARETTI.
 
@@ -71,7 +115,7 @@
 
 - Migration for QGIS3
 
-## 0.7.6
+## 0.7.6 - 2016-12-29
 
 - Better documentation
 
@@ -95,18 +139,18 @@
 
 - QGIS 2.4 compatible. Deprecated functions are deleted
 
-## 0.7.0
+## 0.7.0 - 2014-06-10
 
-- with "relative path" projects, and embedded layers
+- works with "relative path" projects, and embedded layers
 
 ## 0.6.0
 
 - 2.2 compatible
 
-## 0.5.0
+## 0.5.0 - 2013-08-06
 
 - 2.0 compatible
 
-## 0.4.1
+## 0.4.1 - 2013-03-21
 
 - Load all layers item, create group option (dev version 1.9)
