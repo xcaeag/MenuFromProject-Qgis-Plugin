@@ -1,0 +1,36 @@
+ci-cd:
+  - changed-files:
+      - any-glob-to-any-file: .github/**
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - requirements/*.txt
+          - requirements.txt
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - docs/**
+          - requirements/documentation.txt
+
+enhancement:
+  - head-branch: ["^feature", "feature", "^improve", "improve"]
+
+packaging:
+  - head-branch: ["^packaging", "packaging"]
+
+tooling:
+  - head-branch: ["^tooling", "tooling"]
+  - changed-files:
+      - any-glob-to-any-file:
+          - codecov.yml
+          - .pre-commit-config.yaml
+          - sonar-project.properties
+
+UI:
+  - head-branch: ["^ui", "ui"]
+  - changed-files:
+      - any-glob-to-any-file:
+          - menu_from_project/**/*.ui
+          - menu_from_project/gui/**
