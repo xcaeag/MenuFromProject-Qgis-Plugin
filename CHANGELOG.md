@@ -12,6 +12,7 @@ Unreleased
 
 ## 2.2.0-beta1 - 2024-11-20
 
+- Move GitHub project under Agence de l'eau Adour Garonne organization to allow better access management
 - Layer notes as tooltip
 - Minimum QGIS version is 3.20
 

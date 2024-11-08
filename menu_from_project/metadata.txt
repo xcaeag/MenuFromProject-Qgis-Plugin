@@ -5,22 +5,22 @@ qgisMaximumVersion=3.98
 description=Build layers shortcuts menus based on QGIS projects
 about=Allow easy opening of layers maintaining their style.
 
-version=2.2.0-beta1
+version=2.2.0-DEV
 
 changelog=
 
 # tags are comma separated with spaces allowed
 tags=menu layer project
 
-homepage=https://github.com/xcaeag/MenuFromProject-Qgis-Plugin
-tracker=https://github.com/xcaeag/MenuFromProject-Qgis-Plugin/issues
-repository=https://github.com/xcaeag/MenuFromProject-Qgis-Plugin
+homepage=https://github.com/aeag/MenuFromProject-Qgis-Plugin
+tracker=https://github.com/aeag/MenuFromProject-Qgis-Plugin/issues
+repository=https://github.com/aeag/MenuFromProject-Qgis-Plugin
 icon=resources/menu_from_project.png
 
 # experimental flag
 experimental=False
 
-# deprecated flag (applies to the whole plugin, not just a single version
+# deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False
 
 # Author contact information
