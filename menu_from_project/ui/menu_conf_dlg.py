@@ -5,7 +5,6 @@
 """
 
 # Standard library
-import logging
 from functools import partial
 
 from qgis.core import Qgis, QgsApplication, QgsMessageLog
@@ -46,8 +45,6 @@ from menu_from_project.toolbelt.preferences import (
 # ############################################################################
 # ########## Globals ###############
 # ##################################
-
-logger = logging.getLogger(__name__)
 
 # load ui
 FORM_CLASS, _ = uic.loadUiType(DIR_PLUGIN_ROOT / "ui/conf_dialog.ui")
