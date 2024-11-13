@@ -1,30 +1,21 @@
 #
 import sys
-from os import environ, path
+from datetime import datetime
+from os import path
 
 sys.path.insert(0, path.abspath(".."))
 
 # Package
 from menu_from_project import __about__
 
-# -- Build environment -----------------------------------------------------
-on_rtd = environ.get("READTHEDOCS", None) == "True"
-
 # -- Project information -----------------------------------------------------
-project = __about__.__title__
 author = __about__.__author__
 copyright = __about__.__copyright__
+description = __about__.__summary__
+project = __about__.__title__
 version = release = __about__.__version__
-github_doc_root = "{}/tree/master/doc/".format(__about__.__uri_repository__)
 
-myst_substitutions = {
-    "title": project,
-    "author": author,
-    "repo_url": __about__.__uri__,
-    "version": version,
-}
-
-myst_url_schemes = ("http", "https", "mailto")
+github_doc_root = f"{__about__.__uri__}/tree/master/docs/"
 
 # -- General configuration ---------------------------------------------------
 
@@ -34,12 +25,13 @@ myst_url_schemes = ("http", "https", "mailto")
 extensions = [
     # Sphinx included
     "sphinx.ext.autosectionlabel",
+    "sphinx.ext.extlinks",
     "sphinx.ext.githubpages",
     "sphinx.ext.intersphinx",
-    "sphinx.ext.extlinks",
     "sphinx.ext.viewcode",
     # 3rd party
     "myst_parser",
+    "sphinx_copybutton",
 ]
 
 
@@ -73,7 +65,6 @@ pygments_style = "sphinx"
 
 html_favicon = "../menu_from_project/resources/menu_from_project.png"
 html_logo = "../menu_from_project/resources/menu_from_project.png"
-html_static_path = ["static"]
 html_theme = "furo"
 # html_theme_options = {
 #     "github_url": __about__.__uri_repository__,
@@ -81,18 +72,42 @@ html_theme = "furo"
 # }
 
 
-myst_enable_extensions = [
-    "dollarmath",
-    "amsmath",
-    "deflist",
-    "html_image",
-    "colon_fence",
-    "smartquotes",
-    "replacements",
-    "linkify",
-    "substitution",
-]
 # -- EXTENSIONS --------------------------------------------------------
 
+
 # Configuration for intersphinx (refer to others docs).
-intersphinx_mapping = {"python": ("https://docs.python.org/3/", None)}
+intersphinx_mapping = {
+    "PyQt5": ("https://www.riverbankcomputing.com/static/Docs/PyQt5", None),
+    "python": ("https://docs.python.org/3/", None),
+    "qgis": ("https://qgis.org/pyqgis/master/", None),
+}
+
+# MyST Parser
+myst_enable_extensions = [
+    "amsmath",
+    "colon_fence",
+    "deflist",
+    "dollarmath",
+    "html_image",
+    "linkify",
+    "replacements",
+    "smartquotes",
+    "substitution",
+]
+
+myst_substitutions = {
+    "author": author,
+    "date_update": datetime.now().strftime("%d %B %Y"),
+    "description": description,
+    "qgis_version_max": __about__.__plugin_md__.get("general").get(
+        "qgismaximumversion"
+    ),
+    "qgis_version_min": __about__.__plugin_md__.get("general").get(
+        "qgisminimumversion"
+    ),
+    "repo_url": __about__.__uri__,
+    "title": project,
+    "version": version,
+}
+
+myst_url_schemes = ["http", "https", "mailto"]
