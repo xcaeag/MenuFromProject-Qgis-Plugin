@@ -2,30 +2,27 @@
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 
+from qgis.core import QgsMapLayerType, QgsMessageLog, QgsWkbTypes
+
 # PyQGIS
 from qgis.PyQt import QtXml
 from qgis.PyQt.QtCore import QFileInfo
-from qgis.core import (
-    QgsMapLayerType,
-    QgsWkbTypes,
-    QgsMessageLog,
-)
 
 # project
 from menu_from_project.__about__ import __title__
 from menu_from_project.datamodel.project import Project
-from menu_from_project.logic.xml_utils import getFirstChildByAttrValue
-from menu_from_project.logic.qgs_manager import (
-    QgsDomManager,
-    get_project_title,
-    create_map_layer_dict,
-    is_absolute,
-)
 from menu_from_project.datamodel.project_config import (
-    MenuProjectConfig,
     MenuGroupConfig,
     MenuLayerConfig,
+    MenuProjectConfig,
 )
+from menu_from_project.logic.qgs_manager import (
+    QgsDomManager,
+    create_map_layer_dict,
+    get_project_title,
+    is_absolute,
+)
+from menu_from_project.logic.xml_utils import getFirstChildByAttrValue
 
 
 def get_embedded_project_from_layer_tree(

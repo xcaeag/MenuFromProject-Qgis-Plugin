@@ -1,19 +1,15 @@
 # standard
-from dataclasses import asdict
-from datetime import datetime, timedelta
 import json
 import os
-from pathlib import Path
 import tempfile
+from dataclasses import asdict
+from datetime import datetime, timedelta
+from pathlib import Path
 from typing import List, Optional
 
 # PyQGIS
-from qgis.core import QgsMessageLog, QgsFileDownloader
-from qgis.PyQt.QtCore import QCoreApplication
-from qgis.PyQt.QtCore import (
-    QEventLoop,
-    QUrl,
-)
+from qgis.core import QgsFileDownloader, QgsMessageLog
+from qgis.PyQt.QtCore import QCoreApplication, QEventLoop, QUrl
 
 # project
 from menu_from_project.__about__ import __title__

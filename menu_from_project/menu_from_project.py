@@ -21,48 +21,47 @@ email                : xavier.culos@eau-adour-garonne.fr
 # Standard library
 import logging
 import os
-from typing import Dict, Optional, List, Tuple, Any
+from typing import Any, List, Optional, Tuple
+
+from qgis.core import QgsApplication, QgsMessageLog, QgsSettings, QgsTask
+from qgis.PyQt.QtCore import (
+    QCoreApplication,
+    QDir,
+    QFileInfo,
+    QLocale,
+    Qt,
+    QTranslator,
+    QUrl,
+)
+from qgis.PyQt.QtGui import QDesktopServices, QFont, QIcon
+from qgis.PyQt.QtWidgets import QAction, QMenu
+
+# project
+from menu_from_project.__about__ import DIR_PLUGIN_ROOT, __title__
 
 # PyQGIS
 from menu_from_project.datamodel.project import Project
+from menu_from_project.datamodel.project_config import (
+    MenuGroupConfig,
+    MenuLayerConfig,
+    MenuProjectConfig,
+)
 from menu_from_project.logic.cache_manager import CacheManager
 from menu_from_project.logic.layer_load import LayerLoad
+from menu_from_project.logic.project_read import get_project_menu_config
+from menu_from_project.logic.qgs_manager import (
+    QgsDomManager,
+    read_from_file,
+    read_from_http,
+)
+from menu_from_project.logic.tools import icon_per_layer_type
 from menu_from_project.toolbelt.preferences import (
     SOURCE_MD_LAYER,
     SOURCE_MD_NOTE,
     SOURCE_MD_OGC,
     PlgOptionsManager,
 )
-from qgis.core import (
-    QgsApplication,
-    QgsMessageLog,
-    QgsSettings,
-    QgsTask,
-)
-from qgis.PyQt.QtCore import QCoreApplication, QFileInfo, Qt, QTranslator
-from qgis.PyQt.QtGui import QFont, QIcon
-from qgis.PyQt.QtWidgets import QAction, QMenu
-from qgis.PyQt.QtCore import QLocale, QUrl, QDir
-from qgis.PyQt.QtGui import QDesktopServices
-
-# project
-from menu_from_project.__about__ import DIR_PLUGIN_ROOT, __title__, __title_clean__
-from menu_from_project.logic.qgs_manager import (
-    QgsDomManager,
-    read_from_file,
-    read_from_http,
-)
-from menu_from_project.logic.tools import (
-    icon_per_layer_type,
-)
 from menu_from_project.ui.menu_conf_dlg import MenuConfDialog  # noqa: F4 I001
-from menu_from_project.datamodel.project_config import (
-    MenuGroupConfig,
-    MenuLayerConfig,
-    MenuProjectConfig,
-)
-
-from menu_from_project.logic.project_read import get_project_menu_config
 
 # ############################################################################
 # ########## Globals ###############

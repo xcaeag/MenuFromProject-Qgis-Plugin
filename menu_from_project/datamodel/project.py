@@ -20,4 +20,6 @@ class Project:
     file: str
     type_storage: str
     valid: bool = True
-    cache_config: ProjectCacheConfig = field(default_factory=lambda: ProjectCacheConfig())
+    cache_config: ProjectCacheConfig = field(
+        default_factory=lambda: ProjectCacheConfig()
+    )

@@ -1,32 +1,24 @@
 # Standard library
-import re
 import os
+import re
 from typing import Dict, List, Optional, Tuple
 
-
-# PyQGIS
-from menu_from_project.toolbelt.preferences import PlgOptionsManager
 from qgis.core import (
     QgsApplication,
+    QgsLayerTreeGroup,
+    QgsMapLayer,
     QgsMessageLog,
     QgsProject,
     QgsRasterLayer,
     QgsReadWriteContext,
+    QgsRelation,
     QgsVectorLayer,
     QgsVectorTileLayer,
-    QgsRelation,
-    QgsLayerTreeGroup,
-    QgsMapLayer,
 )
 from qgis.PyQt import QtXml
-from qgis.PyQt.QtCore import (
-    QCoreApplication,
-    QFileInfo,
-    Qt,
-    QUuid,
-)
-from qgis.utils import plugins, iface
+from qgis.PyQt.QtCore import QCoreApplication, QFileInfo, Qt, QUuid
 from qgis.PyQt.QtWidgets import QMenu, QWidget
+from qgis.utils import iface, plugins
 
 # project
 from menu_from_project.__about__ import __title__
@@ -36,6 +28,9 @@ from menu_from_project.logic.qgs_manager import (
     project_trusted,
 )
 from menu_from_project.logic.xml_utils import getFirstChildByTagNameValue
+
+# PyQGIS
+from menu_from_project.toolbelt.preferences import PlgOptionsManager
 
 
 class LayerLoad:
@@ -516,7 +511,7 @@ class LayerLoad:
                                 j.setJoinLayerId(joinLayer.id())
                                 j.setJoinLayer(joinLayer)
                                 layer.addJoin(j)
-                        except Exception as e:
+                        except Exception:
                             self.log(
                                 "Joined layer {} not added.".format(j.joinLayerId())
                             )
