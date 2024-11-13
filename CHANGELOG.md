@@ -10,11 +10,14 @@ Unreleased
 
 -->
 
-## 2.2.0-beta1 - 2024-11-20
+## 2.2.0-beta1 - 2024-11-13
 
-- Move GitHub project under Agence de l'eau Adour Garonne organization to allow better access management
 - Layer notes as tooltip
-- Minimum QGIS version is 3.20
+- Minimum QGIS version is 3.28
+- Defer menu creation in QThreads (funded by EPTB Loire, ANFSI and Charente Eaux Rivière)
+- Add a cache mechanism to improve performances (funded by EPTB Loire, ANFSI and Charente Eaux Rivière)
+- Refactoring project's tooling, documentation and CI/CD (funded by Agences de l'Eau)
+- Move GitHub project under Agence de l'eau Adour Garonne organization to allow better access management
 
 ## 2.1.0 - 2024-01-30
 
