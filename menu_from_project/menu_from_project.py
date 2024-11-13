@@ -79,12 +79,9 @@ class MenuFromProject:
             f"resources/i18n/layers_menu_from_project_{self.locale}.qm"
         )
         if locale_path.exists():
-            print(locale_path, "OK")
             self.translator = QTranslator()
             self.translator.load(str(locale_path.resolve()))
             QCoreApplication.installTranslator(self.translator)
-        else:
-            print(locale_path, "NOT OK")
 
         self.iface = iface
         self.toolBar = None
