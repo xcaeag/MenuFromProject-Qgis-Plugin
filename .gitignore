@@ -38,3 +38,10 @@ docs/_build/
 *.zip
 test/
 deploy.py
+
+
+# -- CUSTOM ----
+*.zip
+*.qm
+menu_from_project/gui/*.db
+pyqt5_to_pyqt6.py
