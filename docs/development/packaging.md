@@ -30,6 +30,7 @@ Through git workflow:
     1. Click on `Generate release notes`
     1. Copy/paste the generated text from `## What's changed` until the line before `**Full changelog**:...` in the CHANGELOG.md replacing `What's changed` with the tag and the publication date
     1. Quit this tab without saving
-1. Change the version number in `metadata.txt`
-1. Apply a git tag with the relevant version: `git tag -a 0.3.0 {git commit hash} -m "This version rocks!"`
-1. Push tag to main branch: `git push origin 0.3.0`
+1. Change the version number in `metadata.txt` with the next version and `DEV` suffix. Example : if you're about to release the version `2.2.0`, the next one will be `2.2.1-DEV`
+1. Commit the changelog modification to main branch: `git commit -m "release: bump version to 2.2.0"`
+1. Apply a git tag with the relevant version: `git tag -a 2.2.0 {git commit hash} -m "This version rocks!"`
+1. Push tag to main branch: `git push origin 2.2.0`
