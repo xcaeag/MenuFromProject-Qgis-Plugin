@@ -126,7 +126,7 @@
     <message>
         <location filename="../ui/conf_dialog.ui" line="362"/>
         <source>Show title &amp;&amp; abstract in tooltip - click to move the item to the first position</source>
-        <translation type="unfinished">Afficher titre et résumé en info bulle. Cliquer sur un item...</translation>
+        <translation>Afficher titre et résumé en info bulle. Cliquer sur un item pour le déplacer en première position</translation>
     </message>
     <message>
         <location filename="../ui/conf_dialog.ui" line="365"/>
