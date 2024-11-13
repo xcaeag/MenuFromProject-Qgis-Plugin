@@ -20,23 +20,16 @@ email                : xavier.culos@eau-adour-garonne.fr
 
 # Standard library
 import os
+from functools import partial
 from typing import Any, List, Optional, Tuple
 
 from qgis.core import QgsApplication, QgsMessageLog, QgsSettings, QgsTask
-from qgis.PyQt.QtCore import (
-    QCoreApplication,
-    QDir,
-    QFileInfo,
-    QLocale,
-    Qt,
-    QTranslator,
-    QUrl,
-)
+from qgis.PyQt.QtCore import QCoreApplication, QFileInfo, Qt, QTranslator, QUrl
 from qgis.PyQt.QtGui import QDesktopServices, QFont, QIcon
 from qgis.PyQt.QtWidgets import QAction, QMenu
 
 # project
-from menu_from_project.__about__ import DIR_PLUGIN_ROOT, __title__
+from menu_from_project.__about__ import DIR_PLUGIN_ROOT, __title__, __uri_homepage__
 
 # PyQGIS
 from menu_from_project.datamodel.project import Project
@@ -61,47 +54,6 @@ from menu_from_project.toolbelt.preferences import (
     PlgOptionsManager,
 )
 from menu_from_project.ui.menu_conf_dlg import MenuConfDialog  # noqa: F4 I001
-
-# ############################################################################
-# ########## Functions #############
-# ##################################
-
-
-"""
-    En attendant un correctif
-"""
-
-
-def showPluginHelp(packageName: str = None, filename: str = "index", section: str = ""):
-    try:
-        source = ""
-        if packageName is None:
-            import inspect
-
-            source = inspect.currentframe().f_back.f_code.co_filename
-        else:
-            import sys
-
-            source = sys.modules[packageName].__file__
-    except:
-        return
-    path = os.path.dirname(source)
-    locale = str(QLocale().name())
-    helpfile = os.path.join(path, filename + "-" + locale + ".html")
-    if not os.path.exists(helpfile):
-        helpfile = os.path.join(path, filename + "-" + locale.split("_")[0] + ".html")
-    if not os.path.exists(helpfile):
-        helpfile = os.path.join(path, filename + "-en.html")
-    if not os.path.exists(helpfile):
-        helpfile = os.path.join(path, filename + "-en_US.html")
-    if not os.path.exists(helpfile):
-        helpfile = os.path.join(path, filename + ".html")
-    if os.path.exists(helpfile):
-        url = "file://" + QDir.fromNativeSeparators(helpfile)
-        if section != "":
-            url = url + "#" + section
-        QDesktopServices.openUrl(QUrl(url, QUrl.TolerantMode))
-
 
 # ############################################################################
 # ########## Classes ###############
@@ -433,7 +385,7 @@ class MenuFromProject:
 
             self.iface.addPluginToMenu("&" + __title__, self.action_menu_help)
             self.action_menu_help.triggered.connect(
-                lambda: showPluginHelp(filename="doc/index")
+                partial(QDesktopServices.openUrl, QUrl(__uri_homepage__))
             )
 
         self.iface.initializationCompleted.connect(self.on_initializationCompleted)
@@ -461,6 +413,7 @@ class MenuFromProject:
             self.action_project_configuration.triggered.disconnect(
                 self.open_projects_config
             )
+            self.iface.removePluginMenu(__title__, self.action_menu_help)
 
         self.iface.initializationCompleted.disconnect(self.on_initializationCompleted)
 
