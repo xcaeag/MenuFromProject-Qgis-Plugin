@@ -1,12 +1,11 @@
 # standard
 import json
 import os
+import shutil
 import tempfile
 from dataclasses import asdict
 from datetime import datetime, timedelta
 from pathlib import Path
-import shutil
-import tempfile
 from typing import List, Optional
 
 # PyQGIS

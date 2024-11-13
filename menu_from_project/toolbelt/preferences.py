@@ -4,10 +4,11 @@
     Plugin settings.
 """
 
+import uuid
+
 # standard
 from dataclasses import dataclass, field
 from typing import List
-import uuid
 
 # PyQGIS
 from qgis.core import QgsSettings

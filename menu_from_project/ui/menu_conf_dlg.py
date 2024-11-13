@@ -4,12 +4,13 @@
     Dialog for setting up the plugin.
 """
 
-# Standard library
-from functools import partial
 import uuid
 
-from qgis.core import QgsApplication, Qgis, QgsMessageLog
-from qgis.gui import QgsProviderGuiRegistry, QgsSpinBox, QgsFileWidget
+# Standard library
+from functools import partial
+
+from qgis.core import Qgis, QgsApplication, QgsMessageLog
+from qgis.gui import QgsFileWidget, QgsProviderGuiRegistry, QgsSpinBox
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import QRect, Qt
 from qgis.PyQt.QtGui import QIcon, QPixmap
