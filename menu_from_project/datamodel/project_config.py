@@ -3,10 +3,7 @@ from dataclasses import dataclass
 from typing import Any, List, Optional
 
 # PyQGIS
-from qgis.core import (
-    QgsMapLayerType,
-    QgsWkbTypes,
-)
+from qgis.core import QgsMapLayerType, QgsWkbTypes
 
 
 @dataclass

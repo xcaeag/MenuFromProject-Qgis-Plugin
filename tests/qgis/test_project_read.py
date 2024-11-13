@@ -11,21 +11,21 @@
 
 # standard library
 
-# PyQGIS
-from qgis.testing import unittest
-from qgis.core import QgsMapLayerType, QgsWkbTypes
-
 from pathlib import Path
 
+from qgis.core import QgsMapLayerType, QgsWkbTypes
+
+# PyQGIS
+from qgis.testing import unittest
+
+from menu_from_project.datamodel.project import Project
 from menu_from_project.datamodel.project_config import (
-    MenuProjectConfig,
     MenuGroupConfig,
     MenuLayerConfig,
+    MenuProjectConfig,
 )
 from menu_from_project.logic.project_read import get_project_menu_config
 from menu_from_project.logic.qgs_manager import QgsDomManager
-from menu_from_project.datamodel.project import Project
-
 
 # ############################################################################
 # ########## Classes #############

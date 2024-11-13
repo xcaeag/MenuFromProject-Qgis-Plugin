@@ -8,22 +8,14 @@
 import logging
 from functools import partial
 
-# PyQGIS
-from menu_from_project.datamodel.project import Project, ProjectCacheConfig
-from menu_from_project.logic.qgs_manager import QgsDomManager
-from menu_from_project.toolbelt.preferences import (
-    SOURCE_MD_LAYER,
-    SOURCE_MD_NOTE,
-    SOURCE_MD_OGC,
-    PlgOptionsManager,
-)
-from qgis.core import QgsApplication, Qgis, QgsMessageLog
-from qgis.gui import QgsProviderGuiRegistry, QgsSpinBox, QgsFileWidget
+from qgis.core import Qgis, QgsApplication, QgsMessageLog
+from qgis.gui import QgsFileWidget, QgsProviderGuiRegistry, QgsSpinBox
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import QRect, Qt
 from qgis.PyQt.QtGui import QIcon, QPixmap
 from qgis.PyQt.QtWidgets import (
     QAction,
+    QCheckBox,
     QComboBox,
     QDialog,
     QFileDialog,
@@ -33,15 +25,22 @@ from qgis.PyQt.QtWidgets import (
     QMenu,
     QTableWidgetItem,
     QToolButton,
-    QCheckBox,
 )
 from qgis.utils import iface
 
 # project
 from menu_from_project.__about__ import DIR_PLUGIN_ROOT, __title__, __version__
+
+# PyQGIS
+from menu_from_project.datamodel.project import Project, ProjectCacheConfig
 from menu_from_project.logic.custom_datatypes import TABLE_COLUMNS_ORDER
-from menu_from_project.logic.tools import (
-    icon_per_storage_type,
+from menu_from_project.logic.qgs_manager import QgsDomManager
+from menu_from_project.logic.tools import icon_per_storage_type
+from menu_from_project.toolbelt.preferences import (
+    SOURCE_MD_LAYER,
+    SOURCE_MD_NOTE,
+    SOURCE_MD_OGC,
+    PlgOptionsManager,
 )
 
 # ############################################################################

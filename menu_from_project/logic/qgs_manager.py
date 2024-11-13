@@ -15,10 +15,10 @@ from urllib.parse import urlparse
 
 # PyQGIS
 from qgis.core import (
-    QgsFileDownloader,
-    QgsReadWriteContext,
-    QgsMessageLog,
     QgsApplication,
+    QgsFileDownloader,
+    QgsMessageLog,
+    QgsReadWriteContext,
 )
 from qgis.PyQt import QtXml
 from qgis.PyQt.QtCore import (
@@ -30,14 +30,14 @@ from qgis.PyQt.QtCore import (
     QTemporaryDir,
     QUrl,
 )
-
 from qgis.utils import iface
+
+from menu_from_project.__about__ import __title__, __title_clean__
 
 # project
 from menu_from_project.logic.cache_manager import CacheManager
 from menu_from_project.logic.tools import guess_type_from_uri
 from menu_from_project.logic.xml_utils import getFirstChildByTagNameValue
-from menu_from_project.__about__ import __title__, __title_clean__
 
 # ############################################################################
 # ########## Globals ###############

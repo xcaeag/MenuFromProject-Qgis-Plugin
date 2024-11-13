@@ -12,7 +12,7 @@ from typing import List
 from qgis.core import QgsSettings
 
 # package
-from menu_from_project.__about__ import __title__, __version__
+from menu_from_project.__about__ import __version__
 from menu_from_project.datamodel.project import Project, ProjectCacheConfig
 from menu_from_project.logic.tools import guess_type_from_uri
 
