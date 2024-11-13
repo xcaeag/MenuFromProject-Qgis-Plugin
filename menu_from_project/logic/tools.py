@@ -1,7 +1,6 @@
 #! python3  # noqa: E265
 
 # Standard library
-import logging
 from functools import lru_cache
 from typing import Optional
 
@@ -11,12 +10,6 @@ from qgis.PyQt.QtGui import QIcon
 
 # project
 from menu_from_project.__about__ import DIR_PLUGIN_ROOT
-
-# ############################################################################
-# ########## Globals ###############
-# ##################################
-
-logger = logging.getLogger(__name__)
 
 # ############################################################################
 # ########## Classes ###############

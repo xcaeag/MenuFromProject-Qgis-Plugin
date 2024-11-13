@@ -19,7 +19,6 @@ email                : xavier.culos@eau-adour-garonne.fr
 """
 
 # Standard library
-import logging
 import os
 from typing import Any, List, Optional, Tuple
 
@@ -62,12 +61,6 @@ from menu_from_project.toolbelt.preferences import (
     PlgOptionsManager,
 )
 from menu_from_project.ui.menu_conf_dlg import MenuConfDialog  # noqa: F4 I001
-
-# ############################################################################
-# ########## Globals ###############
-# ##################################
-
-logger = logging.getLogger(__name__)
 
 # ############################################################################
 # ########## Functions #############

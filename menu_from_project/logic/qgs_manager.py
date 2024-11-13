@@ -5,7 +5,6 @@
 """
 
 # Standard library
-import logging
 import os
 import zipfile
 from functools import lru_cache
@@ -43,7 +42,6 @@ from menu_from_project.logic.xml_utils import getFirstChildByTagNameValue
 # ########## Globals ###############
 # ##################################
 
-logger = logging.getLogger(__name__)
 
 cache_folder = Path.home() / f".cache/QGIS/{__title_clean__}"
 cache_folder.mkdir(exist_ok=True, parents=True)
