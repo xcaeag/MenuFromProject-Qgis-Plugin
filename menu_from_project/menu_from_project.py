@@ -21,10 +21,11 @@ email                : xavier.culos@eau-adour-garonne.fr
 # Standard library
 import os
 from functools import partial
+from pathlib import Path
 from typing import Any, List, Optional, Tuple
 
 from qgis.core import QgsApplication, QgsMessageLog, QgsSettings, QgsTask
-from qgis.PyQt.QtCore import QCoreApplication, QFileInfo, Qt, QTranslator, QUrl
+from qgis.PyQt.QtCore import QCoreApplication, QFileInfo, QLocale, Qt, QTranslator, QUrl
 from qgis.PyQt.QtGui import QDesktopServices, QFont, QIcon
 from qgis.PyQt.QtWidgets import QAction, QMenu
 
@@ -70,17 +71,20 @@ class MenuFromProject:
         self.task = None
         self.path = QFileInfo(os.path.realpath(__file__)).path()
 
-        # default lang
-        settings = QgsSettings()
-        locale = settings.value("locale/userLocale")
-        self.myLocale = locale[0:2]
-        # dictionary
-        localePath = self.path + "/i18n/" + self.myLocale + ".qm"
-        # translator
-        if QFileInfo(localePath).exists():
+        # initialize the locale
+        self.locale: str = QgsSettings().value("locale/userLocale", QLocale().name())[
+            0:2
+        ]
+        locale_path: Path = DIR_PLUGIN_ROOT.joinpath(
+            f"resources/i18n/layers_menu_from_project_{self.locale}.qm"
+        )
+        if locale_path.exists():
+            print(locale_path, "OK")
             self.translator = QTranslator()
-            self.translator.load(localePath)
+            self.translator.load(str(locale_path.resolve()))
             QCoreApplication.installTranslator(self.translator)
+        else:
+            print(locale_path, "NOT OK")
 
         self.iface = iface
         self.toolBar = None
