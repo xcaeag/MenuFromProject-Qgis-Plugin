@@ -173,7 +173,10 @@ class LayerLoad:
             return newLayer, relationsToBuild
 
         else:
-            self.log("Layer {} not found. Can't add layer to QGIS.".format(layerId), indent=loop)
+            self.log(
+                "Layer {} not found. Can't add layer to QGIS.".format(layerId),
+                indent=loop,
+            )
 
         return None, None
 

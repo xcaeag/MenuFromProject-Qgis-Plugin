@@ -2,7 +2,6 @@
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 
-
 # PyQGIS
 from qgis.core import QgsMapLayerType, QgsMessageLog, QgsWkbTypes
 from qgis.PyQt import QtXml
