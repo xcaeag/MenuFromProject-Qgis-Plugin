@@ -298,7 +298,7 @@ class QgsDomManager:
 
         return doc, project_path
 
-    def getMapLayerDomFromQgs(self, fileName: str, layerId: str) -> QtXml.QDomNode:
+    def getMapLayerDomFromQgs(self, fileName: str, layerId: str) -> Optional[QtXml.QDomNode]:
         """Return the maplayer node in a project filepath given a maplayer ID.
 
         :param fileName: The project filepath on the filesystem.

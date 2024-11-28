@@ -153,10 +153,17 @@ class MenuFromProject:
             if not project_config:
                 # Create project menu configuration from QgsProject
                 project_config = get_project_menu_config(project, self.qgs_dom_manager)
-                # Save in cache
-                cache_manager.save_project_menu_config(project, project_config)
-
-            result.append((project, project_config))
+                if project_config:
+                    # Save in cache
+                    cache_manager.save_project_menu_config(project, project_config)
+            if project_config:
+                result.append((project, project_config))
+            else:
+                self.log(
+                    self.tr(
+                        f"Can't define project configuration for project {project.name}"
+                    )
+                )
         return result
 
     def project_config_loaded(

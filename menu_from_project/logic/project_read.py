@@ -2,9 +2,9 @@
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 
-from qgis.core import QgsMapLayerType, QgsMessageLog, QgsWkbTypes
 
 # PyQGIS
+from qgis.core import QgsMapLayerType, QgsMessageLog, QgsWkbTypes
 from qgis.PyQt import QtXml
 from qgis.PyQt.QtCore import QFileInfo
 
@@ -148,7 +148,7 @@ def get_layer_menu_config(
     qgs_dom_manager: QgsDomManager,
     init_filename: str,
     absolute_project: bool,
-) -> MenuLayerConfig:
+) -> Optional[MenuLayerConfig]:
     """Get layer menu configuration from a xml node
 
     :param node: xml node
@@ -163,7 +163,7 @@ def get_layer_menu_config(
     :param absolute_project: True if project is absolute, False otherwise
     :type absolute_project: bool
     :return: layer menu configuration
-    :rtype: MenuLayerConfig
+    :rtype: Optional[MenuLayerConfig]
     """
 
     embedded, filename = read_embedded_properties(
@@ -175,40 +175,43 @@ def get_layer_menu_config(
 
     if embedded:
         ml = qgs_dom_manager.getMapLayerDomFromQgs(filename, layer_id)
-    else:
+    elif layer_id in maplayer_dict:
         ml = maplayer_dict[layer_id]
-
-    if ml:
-        # Metadata infos
-        md = ml.namedItem("resourceMetadata")
-        metadata_title = md.namedItem("title").firstChild().toText().data()
-        metadata_abstract = md.namedItem("abstract").firstChild().toText().data()
-
-        # Layer info
-        title = ml.namedItem("title").firstChild().toText().data()
-        abstract = ml.namedItem("abstract").firstChild().toText().data()
-
-        # Layer notes
-        layer_notes = ""
-        elt_note = ml.namedItem("userNotes")
-        if elt_note.toElement().hasAttribute("value"):
-            layer_notes = elt_note.toElement().attribute("value")
-
-        # Geometry and layer type
-        ml_elem = ml.toElement()
-        geometry_type_str = ml_elem.attribute("geometry")
-        if geometry_type_str == "":
-            # A TMS has not a geometry attribute.
-            # Let's read the "type"
-            geometry_type_str = ml_elem.attribute("type")
-        layer_type, geometry_type, is_spatial = get_layer_type_from_geometry_str(
-            geometry_type_str
-        )
     else:
-        metadata_abstract, metadata_title, title, abstract, layer_notes = ""
-        layer_type = None
-        geometry_type = None
-        is_spatial = False
+        ml = None
+
+    if not ml:
+        QgsMessageLog.logMessage(
+            f"Menu from layer: Can't find layer {layer_id} in qgs project. Layer won't be added to project.",
+            __title__,
+            notifyUser=True,
+        )
+        return None
+    # Metadata infos
+    md = ml.namedItem("resourceMetadata")
+    metadata_title = md.namedItem("title").firstChild().toText().data()
+    metadata_abstract = md.namedItem("abstract").firstChild().toText().data()
+
+    # Layer info
+    title = ml.namedItem("title").firstChild().toText().data()
+    abstract = ml.namedItem("abstract").firstChild().toText().data()
+
+    # Layer notes
+    layer_notes = ""
+    elt_note = ml.namedItem("userNotes")
+    if elt_note.toElement().hasAttribute("value"):
+        layer_notes = elt_note.toElement().attribute("value")
+
+    # Geometry and layer type
+    ml_elem = ml.toElement()
+    geometry_type_str = ml_elem.attribute("geometry")
+    if geometry_type_str == "":
+        # A TMS has not a geometry attribute.
+        # Let's read the "type"
+        geometry_type_str = ml_elem.attribute("type")
+    layer_type, geometry_type, is_spatial = get_layer_type_from_geometry_str(
+        geometry_type_str
+    )
 
     return MenuLayerConfig(
         name=element.attribute("name"),
@@ -324,15 +327,15 @@ def get_group_menu_config(
                 )
             )
         elif child.nodeName() == "layer-tree-layer":
-            childs.append(
-                get_layer_menu_config(
-                    node=child,
-                    maplayer_dict=maplayer_dict,
-                    qgs_dom_manager=qgs_dom_manager,
-                    init_filename=init_filename,
-                    absolute_project=absolute_project,
-                )
+            layer_config = get_layer_menu_config(
+                node=child,
+                maplayer_dict=maplayer_dict,
+                qgs_dom_manager=qgs_dom_manager,
+                init_filename=init_filename,
+                absolute_project=absolute_project,
             )
+            if layer_config:
+                childs.append(layer_config)
 
     return MenuGroupConfig(
         name=name, embedded=embedded, filename=filename, childs=childs
@@ -352,39 +355,45 @@ def get_project_menu_config(
     :return: Optional menu project configuration
     :rtype: Optional[MenuProjectConfig]
     """
+    try:
+        # Get path to QgsProject file, local / downloaded / from postgres database
+        uri = project.file
+        qgs_dom_manager.set_project(project)
+        doc, filename = qgs_dom_manager.getQgsDoc(uri)
 
-    # Get path to QgsProject file, local / downloaded / from postgres database
-    uri = project.file
-    qgs_dom_manager.set_project(project)
-    doc, filename = qgs_dom_manager.getQgsDoc(uri)
+        # Define project name
+        name = project.name
+        if name == "":
+            name = get_project_title(doc)
+        if name == "":
+            name = Path(filename).stem
 
-    # Define project name
-    name = project.name
-    if name == "":
-        name = get_project_title(doc)
-    if name == "":
-        name = Path(filename).stem
+        # Get layer tree root
+        layer_tree_roots = doc.elementsByTagName("layer-tree-group")
+        if layer_tree_roots.length() > 0:
+            if node := layer_tree_roots.item(0):
+                # Create dict of maplayer nodes
+                maplayer_dict = create_map_layer_dict(doc)
+                # Parse node for group and layers
+                menu_project_config = MenuProjectConfig(
+                    project_name=name,
+                    filename=filename,
+                    uri=uri,
+                    root_group=get_group_menu_config(
+                        node=node,
+                        maplayer_dict=maplayer_dict,
+                        qgs_dom_manager=qgs_dom_manager,
+                        init_filename=filename,
+                        absolute_project=is_absolute(doc),
+                    ),
+                )
 
-    # Get layer tree root
-    layer_tree_roots = doc.elementsByTagName("layer-tree-group")
-    if layer_tree_roots.length() > 0:
-        if node := layer_tree_roots.item(0):
-            # Create dict of maplayer nodes
-            maplayer_dict = create_map_layer_dict(doc)
-            # Parse node for group and layers
-            menu_project_config = MenuProjectConfig(
-                project_name=name,
-                filename=filename,
-                uri=uri,
-                root_group=get_group_menu_config(
-                    node=node,
-                    maplayer_dict=maplayer_dict,
-                    qgs_dom_manager=qgs_dom_manager,
-                    init_filename=filename,
-                    absolute_project=is_absolute(doc),
-                ),
-            )
-
-            qgs_dom_manager.set_project(None)
-            return menu_project_config
+                qgs_dom_manager.set_project(None)
+                return menu_project_config
+    except Exception as e:
+        QgsMessageLog.logMessage(
+            f"Menu from layer: Can't parse qgs project for {project.name} : {e}",
+            __title__,
+            notifyUser=True,
+        )
     return None

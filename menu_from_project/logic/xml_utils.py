@@ -1,3 +1,6 @@
+
+from typing import Optional
+
 # PyQGIS
 from qgis.PyQt.QtXml import QDomNode
 
@@ -17,7 +20,7 @@ def getFirstChildByAttrValue(elt, tagName, key, value):
     return None
 
 
-def getFirstChildByTagNameValue(elt, tagName, key, value):
+def getFirstChildByTagNameValue(elt, tagName, key, value) -> Optional[QDomNode]:
     nodes = elt.elementsByTagName(tagName)
     for node in (nodes.at(i) for i in range(nodes.size())):
         nd = node.namedItem(key)
