@@ -10,6 +10,14 @@ Unreleased
 
 -->
 
+## 2.2.0-beta2 - 2024-11-29
+
+## What's Changed
+
+### Bugs fixes 🐛
+
+* fix(project read): must check if layer is available in qgs project by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/126
+
 ## 2.2.0-beta1 - 2024-11-13
 
 - Layer notes as tooltip
