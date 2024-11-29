@@ -98,8 +98,8 @@ class LayerLoad:
         node = getFirstChildByTagNameValue(
             doc.documentElement(), "maplayer", "id", layerId
         )
-        node = node.cloneNode()
         if node:
+            node = node.cloneNode()
             idNode = node.namedItem("id")
             layerType = node.toElement().attribute("type", "vector")
             # give it a new id (for multiple import)
@@ -173,7 +173,10 @@ class LayerLoad:
             return newLayer, relationsToBuild
 
         else:
-            self.log("{} not found".format(layerId), indent=loop)
+            self.log(
+                "Layer {} not found. Can't add layer to QGIS.".format(layerId),
+                indent=loop,
+            )
 
         return None, None
 
@@ -285,6 +288,8 @@ class LayerLoad:
         layerNode = getFirstChildByTagNameValue(
             doc.documentElement(), "maplayer", "id", oldLayerId
         )
+        if not layerNode:
+            self.log("{} not found for form relation fix".format(oldLayerId))
 
         nodes = layerNode.toElement().elementsByTagName("attributeEditorForm")
         if nodes.count() == 0:
