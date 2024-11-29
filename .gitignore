@@ -43,5 +43,5 @@ deploy.py
 # -- CUSTOM ----
 *.zip
 *.qm
-menu_from_project/gui/*.db
+menu_from_project/ui/*.db
 pyqt5_to_pyqt6.py
