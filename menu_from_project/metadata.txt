@@ -5,7 +5,7 @@ qgisMaximumVersion=3.98
 description=Build layers shortcuts menus based on QGIS projects
 about=Allow easy opening of layers maintaining their style.
 
-version=2.2.1-DEV
+version=2.3.0-DEV
 
 changelog=
 
