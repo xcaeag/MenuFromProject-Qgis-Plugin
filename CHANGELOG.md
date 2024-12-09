@@ -22,7 +22,7 @@ Unreleased
 * fix(ci): root's requirements file is required by setup-python by @Guts in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/123
 * Fix: i18n workflow by @Guts in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/124
 * fix(project read): must check if layer is available in qgs project by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/126
-  
+
 ### Features and enhancements 🎉
 
 * Use QgsProject to load needed informations for menu creation by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/87
