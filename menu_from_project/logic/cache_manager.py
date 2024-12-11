@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import List, Optional
 
 # PyQGIS
-from qgis.core import QgsFileDownloader, QgsMessageLog, QgsApplication
+from qgis.core import QgsApplication, QgsFileDownloader, QgsMessageLog
 from qgis.PyQt.QtCore import QCoreApplication, QEventLoop, QUrl
 
 # project
