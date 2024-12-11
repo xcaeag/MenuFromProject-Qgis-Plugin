@@ -10,7 +10,13 @@ Unreleased
 
 -->
 
-<!-- Release notes generated using configuration in .github/release.yml at master -->
+## 2.2.1 - 2024-12-11
+
+### Bugs fixes 🐛
+
+* fix(conf): need to remove projects setting before write by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/139
+* fix(settings): invalid remove use we must indicate projects by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/142
+* Fix/qgis 3 28 use by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/143
 
 ## 2.2.0 - 2024-12-09
 
