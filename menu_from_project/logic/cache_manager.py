@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import List, Optional
 
 # PyQGIS
-from qgis.core import QgsFileDownloader, QgsMessageLog, Qgis, QgsApplication
+from qgis.core import QgsFileDownloader, QgsMessageLog, QgsApplication
 from qgis.PyQt.QtCore import QCoreApplication, QEventLoop, QUrl
 
 # project
@@ -262,15 +262,7 @@ class CacheManager:
         :return: path to project cache directory
         :rtype: Path
         """
-        # Can't use userProfileManager to get current profile directory in QGIS < 3.30
-        qgis_v_maj = Qgis.QGIS_VERSION_INT // 10000
-        qgis_v_min = (Qgis.QGIS_VERSION_INT // 100) % 100
-        if (qgis_v_maj <= 3 and qgis_v_min < 30):
-            # Define profile directory from qgis settings dir
-            profiles_directory = Path(QgsApplication.qgisSettingsDirPath()).parent
-            cache_path = profiles_directory
-        else:
-            cache_path = Path(self.iface.userProfileManager().userProfile().folder())
+        cache_path = Path(QgsApplication.qgisSettingsDirPath())
         cache_path = cache_path / "cache" / "menu_from_project" / project.id
         cache_path.mkdir(parents=True, exist_ok=True)
         return cache_path
