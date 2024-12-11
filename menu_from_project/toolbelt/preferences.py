@@ -183,6 +183,7 @@ class PlgOptionsManager:
             s.setValue("optionOpenLinks", plugin_settings_obj.optionOpenLinks)
             s.setValue("optionSourceMD", ",".join(plugin_settings_obj.optionSourceMD))
 
+            s.remove("menu_from_project", "projects")
             s.beginWriteArray("projects", len(plugin_settings_obj.projects))
             try:
                 for i, project in enumerate(plugin_settings_obj.projects):
