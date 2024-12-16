@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import List, Optional
 
 # PyQGIS
-from qgis.core import QgsFileDownloader, QgsMessageLog
+from qgis.core import QgsApplication, QgsFileDownloader, QgsMessageLog
 from qgis.PyQt.QtCore import QCoreApplication, QEventLoop, QUrl
 
 # project
@@ -262,7 +262,7 @@ class CacheManager:
         :return: path to project cache directory
         :rtype: Path
         """
-        cache_path = Path(self.iface.userProfileManager().userProfile().folder())
+        cache_path = Path(QgsApplication.qgisSettingsDirPath())
         cache_path = cache_path / "cache" / "menu_from_project" / project.id
         cache_path.mkdir(parents=True, exist_ok=True)
         return cache_path

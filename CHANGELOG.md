@@ -10,6 +10,70 @@ Unreleased
 
 -->
 
+## 2.2.1 - 2024-12-11
+
+### Bugs fixes 🐛
+
+* fix(conf): need to remove projects setting before write by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/139
+* fix(settings): invalid remove use we must indicate projects by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/142
+* Fix/qgis 3 28 use by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/143
+
+## 2.2.0 - 2024-12-09
+
+### Bugs fixes 🐛
+
+* fix(dataclass): use field and default_factory for default value by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/97
+* Fix: help menu was leading to a 404 by @Guts in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/118
+* Docs: fix and reorganize by @Guts in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/122
+* fix(ci): root's requirements file is required by setup-python by @Guts in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/123
+* Fix: i18n workflow by @Guts in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/124
+* fix(project read): must check if layer is available in qgs project by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/126
+
+### Features and enhancements 🎉
+
+* Use QgsProject to load needed informations for menu creation by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/87
+* feat: restore xml parsing to avoid postgis request by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/89
+* feat: add unit tests by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/90
+* feat(project load): run projects config load in a QgsTask by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/91
+* feat(plugin): move settings to a specific class by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/92
+* feat(layer load): move code for layer load to a specific class LayerLoad by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/93
+* feat(layer load): add typing and docstring for better understanding by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/94
+* Feat naive cache by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/95
+* Feat add cache options by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/96
+* feat(cache): add cache validation uri support by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/100
+* refacto(quality): apply git hooks to existing codebase by @Guts in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/121
+* update(docs): add contributing guidelines by @Guts in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/113
+* rm(deadcode): remove unused Python logger by @Guts in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/116
+* (feat): use profile cache dir by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/111
+
+### Tooling 🔧
+
+* add(tooling): PR autolabeler by @Guts in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/109
+* Documentation: modernize CI/CD workflow by @Guts in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/110
+* Packaging: modernize plugin package and release workflow by @Guts in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/115
+
+### Other Changes
+
+* Tooling: update dev dependencies by @Guts in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/98
+* update(tooling): upgrade git hooks by @Guts in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/99
+* update(packaging): make changelog compliant with 'keep a changelog' convention by @Guts in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/106
+* update(packaging): use new project's URL by @Guts in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/108
+* add(tooling): use issue form templates to gather feedback by @Guts in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/119
+* fix(tooling): fix path for flake8 by @Guts in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/112
+* update(docs): complete contribute section by @Guts in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/114
+* update(packaging): set minimum version to 3.28 by @Guts in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/120
+
+## New Contributors
+
+* @jmkerloch made their first contribution in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/87
+
+
+## 2.2.0-beta2 - 2024-11-29
+
+### Bugs fixes 🐛
+
+* fix(project read): must check if layer is available in qgs project by @jmkerloch in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/126
+
 ## 2.2.0-beta1 - 2024-11-13
 
 - Layer notes as tooltip
