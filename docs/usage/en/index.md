@@ -56,21 +56,31 @@ If you want users to access that project, save it to a shared network place, bet
 
 The name will become the title of the menu.
 
+### Destination location
+
 The menu can be placed either in the main menu bar, or in the "layer / add layer" sub-menu, or in QGIS browser (since version 2.3.0). Since version 1.1 it can also be merged with the previous project in the same menu/browser.
 
 For QGIS browser, layers and group can only be displayed alphabetically. Order from project won't be kept and in case of merge, the layers and group will be mixed.
 
-### Options
+### Cache configuration
 
-#### Show title and abstract in tooltip
+Using the cache significantly reduces menu generation time. It can be configured differently for each project/menu.
 
-This is a convenient way to show some metadata to end users before they add it o the working session even if they don't know that metadata are available in layer properties
+If your project is stable, feel free to increase the refresh interval, after which the project will be analyzed again and the menu updated.
 
-#### Load all layers item
+### Advanced cache options
 
-Adds an entry at the end of every menu's node that allow user to load all menu items at once. Very useful when you want to load all topo maps for every zoom level for instance.
+The 'cache' folder contains the date of the last refresh; a second file contains the menu structure. Deleting this file will force a refresh.
 
-![Option - Add all](../../static/add_all_option_en.png)
+A mechanism based on the existence of a validation file allows for forcing a cache refresh. This file, located on a network drive, will allow, for example, an administrator who has modified a project/menu to force a menu update for all user profiles by changing the date in this file, which has the following JSON structure:
+
+```json
+{
+    "last_release": "26/02/2026 12:00:00"
+}
+```
+
+### Global options
 
 #### Create Group
 
@@ -81,6 +91,16 @@ Layer will be added inside a group, taking the name of the menu node.
 #### Also load linked layers
 
 If relations or joins are defined, the opening of a layer will be accompanied by the opening of the associated child layers.
+
+#### Load all layers item
+
+Adds an entry at the end of every menu's node that allow user to load all menu items at once. Very useful when you want to load all topo maps for every zoom level for instance.
+
+![Option - Add all](../../static/add_all_option_en.png)
+
+#### Tooltip
+
+Activates the tooltip when hovering over a menu item. The data comes from layer metadata, OGC information, and layer notes. Clicking on one of the sources adjusts the priority order.
 
 #### Hide configuration dialog
 
