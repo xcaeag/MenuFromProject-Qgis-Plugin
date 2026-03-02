@@ -211,9 +211,16 @@ class CacheManager:
                 cache_config.cache_validation_uri
             )
             if "last_release" in cache_validation_data and cache_last_refresh:
-                last_release = datetime.strptime(
-                    cache_validation_data["last_release"], self.DATETIME_FORMAT
-                )
+                try:
+                    last_release = datetime.strptime(
+                        cache_validation_data["last_release"], self.DATETIME_FORMAT
+                    )
+                except Exception:
+                    self.log(
+                        f"Invalid date in cache validation file  for project {project.name}. Can't check cache context."
+                    )
+                    return False
+
                 if last_release > cache_last_refresh:
                     self.log(
                         self.tr(
