@@ -10,6 +10,15 @@ Unreleased
 
 -->
 
+## 2.4.2 - 2026-03-02
+
+* fix(ui): restore window's icon and title by @Guts in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/182
+* QGIS4 support https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/201
+* fix: The "add all" option adds layers in reverse order https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/215
+* fix(cache): Problem if the cache validation file is incorrect https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/184
+* fix(ui): Use QgsProject icon instead of blank page https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/178
+* update(docs): cache configuration
+
 ## 2.4.1 - 2025-03-19
 
 * fix(settings): avoid check of project validity when using plugin settings by @jmkerloch in <https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/180>
