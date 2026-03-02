@@ -45,13 +45,13 @@ def icon_per_storage_type(type_storage: str) -> str:
     :rtype: str
     """
     if type_storage == "file":
-        return QgsApplication.iconPath("mIconFile.svg")
+        return QgsApplication.iconPath("mIconQgsProjectFile.svg")
     elif type_storage == "database":
         return QgsApplication.iconPath("mIconPostgis.svg")
     elif type_storage == "http":
         return str(DIR_PLUGIN_ROOT / "resources/globe.svg")
     else:
-        return QgsApplication.iconPath("mIconFile.svg")
+        return QgsApplication.iconPath("mIconQgsProjectFile.svg")
 
 
 @lru_cache()

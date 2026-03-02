@@ -88,7 +88,7 @@ class SettingsWidget(FORM_CLASS, QgsOptionsPageWidget):
         self.btnAdd.setIcon(QIcon(QgsApplication.iconPath("mActionAdd.svg")))
         self.addMenu = QMenu(self.btnAdd)
         add_option_file = QAction(
-            QIcon(QgsApplication.iconPath("mIconFile.svg")),
+            QIcon(QgsApplication.iconPath("mIconQgsProjectFile.svg")),
             self.tr("Add from file"),
             self.addMenu,
         )
