@@ -455,7 +455,7 @@ class LayerLoad:
         :param group_name: group name in case of create group option
         :type group_name: str
         """
-        for layer_config in layer_config_list:
+        for layer_config in layer_config_list[::-1]:
             self.load_layer(layer_config=layer_config, group_name=group_name)
 
     def load_layer(self, layer_config: MenuLayerConfig, group_name: str) -> None:
