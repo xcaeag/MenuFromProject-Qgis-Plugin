@@ -247,7 +247,7 @@
          </sizepolicy>
         </property>
         <property name="toolTip">
-         <string>Projectc configuration UUID</string>
+         <string>Project configuration UUID</string>
         </property>
         <property name="text">
          <string>ID:</string>

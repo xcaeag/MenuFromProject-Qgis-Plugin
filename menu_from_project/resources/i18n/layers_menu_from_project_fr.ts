@@ -554,7 +554,7 @@
     </message>
     <message>
         <location filename="../../ui/project_widget.ui" line="250"/>
-        <source>Projectc configuration UUID</source>
+        <source>Project configuration UUID</source>
         <translation>UUID de la configuration du projet</translation>
     </message>
     <message>

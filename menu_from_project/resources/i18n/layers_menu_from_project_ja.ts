@@ -489,7 +489,7 @@
     </message>
     <message>
         <location filename="../../ui/project_widget.ui" line="250"/>
-        <source>Projectc configuration UUID</source>
+        <source>Project configuration UUID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
