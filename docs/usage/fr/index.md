@@ -64,6 +64,12 @@ L'utilisation du cache raccourci considérablement le temps de construction des 
 
 Si votre projet est stable, n'hésitez pas à augmenter l'intervalle de rafraîchissement, à l'issue duquel le projet sera à nouveau analysé et le menu ainsi actualisé.
 
+En résumé :
+
+- Cache désactivé : le menu est actualisé à l'ouverture de QGIS
+- Cache activé + intervalle "None" : le menu n'est jamais actualisé, sauf à videz le dossier 'cache'.
+- Cache activé + intervalle (>= 1 jour) : actualisation selon cette fréquence.
+
 ### Options avancées du cache
 
 Le dossier 'cache' contient la date du dernier rafraîchissement, un deuxième fichier contient la structure des menus. Il peut être effacé, cela forcera le rafraîchissement.
@@ -80,7 +86,7 @@ Un mécanisme basé sur l'existence d'un fichier de validation permet de forcer 
 
 #### Créer un groupe au chargement de la couche
 
-Place la nouvelle couche sous un groupe portant le nom du menu :
+Place la nouvelle couche sous un groupe portant le nom du menu ou sous-menu parent :
 
 ![Option - Créer un groupe au chargement de la couche](../../static/add_group_option_fr.png)
 

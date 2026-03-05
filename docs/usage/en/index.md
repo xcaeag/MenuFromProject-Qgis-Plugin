@@ -68,6 +68,12 @@ Using the cache significantly reduces menu generation time. It can be configured
 
 If your project is stable, feel free to increase the refresh interval, after which the project will be analyzed again and the menu updated.
 
+In summary:
+
+- Cache disabled : the menu is refreshed when QGIS is opened
+- Cache enabled + interval "None" : the menu is never refreshed (except when the cache is cleared).
+- Cache enabled + interval >= 1 day : refreshed according to this interval.
+
 ### Advanced cache options
 
 The 'cache' folder contains the date of the last refresh; a second file contains the menu structure. Deleting this file will force a refresh.
@@ -84,7 +90,7 @@ A mechanism based on the existence of a validation file allows for forcing a cac
 
 #### Create Group
 
-Layer will be added inside a group, taking the name of the menu node.
+Layer will be added inside a group, taking the name of the menu or sub-menu node.
 
 ![Option - Create group](../../static/add_group_option_en.png)
 
