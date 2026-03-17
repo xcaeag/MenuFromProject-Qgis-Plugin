@@ -64,7 +64,7 @@ For QGIS browser, layers and group can only be displayed alphabetically. Order f
 
 ### Cache configuration
 
-Using the cache significantly reduces menu generation time. It can be configured differently for each project/menu.
+Using the cache (disabled by default) significantly reduces menu generation time. It can be configured differently for each project/menu.
 
 If your project is stable, feel free to increase the refresh interval, after which the project will be analyzed again and the menu updated.
 
