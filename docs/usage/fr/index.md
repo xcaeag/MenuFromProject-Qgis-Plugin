@@ -25,7 +25,6 @@ Ce plugin permet de **créer des menus** dans QGIS pour ajouter facilement des c
 
 ![Exemple de menu](../../static/drop_down_menu_fr.png)
 
----
 
 ## 1. Préparer vos projets "modèles"
 Pour que le plugin fonctionne, organisez vos projets comme suit :
@@ -35,11 +34,8 @@ Pour que le plugin fonctionne, organisez vos projets comme suit :
    - Réseau local, PostgreSQL, ou serveur web (pour un partage multi-utilisateurs).
    - Formats supportés : `.qgs`, `.qgz`, ou projet PostgreSQL.
 
-⚠️ **Note** : Dans l'*Explorateur QGIS*, l'ordre alphabétique sera appliqué (pas de personnalisation possible).
-
 ![Correspondance projet → menu](../../static/mapping.png)
 
----
 
 ## 2. Configurer le plugin
 ### Accéder à la configuration
