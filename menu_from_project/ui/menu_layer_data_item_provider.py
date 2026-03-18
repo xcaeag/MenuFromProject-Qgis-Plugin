@@ -28,6 +28,9 @@ from menu_from_project.toolbelt.preferences import PlgOptionsManager
 class MenuLayerProvider(QgsDataItemProvider):
     """Provider for plugin data item"""
 
+    """class-level counter for sorting items in the order in which they were created"""
+    k = 0
+
     def __init__(self, project_configs: List[Tuple[Project, MenuProjectConfig]]):
         """Constructor for provider
 
@@ -65,6 +68,16 @@ class MenuLayerProvider(QgsDataItemProvider):
         """
         return RootCollection(parent=parentItem, project_configs=self.project_configs)
 
+    @classmethod
+    def getNewKey(cls):
+        """Get a new unique key for a data item
+
+        Returns:
+            int: The new unique key
+        """
+        cls.k = cls.k + 1
+        return cls.k
+
 
 class RootCollection(QgsDataCollectionItem):
     """QgsDataCollectionItem to add available project as children"""
@@ -81,12 +94,22 @@ class RootCollection(QgsDataCollectionItem):
         :param project_configs: list of project configuration
         :type project_configs: List[Tuple[Project, MenuProjectConfig]]
         """
+        self.key = MenuLayerProvider.getNewKey()
+
         settings = PlgOptionsManager().get_plg_settings()
         QgsDataCollectionItem.__init__(
             self, parent, settings.browser_name, "/MenuLayer"
         )
         # TODO : define icon
         self.project_configs = project_configs
+
+    def sortKey(self):
+        """Get the sort key for the item
+
+        Returns:
+            int: The sort key
+        """
+        return self.key
 
     def createChildren(self) -> List[QgsDataItem]:
         """Create children for each project
@@ -124,6 +147,8 @@ class ProjectCollection(QgsDataCollectionItem):
         :param project_menu_config: project configuration
         :type project_menu_config: MenuProjectConfig
         """
+        self.key = MenuLayerProvider.getNewKey()
+
         self.path = "/MenuLayer/" + project_menu_config.project_name.lower()
         self.parent = parent
         QgsDataCollectionItem.__init__(
@@ -134,6 +159,14 @@ class ProjectCollection(QgsDataCollectionItem):
         self.setIcon(QIcon(QgsApplication.iconPath("mIconFolderProject.svg")))
 
         self.merged_project = []
+
+    def sortKey(self):
+        """Get the sort key for the item
+
+        Returns:
+            int: The sort key
+        """
+        return self.key
 
     def createChildren(self) -> List[QgsDataItem]:
         """Create children for all group and layer available in project
@@ -163,6 +196,8 @@ class GroupItem(QgsDataCollectionItem):
         :param group_config: group configuration
         :type group_config: MenuGroupConfig
         """
+        self.key = MenuLayerProvider.getNewKey()
+
         self.path = os.path.join(parent.path, group_config.name)
         self.group_config = group_config
         QgsDataCollectionItem.__init__(self, parent, group_config.name, self.path)
@@ -172,6 +207,9 @@ class GroupItem(QgsDataCollectionItem):
         for child in self.group_config.childs:
             if isinstance(child, MenuLayerConfig):
                 self.layer_inserted.append(child)
+
+    def sortKey(self):
+        return self.key
 
     def createChildren(self) -> List[QgsDataItem]:
         """Create children for all group and layer available in a group
@@ -185,7 +223,8 @@ class GroupItem(QgsDataCollectionItem):
             if isinstance(child, MenuGroupConfig):
                 name = child.name
                 # If group name is - it should be a separator but it's not supported in browser
-                # If group name start with - it should be a title but it's not supported in browser
+                if name != "-" and name.startswith("-"):
+                    children.insert(0, SeparatorItem(parent=self, group_config=child))
                 if name != "-" and not name.startswith("-"):
                     children.insert(0, GroupItem(parent=self, group_config=child))
             elif isinstance(child, MenuLayerConfig):
@@ -278,6 +317,8 @@ class LayerDictItem(QgsDataItem):
         :param group_name: group name
         :type group_name: str
         """
+        self.key = MenuLayerProvider.getNewKey()
+
         self.first_layer = list(layer_dict.values())[0][0]
         self.path = os.path.join(parent.path, self.first_layer.name)
         self.layer_dict = layer_dict
@@ -298,6 +339,14 @@ class LayerDictItem(QgsDataItem):
                 geometry_type=self.first_layer.geometry_type,
             )
         )
+
+    def sortKey(self):
+        """Get the sort key for the item
+
+        Returns:
+            int: The sort key
+        """
+        return self.key
 
     def handleDoubleClick(self) -> None:
         """Load layer at double click"""
@@ -361,6 +410,7 @@ class LayerItem(QgsDataItem):
         :param group_name: group name
         :type group_name: str
         """
+        self.key = MenuLayerProvider.getNewKey()
         self.layer_config = layer_config
         self.group_name = group_name
         self.path = os.path.join(parent.path, layer_config.name)
@@ -399,3 +449,39 @@ class LayerItem(QgsDataItem):
                 self.layer_config, self.tr("Display layer"), self.group_name, parent
             )
         ]
+
+    def sortKey(self):
+        """Get the sort key for the item
+
+        Returns:
+            int: The sort key
+        """
+        return self.key
+
+
+class SeparatorItem(QgsDataItem):
+    """QgsDataItem for separator"""
+
+    def __init__(self, parent: QgsDataItem, group_config: MenuGroupConfig):
+        """Constructor for a QgsDataItem to display simple separator
+
+        :param parent: parent
+        :type parent: QgsDataItem
+        :param group_config: pseudo 'group' configuration
+        :type group_config: MenuGroupConfig
+        """
+        self.key = MenuLayerProvider.getNewKey()
+        self.path = os.path.join(parent.path, group_config.name[1:])
+        QgsDataItem.__init__(
+            self, QgsDataItem.Custom, parent, group_config.name[1:], self.path
+        )
+        self.setState(QgsDataItem.Populated)  # no children
+        self.setIcon(QIcon(QgsApplication.iconPath("mItemBookmark.svg")))
+
+    def sortKey(self):
+        """Get the sort key for the item
+
+        Returns:
+            int: The sort key
+        """
+        return self.key
