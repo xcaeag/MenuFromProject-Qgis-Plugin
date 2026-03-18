@@ -73,4 +73,3 @@ Pour que le plugin fonctionne, organisez vos projets comme suit :
    - **Bouton "Tout ajouter"** : Permet de charger toutes les couches d'un sous-menu d'un coup.
    - **Info-bulles** : Affiche les métadonnées au survol des items.
    - **Masquer la configuration** : Utile pour un déploiement en entreprise, via le fichier INI de QGIS : en ajoutant une variable `menu_from_project/is_setup_visible` à `false` dans le fichier INI de QGIS.
-
