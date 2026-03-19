@@ -10,6 +10,11 @@ Unreleased
 
 -->
 
+## 2.4.3 - 2026-03-19
+
+* cache disabled by default by @xcaeag in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/218
+* sorted layers in browser
+
 ## 2.4.2 - 2026-03-02
 
 * fix(ui): restore window's icon and title by @Guts in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/182
