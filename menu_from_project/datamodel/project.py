@@ -6,7 +6,7 @@ from typing import Optional
 class ProjectCacheConfig:
     """Project cache configuration"""
 
-    enable: bool = True
+    enable: bool = False
     refresh_days_period: Optional[int] = None
     cache_validation_uri: str = ""
 
