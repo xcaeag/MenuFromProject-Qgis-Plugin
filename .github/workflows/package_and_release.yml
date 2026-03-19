@@ -63,7 +63,7 @@ jobs:
     needs:
       - translation
 
-    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    if: ${{ !startsWith(github.ref, 'refs/tags/') }}
 
     steps:
       - name: Checkout
