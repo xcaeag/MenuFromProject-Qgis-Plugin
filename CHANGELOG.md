@@ -9,6 +9,9 @@ Unreleased
 ## X.y.z - YYYY-DD-mm
 
 -->
+## 2.4.4 - 2026-04-17
+
+* fix corruption of the “helpSearchPath” variable fix #217 by @xcaeag in https://github.com/aeag/MenuFromProject-Qgis-Plugin/pull/219
 
 ## 2.4.3 - 2026-03-19
 
