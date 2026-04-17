@@ -23,4 +23,4 @@ supportsQt6=True
 
 # versioning
 changelog=
-version=2.4.4-DEV
+version=2.4.5-DEV
